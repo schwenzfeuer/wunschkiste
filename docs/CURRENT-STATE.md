@@ -4,7 +4,7 @@
 
 ## Status
 
-**Phase:** MVP Backend & Frontend komplett, bereit für Testing
+**Phase:** MVP funktional komplett. Backend + Frontend + Design stehen. Bereit für Feinschliff & Deployment.
 
 ## Was existiert
 
@@ -17,16 +17,16 @@
 - [x] Security & Legal (`SECURITY.md`)
 - [x] ADRs dokumentiert (`DECISIONS.md`)
 - [x] Git Repo auf GitHub (`schwenzfeuer/wunschkiste`)
-- [x] **Projekt-Setup abgeschlossen:**
-  - Next.js 16.x mit App Router
-  - Volta Version Pinning (Node 22.x, pnpm 10.x)
-  - Tailwind CSS 4.x + shadcn/ui mit Custom Theme (Koralle, Mint, Cremeweiß)
-  - Anlass-Themes (birthday, christmas, wedding, baby)
-  - Drizzle ORM + PostgreSQL Schema (users, wishlists, products, reservations)
-  - better-auth Integration (Google, Facebook, Email vorbereitet)
-  - next-intl für i18n (de/en)
-  - Basis-Ordnerstruktur nach CODE-STANDARDS.md
-- [ ] Feature-Implementierung
+- [x] Projekt-Setup (Next.js 16, Tailwind 4, shadcn/ui, Drizzle, better-auth, next-intl)
+- [x] **PostgreSQL** via Docker auf Port 5433, Schema gepusht
+- [x] **Auth** (Email/Password funktioniert, Google/Facebook Code vorbereitet)
+- [x] **Wishlists API** (CRUD: erstellen, lesen, bearbeiten, löschen)
+- [x] **Products API** (CRUD mit Affiliate-Link-Integration)
+- [x] **URL-Scraper** (Cheerio: OpenGraph + JSON-LD + Meta-Tags Fallback)
+- [x] **Share API** (öffentliche Wunschlisten mit Reservierungen)
+- [x] **Frontend-Seiten**: Login, Register, Dashboard, Wishlist-Editor, Share-View
+- [x] **Design**: Catchy Landing Page mit Hero, Gradient, Occasion-Badges, Feature-Cards
+- [x] **Themes**: Birthday, Christmas, Wedding, Baby via CSS-Variablen (`data-theme`)
 
 ## Tech-Stack (installiert)
 
@@ -37,6 +37,7 @@
 - Drizzle ORM 0.45.1 + postgres.js
 - better-auth 1.4.18
 - next-intl 4.8.2
+- Cheerio 1.2.0, nanoid 5.1.6, zod 4.3.6
 - Lucide Icons
 
 ## Projektstruktur
@@ -46,15 +47,15 @@ src/
 ├── app/
 │   ├── [locale]/
 │   │   ├── layout.tsx
-│   │   ├── page.tsx                   # Landing Page
+│   │   ├── page.tsx                   # Landing Page (Hero + Features + CTA)
 │   │   ├── (auth)/
 │   │   │   ├── login/page.tsx
 │   │   │   └── register/page.tsx
-│   │   ├── dashboard/page.tsx
+│   │   ├── dashboard/page.tsx         # Wishlist-Übersicht
 │   │   ├── wishlist/
-│   │   │   ├── new/page.tsx
-│   │   │   └── [id]/page.tsx
-│   │   └── share/[token]/page.tsx
+│   │   │   ├── new/page.tsx           # Erstellen mit Theme-Picker
+│   │   │   └── [id]/page.tsx          # Editor mit Scraper-Dialog
+│   │   └── share/[token]/page.tsx     # Öffentliche Ansicht mit Reservierung
 │   └── api/
 │       ├── auth/[...all]/             # better-auth Handler
 │       ├── wishlists/                 # Wishlists CRUD
@@ -65,10 +66,10 @@ src/
 ├── components/
 │   └── ui/                            # shadcn Components
 ├── lib/
-│   ├── auth/                          # better-auth Config
+│   ├── auth/                          # better-auth Config (UUID-Mode)
 │   ├── db/                            # Drizzle Schema & Connection
-│   ├── affiliate/                     # Affiliate-Link Logik
-│   └── scraper/                       # URL-Scraping mit Cheerio
+│   ├── affiliate/                     # Amazon Tag Integration
+│   └── scraper/                       # Cheerio + OpenGraph + JSON-LD
 ├── i18n/                              # next-intl Config
 └── middleware.ts                      # Locale Routing
 messages/
@@ -78,16 +79,10 @@ messages/
 
 ## Nächste Schritte
 
-1. ~~**PostgreSQL aufsetzen** (lokal oder Docker)~~ ✅ Docker auf Port 5433
-2. ~~**Migrations ausführen** (`pnpm db:push`)~~ ✅
-3. ~~**Auth-Flow testen** (Email/Password)~~ ✅ Funktioniert
-4. ~~**Wunschlisten-CRUD implementieren**~~ ✅ API fertig
-5. ~~**Produkt-Scraping implementieren** (Cheerio + OpenGraph)~~ ✅
-6. ~~**Affiliate-Links** (Amazon Tag)~~ ✅ Integriert
-7. ~~**Share & Reservierung API**~~ ✅
-8. ~~**Frontend-Komponenten implementieren**~~ ✅
-9. ~~**UI-Seiten bauen**~~ ✅ Login, Register, Dashboard, Wishlist, Share
-10. **Testing & Feinschliff** ← Aktuell
+1. **Impressum & Datenschutz** Seiten erstellen
+2. **Google OAuth** Credentials einrichten (Cloud Console)
+3. **E2E Testing** - User-Flow testen
+4. **Deployment** vorbereiten (Hetzner/Dokploy)
 
 ## Lokale Entwicklung
 
@@ -112,3 +107,21 @@ docker run -d --name wunschkiste-postgres \
 - [ ] Google OAuth Credentials
 - [ ] Facebook App Credentials
 - [x] PostgreSQL für lokale Entwicklung
+
+## Letzte Sessions
+
+### 05.02.2026 - MVP Implementation
+- PostgreSQL via Docker aufgesetzt (Port 5433 wegen Konflikt)
+- DB-Schema gepusht, Auth-Bug gefixt (UUID + password-Feld in accounts)
+- Komplettes Backend: Wishlists, Products, Scraper, Share, Reservations API
+- Komplettes Frontend: Login, Register, Dashboard, Wishlist-Editor, Share-View
+- Design verbessert: Catchy Landing Page, visuelle Theme-Picker, echte CSS-Themes
+
+## Notizen für nächste Session
+
+- `drizzle-kit push` braucht explizite `DATABASE_URL` env var (wird nicht aus .env.local gelesen)
+- better-auth braucht `advanced.database.generateId: "uuid"` wenn Schema UUID-Spalten hat
+- better-auth `accounts`-Tabelle braucht `password`-Feld für Email/Password Auth
+- Port 5432 war schon belegt → Docker auf 5433
+- Amazon blockiert Scraper für Preis/Bild, aber Titel geht. Otto funktioniert komplett.
+- `<img>` Warnings im Lint sind OK - externe Shop-Bilder können nicht über `next/image` laufen

@@ -198,8 +198,65 @@ export const auth = betterAuth({
 })
 ```
 
+### Wichtige Pitfalls (erfahren am 05.02.2026)
+
+**UUID-Kompatibilität:**
+better-auth generiert standardmäßig kurze String-IDs (kein UUID). Wenn das Drizzle-Schema `uuid()` Spalten nutzt, MUSS `advanced.database.generateId: "uuid"` gesetzt werden:
+```typescript
+export const auth = betterAuth({
+  // ...
+  advanced: {
+    database: {
+      generateId: "uuid",
+    },
+  },
+});
+```
+
+**Password-Feld:**
+Für Email/Password Auth braucht die `accounts`-Tabelle ein `password: text("password")` Feld. Ohne dieses Feld schlägt die Registrierung fehl mit "The field password does not exist in the account Drizzle schema".
+
+**Session abrufen in API Routes:**
+```typescript
+const session = await auth.api.getSession({
+  headers: request.headers,
+});
+```
+
 ### Nächste Schritte
 
 - [ ] Google Cloud Project erstellen
 - [ ] Facebook App erstellen
 - [ ] OAuth Credentials generieren
+
+---
+
+## Drizzle ORM Pitfalls
+
+**Recherche-Datum:** 05.02.2026
+
+### drizzle-kit push & ENV
+
+`drizzle-kit push` liest NICHT automatisch `.env.local`. Die `DATABASE_URL` muss explizit übergeben werden:
+```bash
+DATABASE_URL="postgres://..." pnpm db:push
+```
+
+---
+
+## Scraper-Erfahrungen
+
+**Recherche-Datum:** 05.02.2026
+
+### Shop-Kompatibilität
+
+| Shop | Titel | Bild | Preis | Methode |
+|------|-------|------|-------|---------|
+| Amazon | ✅ | ❌ | ❌ | OG-Tags (blockiert Scraper für Details) |
+| Otto | ✅ | ✅ | ✅ | OG-Tags + JSON-LD |
+
+### Tipps
+- User-Agent Header setzen (sonst 403)
+- `Accept-Language: de-DE` für deutsche Preise
+- JSON-LD ist oft zuverlässiger als OG-Tags für Preise
+- Fallback-Kette: OG → JSON-LD → Meta-Tags → manuell
