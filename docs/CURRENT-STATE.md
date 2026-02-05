@@ -4,7 +4,7 @@
 
 ## Status
 
-**Phase:** MVP funktional komplett. Backend + Frontend + Design stehen. Bereit für Feinschliff & Deployment.
+**Phase:** MVP komplett. Deployment-ready. Bereit für Hetzner/Dokploy Setup.
 
 ## Was existiert
 
@@ -27,6 +27,8 @@
 - [x] **Frontend-Seiten**: Login, Register, Dashboard, Wishlist-Editor, Share-View
 - [x] **Design**: Catchy Landing Page mit Hero, Gradient, Occasion-Badges, Feature-Cards
 - [x] **Themes**: Birthday, Christmas, Wedding, Baby via CSS-Variablen (`data-theme`)
+- [x] **Legal Pages**: Impressum & Datenschutz (mit TODO-Platzhaltern für persönliche Daten)
+- [x] **Deployment**: Dockerfile (multi-stage, standalone), docker-compose, Drizzle Migrations, Health Check
 
 ## Tech-Stack (installiert)
 
@@ -79,10 +81,12 @@ messages/
 
 ## Nächste Schritte
 
-1. **Impressum & Datenschutz** Seiten erstellen
-2. **Google OAuth** Credentials einrichten (Cloud Console)
-3. **E2E Testing** - User-Flow testen
-4. **Deployment** vorbereiten (Hetzner/Dokploy)
+1. ~~**Impressum & Datenschutz** Seiten erstellen~~ ✅
+2. ~~**Deployment vorbereiten**~~ ✅
+3. **Persönliche Daten eintragen** in messages/de.json und messages/en.json (TODO-Platzhalter ersetzen)
+4. **Google OAuth** Credentials einrichten (Cloud Console)
+5. **E2E Testing** - User-Flow testen
+6. **Dokploy einrichten** - App auf Hetzner deployen
 
 ## Lokale Entwicklung
 
@@ -109,6 +113,15 @@ docker run -d --name wunschkiste-postgres \
 - [x] PostgreSQL für lokale Entwicklung
 
 ## Letzte Sessions
+
+### 05.02.2026 - Legal Pages & Deployment
+- Impressum & Datenschutz Seiten erstellt (DE + EN, i18n-fähig)
+- DSGVO-konforme Datenschutzerklärung (Cookies, Account, Wunschlisten, Scraping, Affiliate, Hosting, Rechte)
+- Dockerfile (multi-stage, standalone output, 251MB Image)
+- docker-compose.production.yml (App + PostgreSQL)
+- Drizzle Migrations generiert + migrate.mjs Script
+- Health Check Endpoint (/api/health)
+- start.sh: Migrationen vor App-Start
 
 ### 05.02.2026 - MVP Implementation
 - PostgreSQL via Docker aufgesetzt (Port 5433 wegen Konflikt)

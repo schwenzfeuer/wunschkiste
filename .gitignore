@@ -35,9 +35,6 @@ yarn-error.log*
 .env.local
 .env.production
 
-# drizzle
-/drizzle
-
 # vercel
 .vercel
 
