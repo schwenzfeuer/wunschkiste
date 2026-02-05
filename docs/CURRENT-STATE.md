@@ -4,7 +4,7 @@
 
 ## Status
 
-**Phase:** Grundstruktur steht, bereit für Feature-Implementierung
+**Phase:** MVP Backend & Frontend komplett, bereit für Testing
 
 ## Was existiert
 
@@ -44,20 +44,33 @@
 ```
 src/
 ├── app/
-│   ├── [locale]/          # i18n Routes
+│   ├── [locale]/
 │   │   ├── layout.tsx
-│   │   └── page.tsx       # Landing Page
+│   │   ├── page.tsx                   # Landing Page
+│   │   ├── (auth)/
+│   │   │   ├── login/page.tsx
+│   │   │   └── register/page.tsx
+│   │   ├── dashboard/page.tsx
+│   │   ├── wishlist/
+│   │   │   ├── new/page.tsx
+│   │   │   └── [id]/page.tsx
+│   │   └── share/[token]/page.tsx
 │   └── api/
-│       └── auth/[...all]/ # better-auth Handler
+│       ├── auth/[...all]/             # better-auth Handler
+│       ├── wishlists/                 # Wishlists CRUD
+│       │   └── [id]/products/         # Products CRUD
+│       ├── share/[token]/             # Public share API
+│       │   └── reserve/               # Reservations
+│       └── scrape/                    # URL Scraping
 ├── components/
-│   └── ui/                # shadcn Components (button, card, input)
+│   └── ui/                            # shadcn Components
 ├── lib/
-│   ├── auth/              # better-auth Config
-│   ├── db/                # Drizzle Schema & Connection
-│   ├── affiliate/         # Affiliate-Link Logik (Stub)
-│   └── scraper/           # URL-Scraping Logik (Stub)
-├── i18n/                  # next-intl Config
-└── middleware.ts          # Locale Routing
+│   ├── auth/                          # better-auth Config
+│   ├── db/                            # Drizzle Schema & Connection
+│   ├── affiliate/                     # Affiliate-Link Logik
+│   └── scraper/                       # URL-Scraping mit Cheerio
+├── i18n/                              # next-intl Config
+└── middleware.ts                      # Locale Routing
 messages/
 ├── de.json
 └── en.json
@@ -65,12 +78,31 @@ messages/
 
 ## Nächste Schritte
 
-1. **PostgreSQL aufsetzen** (lokal oder Docker)
-2. **Migrations ausführen** (`pnpm db:push`)
-3. **Auth-Flow testen** (Email/Password)
-4. **Wunschlisten-CRUD implementieren**
-5. **Produkt-Scraping implementieren** (Cheerio + OpenGraph)
-6. **Affiliate-Links** (Amazon Tag)
+1. ~~**PostgreSQL aufsetzen** (lokal oder Docker)~~ ✅ Docker auf Port 5433
+2. ~~**Migrations ausführen** (`pnpm db:push`)~~ ✅
+3. ~~**Auth-Flow testen** (Email/Password)~~ ✅ Funktioniert
+4. ~~**Wunschlisten-CRUD implementieren**~~ ✅ API fertig
+5. ~~**Produkt-Scraping implementieren** (Cheerio + OpenGraph)~~ ✅
+6. ~~**Affiliate-Links** (Amazon Tag)~~ ✅ Integriert
+7. ~~**Share & Reservierung API**~~ ✅
+8. ~~**Frontend-Komponenten implementieren**~~ ✅
+9. ~~**UI-Seiten bauen**~~ ✅ Login, Register, Dashboard, Wishlist, Share
+10. **Testing & Feinschliff** ← Aktuell
+
+## Lokale Entwicklung
+
+PostgreSQL läuft via Docker:
+```bash
+# Container starten (falls nicht läuft)
+docker start wunschkiste-postgres
+
+# Oder neu erstellen
+docker run -d --name wunschkiste-postgres \
+  -e POSTGRES_USER=wunschkiste \
+  -e POSTGRES_PASSWORD=wunschkiste \
+  -e POSTGRES_DB=wunschkiste \
+  -p 5433:5432 postgres:16-alpine
+```
 
 ## Offene Punkte
 
@@ -79,4 +111,4 @@ messages/
 - [ ] AWIN Publisher Account beantragen
 - [ ] Google OAuth Credentials
 - [ ] Facebook App Credentials
-- [ ] PostgreSQL für lokale Entwicklung
+- [x] PostgreSQL für lokale Entwicklung

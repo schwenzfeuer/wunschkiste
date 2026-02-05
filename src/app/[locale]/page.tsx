@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { Button } from "@/components/ui/button";
@@ -28,16 +29,20 @@ function HomeContent() {
             Erstelle und teile Wunschlisten mit deinen Liebsten
           </p>
           <div className="mt-8 flex gap-4">
-            <Button size="lg" className="rounded-full px-8">
-              {t("wishlist.create")}
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="rounded-full border-2 px-8"
-            >
-              {t("auth.login")}
-            </Button>
+            <Link href="/register">
+              <Button size="lg" className="rounded-full px-8">
+                {t("wishlist.create")}
+              </Button>
+            </Link>
+            <Link href="/login">
+              <Button
+                variant="outline"
+                size="lg"
+                className="rounded-full border-2 px-8"
+              >
+                {t("auth.login")}
+              </Button>
+            </Link>
           </div>
         </div>
 
