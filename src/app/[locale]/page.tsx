@@ -84,12 +84,12 @@ function HomeContent() {
         <footer className="mt-16 border-t pt-8 text-center text-sm text-muted-foreground">
           <p>{t("footer.affiliateDisclosure")}</p>
           <div className="mt-4 flex justify-center gap-4">
-            <a href="/impressum" className="hover:underline">
+            <Link href="/impressum" className="hover:underline">
               {t("footer.imprint")}
-            </a>
-            <a href="/datenschutz" className="hover:underline">
+            </Link>
+            <Link href="/datenschutz" className="hover:underline">
               {t("footer.privacy")}
-            </a>
+            </Link>
           </div>
         </footer>
       </div>

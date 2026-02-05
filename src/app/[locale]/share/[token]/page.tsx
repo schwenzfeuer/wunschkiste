@@ -8,7 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Gift, ExternalLink, Check, ShoppingBag } from "lucide-react";
+import { Gift, Check, ShoppingBag } from "lucide-react";
+import Link from "next/link";
 
 interface Product {
   id: string;
@@ -272,9 +273,9 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
           </p>
           <p className="mt-2">
             Erstellt mit{" "}
-            <a href="/" className="text-primary hover:underline">
+            <Link href="/" className="text-primary hover:underline">
               Wunschkiste
-            </a>
+            </Link>
           </p>
         </footer>
       </div>
