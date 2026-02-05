@@ -4,36 +4,49 @@
 
 ## Status
 
-**Phase:** Projekt initialisiert, Tech-Stack gelockt
+**Phase:** Planung abgeschlossen, bereit für Development
 
 ## Was existiert
 
 - [x] Brainstorming abgeschlossen (`PROJECT.md`)
-- [x] Tech-Stack definiert und gelockt (`TECH-STACK.md`)
+- [x] Tech-Stack gelockt (`TECH-STACK.md`)
 - [x] API-Recherche durchgeführt (`LEARNINGS.md`)
-- [x] Architektur dokumentiert (`ARCHITECTURE.md`)
-- [x] Code Standards definiert (`CODE-STANDARDS.md`)
-- [x] Security Konzept (`SECURITY.md`)
+- [x] Architektur & Datenmodell (`ARCHITECTURE.md`)
+- [x] Design System mit Anlass-Themes (`DESIGN.md`)
+- [x] Code Standards (`CODE-STANDARDS.md`)
+- [x] Security & Legal (`SECURITY.md`)
+- [x] ADRs dokumentiert (`DECISIONS.md`)
+- [x] Git Repo auf GitHub (`schwenzfeuer/wunschkiste`)
 - [ ] Projekt-Setup (Next.js, Drizzle, etc.)
-- [ ] Basis-Implementierung
+- [ ] Implementierung
 
-## Offene Risiken
+## Tech-Stack (gelockt)
 
-1. **Amazon Creators API** - Neue Credentials nötig, 10 Sales für API-Zugang
-2. **AWIN Publisher Account** - Muss beantragt werden
-3. **Projektname** - "Wunschkiste" ist vergeben, Arbeitstitel
+- Node.js 22.x / pnpm 10.x (via Volta)
+- Next.js 16.x (App Router)
+- Tailwind CSS 4.x + shadcn/ui (Custom Theme)
+- PostgreSQL + Drizzle ORM
+- better-auth (Google, Facebook, Email)
+- Hetzner + Dokploy
 
 ## Nächster Schritt
 
-`/project-start` ausführen um mit der Entwicklung zu beginnen:
-1. Next.js Projekt erstellen
-2. Volta für Node/pnpm Version Pinning
-3. Drizzle + PostgreSQL Setup
-4. better-auth Integration
-5. Basis-Routing
+```
+/project-start
+```
 
-## Prioritäten
+Das wird:
+1. Next.js Projekt initialisieren
+2. Volta für Version Pinning
+3. Tailwind + shadcn/ui Setup
+4. Drizzle + PostgreSQL Schema
+5. better-auth Integration
+6. Basis-Routing anlegen
 
-1. **Schnell launchen** - PA-API Zugang sichern (10 Sales vor April 2026)
-2. **MVP zuerst** - Keine Nice-to-haves im ersten Release
-3. **Kostenlos bleiben** - Keine bezahlten Services außer Hosting
+## Offene Punkte
+
+- [ ] Finaler Projektname (Arbeitstitel: Wunschkiste)
+- [ ] Amazon Associates Account erstellen
+- [ ] AWIN Publisher Account beantragen
+- [ ] Google OAuth Credentials
+- [ ] Facebook App Credentials
