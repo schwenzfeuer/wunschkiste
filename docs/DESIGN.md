@@ -159,6 +159,71 @@ Großzügige Abstände für luftiges Design:
 - Button: rounded-full, Koralle
 ```
 
+## Anlass-Themes
+
+Jede Wunschliste kann ein eigenes Theme haben - passend zum Anlass.
+
+### Standard (Default)
+Warmes Koralle - für den Alltag
+```css
+--primary: 15 90% 60%;
+--secondary: 160 40% 90%;
+--background: 30 20% 98%;
+```
+
+### Geburtstag
+Verspielt, bunt, Konfetti-Vibes
+```css
+--primary: 280 80% 60%;       /* Lila */
+--secondary: 330 80% 70%;     /* Pink */
+--background: 280 30% 98%;    /* Leicht lila-getönt */
+--accent: 45 95% 60%;         /* Gold/Gelb für Konfetti */
+```
+
+### Weihnachten
+Klassisch festlich
+```css
+--primary: 150 60% 35%;       /* Tannengrün */
+--secondary: 0 70% 50%;       /* Weihnachtsrot */
+--background: 40 30% 97%;     /* Warmes Creme */
+--accent: 45 90% 55%;         /* Gold */
+```
+
+### Hochzeit
+Elegant, dezent, romantisch
+```css
+--primary: 350 30% 65%;       /* Rosé */
+--secondary: 40 40% 90%;      /* Champagner */
+--background: 30 20% 99%;     /* Fast Weiß */
+--accent: 45 70% 70%;         /* Soft Gold */
+```
+
+### Baby
+Sanft, pastellig
+```css
+--primary: 200 60% 70%;       /* Babyblau */
+--secondary: 340 50% 80%;     /* Zartrosa */
+--background: 200 30% 98%;
+```
+
+### Theme-Auswahl UI
+
+Beim Erstellen einer Wunschliste:
+```
+┌─────────────────────────────────────────┐
+│  Wähle ein Theme für deine Liste:       │
+│                                         │
+│  ○ 🎨 Standard                          │
+│  ○ 🎂 Geburtstag                        │
+│  ○ 🎄 Weihnachten                       │
+│  ○ 💒 Hochzeit                          │
+│  ○ 👶 Baby                              │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+Das Theme wird in der Datenbank pro Wunschliste gespeichert und beim Anzeigen angewendet.
+
 ## Dark Mode
 
 Vorerst kein Dark Mode im MVP. Kann später hinzugefügt werden.

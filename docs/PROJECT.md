@@ -15,7 +15,7 @@ Eine Wunschzettel-App bei der Nutzer kostenlos Wunschlisten erstellen und teilen
 ## Kern-Features (MVP)
 
 - [ ] Account erstellen (Google, Facebook, Email)
-- [ ] Wunschzettel anlegen
+- [ ] Wunschzettel anlegen (mit Anlass-Theme: Standard, Geburtstag, Weihnachten, Hochzeit, Baby)
 - [ ] Produkte per Link hinzufügen
 - [ ] Automatische Extraktion von Bild, Titel, Preis (via Meta-Tags/OpenGraph)
 - [ ] Affiliate-Links generieren wo möglich (Amazon: `?tag=xxx`)

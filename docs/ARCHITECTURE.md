@@ -83,6 +83,7 @@ wishlists
 ├── user_id (FK)
 ├── title
 ├── description
+├── theme (enum: 'standard' | 'birthday' | 'christmas' | 'wedding' | 'baby')
 ├── share_token (unique, für öffentliche URLs)
 ├── is_public
 ├── created_at
