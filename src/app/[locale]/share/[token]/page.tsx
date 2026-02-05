@@ -40,12 +40,12 @@ const themeLabels: Record<string, string> = {
   baby: "Baby",
 };
 
-const themeColors: Record<string, string> = {
-  standard: "bg-background",
-  birthday: "bg-pink-50",
-  christmas: "bg-red-50",
-  wedding: "bg-purple-50",
-  baby: "bg-blue-50",
+const themeEmojis: Record<string, string> = {
+  standard: "🎁",
+  birthday: "🎂",
+  christmas: "🎄",
+  wedding: "💒",
+  baby: "👶",
 };
 
 export default function SharePage({ params }: { params: Promise<{ token: string }> }) {
@@ -127,13 +127,17 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
   }
 
   return (
-    <main className={`min-h-screen ${themeColors[wishlist.theme] || "bg-background"}`}>
+    <main
+      className="min-h-screen bg-background transition-colors"
+      data-theme={wishlist.theme !== "standard" ? wishlist.theme : undefined}
+    >
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 text-center">
+          <div className="mb-4 text-5xl">{themeEmojis[wishlist.theme]}</div>
           <Badge variant="secondary" className="mb-4">
             {themeLabels[wishlist.theme]}
           </Badge>
-          <h1 className="text-3xl font-bold">{wishlist.title}</h1>
+          <h1 className="text-4xl font-bold tracking-tight">{wishlist.title}</h1>
           {wishlist.ownerName && (
             <p className="mt-2 text-muted-foreground">
               von {wishlist.ownerName}

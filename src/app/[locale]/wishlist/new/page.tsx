@@ -8,16 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 
 const themes = [
-  { value: "standard", label: "Standard" },
-  { value: "birthday", label: "Geburtstag" },
-  { value: "christmas", label: "Weihnachten" },
-  { value: "wedding", label: "Hochzeit" },
-  { value: "baby", label: "Baby" },
+  { value: "standard", label: "Standard", emoji: "🎁", description: "Für jeden Anlass" },
+  { value: "birthday", label: "Geburtstag", emoji: "🎂", description: "Party-Vibes!" },
+  { value: "christmas", label: "Weihnachten", emoji: "🎄", description: "Festlich & gemütlich" },
+  { value: "wedding", label: "Hochzeit", emoji: "💒", description: "Elegant & romantisch" },
+  { value: "baby", label: "Baby", emoji: "👶", description: "Sanft & süß" },
 ];
 
 export default function NewWishlistPage() {
@@ -79,20 +78,47 @@ export default function NewWishlistPage() {
           Zurück zum Dashboard
         </Link>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Neue Wunschliste</CardTitle>
+        <Card className="overflow-hidden rounded-3xl">
+          <CardHeader className="bg-gradient-to-br from-primary/5 to-secondary/10 pb-8">
+            <div className="mb-2 text-4xl">✨</div>
+            <CardTitle className="text-2xl">Neue Wunschliste</CardTitle>
             <CardDescription>
-              Erstelle eine neue Wunschliste für einen besonderen Anlass
+              Erstelle eine Wunschliste für deinen besonderen Anlass
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6 pt-6">
               {error && (
-                <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                <div className="rounded-xl bg-destructive/10 p-4 text-sm text-destructive">
                   {error}
                 </div>
               )}
+
+              {/* Theme Selection */}
+              <div className="space-y-3">
+                <Label>Wähle ein Theme</Label>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+                  {themes.map((t) => (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => setTheme(t.value)}
+                      className={`flex flex-col items-center rounded-2xl border-2 p-4 transition-all hover:scale-105 ${
+                        theme === t.value
+                          ? "border-primary bg-primary/5 shadow-md"
+                          : "border-transparent bg-muted/50 hover:border-muted-foreground/20"
+                      }`}
+                    >
+                      <span className="mb-1 text-3xl">{t.emoji}</span>
+                      <span className="text-xs font-medium">{t.label}</span>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-center text-sm text-muted-foreground">
+                  {themes.find((t) => t.value === theme)?.description}
+                </p>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="title">Titel *</Label>
                 <Input
@@ -102,42 +128,34 @@ export default function NewWishlistPage() {
                   onChange={(e) => setTitle(e.target.value)}
                   required
                   maxLength={100}
+                  className="rounded-xl"
                 />
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="description">Beschreibung</Label>
+                <Label htmlFor="description">Beschreibung (optional)</Label>
                 <Textarea
                   id="description"
-                  placeholder="Eine kurze Beschreibung für deine Gäste..."
+                  placeholder="Eine kurze Nachricht für deine Gäste..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   maxLength={500}
                   rows={3}
+                  className="rounded-xl"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="theme">Anlass</Label>
-                <Select value={theme} onValueChange={setTheme}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {themes.map((t) => (
-                      <SelectItem key={t.value} value={t.value}>
-                        {t.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
             </CardContent>
-            <CardFooter className="flex justify-end gap-2">
+            <CardFooter className="flex justify-end gap-3 border-t bg-muted/30 px-6 py-4">
               <Link href="/dashboard">
-                <Button type="button" variant="outline">
+                <Button type="button" variant="ghost">
                   Abbrechen
                 </Button>
               </Link>
-              <Button type="submit" disabled={loading || !title}>
+              <Button
+                type="submit"
+                disabled={loading || !title}
+                className="rounded-full px-6"
+              >
                 {loading ? "Erstellen..." : "Wunschliste erstellen"}
               </Button>
             </CardFooter>
