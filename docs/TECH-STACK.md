@@ -18,6 +18,9 @@
 | Next.js | 16.x | Framework (App Router) |
 | React | 19.x | UI Library |
 | Tailwind CSS | 4.x | Styling |
+| shadcn/ui | - | UI Komponenten (Custom Theme) |
+| Radix UI | - | Headless Primitives (via shadcn) |
+| Lucide Icons | - | Iconographie |
 | TanStack Query | 5.x | Data Fetching & Caching |
 | React Hook Form | 7.x | Formulare |
 | Zod | 3.x | Validierung |
