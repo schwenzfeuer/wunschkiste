@@ -1,0 +1,48 @@
+{
+  "common": {
+    "loading": "Laden...",
+    "error": "Ein Fehler ist aufgetreten",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "back": "Zurück"
+  },
+  "auth": {
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "register": "Registrieren",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "forgotPassword": "Passwort vergessen?",
+    "continueWithGoogle": "Mit Google fortfahren",
+    "continueWithFacebook": "Mit Facebook fortfahren",
+    "or": "oder"
+  },
+  "wishlist": {
+    "title": "Wunschliste",
+    "create": "Wunschliste erstellen",
+    "myLists": "Meine Wunschlisten",
+    "share": "Teilen",
+    "addProduct": "Wunsch hinzufügen",
+    "emptyList": "Diese Wunschliste ist noch leer",
+    "themes": {
+      "standard": "Standard",
+      "birthday": "Geburtstag",
+      "christmas": "Weihnachten",
+      "wedding": "Hochzeit",
+      "baby": "Baby"
+    }
+  },
+  "product": {
+    "reserve": "Reservieren",
+    "reserved": "Reserviert",
+    "price": "Preis",
+    "shop": "Shop"
+  },
+  "footer": {
+    "imprint": "Impressum",
+    "privacy": "Datenschutz",
+    "affiliateDisclosure": "Diese Seite enthält Affiliate-Links. Bei einem Kauf über diese Links erhalten wir eine Provision."
+  }
+}
