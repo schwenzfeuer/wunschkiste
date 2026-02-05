@@ -15,20 +15,24 @@ Eine Wunschzettel-App bei der Nutzer kostenlos Wunschlisten erstellen und teilen
 ## Kern-Features (MVP)
 
 - [ ] Account erstellen (Google, Facebook, Email)
+- [ ] Mehrere Wunschzettel pro User
 - [ ] Wunschzettel anlegen (mit Anlass-Theme: Standard, Geburtstag, Weihnachten, Hochzeit, Baby)
 - [ ] Produkte per Link hinzufügen
 - [ ] Automatische Extraktion von Bild, Titel, Preis (via Meta-Tags/OpenGraph)
 - [ ] Affiliate-Links generieren wo möglich (Amazon: `?tag=xxx`)
 - [ ] Wunschzettel per Link teilen
+- [ ] Social Sharing Preview (OG-Tags pro Wunschliste)
 - [ ] Reservierungsfunktion ("Ich kauf das")
-- [ ] Evtl. Kommentarfunktion
+- [ ] Affiliate-Disclosure (rechtlich erforderlich)
+- [ ] Impressum & Datenschutzerklärung (DSGVO)
 
 ## Später / Nice-to-have
 
 - [ ] Browser-Plugin (Chrome, Firefox) - direkt von Produktseite hinzufügen
 - [ ] Freundes-/Familien-Netzwerk ("Sehen wer welche Wunschliste hat")
-- [ ] Benachrichtigungen ("Jemand hat reserviert")
-- [ ] Mehrere Wunschzettel pro Person
+- [ ] Email-Benachrichtigungen ("Jemand hat reserviert")
+- [ ] Bilder-Caching (eigenes Hosting statt externe URLs)
+- [ ] Kommentarfunktion
 
 ## Explizit NICHT im MVP
 

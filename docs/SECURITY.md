@@ -119,6 +119,49 @@ function isAllowedUrl(url: string): boolean {
 *.key
 ```
 
+## Rechtliche Anforderungen (DSGVO & Affiliate)
+
+### Impressum (Pflicht in DE)
+
+Statische Seite `/impressum` mit:
+- Name und Anschrift
+- Kontakt (Email)
+- Verantwortlicher
+
+### Datenschutzerklärung (Pflicht)
+
+Statische Seite `/datenschutz` mit:
+- Welche Daten werden erhoben
+- OAuth-Daten (Google, Facebook)
+- Cookies
+- Hosting-Anbieter (Hetzner)
+- Rechte der Nutzer
+
+### Affiliate-Disclosure (Pflicht!)
+
+**Muss sichtbar sein** - z.B. im Footer oder auf jeder Wunschliste:
+
+```
+Diese Seite enthält Affiliate-Links. Wenn du über diese Links
+einkaufst, erhalten wir eine kleine Provision – für dich entstehen
+keine zusätzlichen Kosten.
+```
+
+Alternativer kurzer Hinweis pro Produkt:
+```
+🔗 Affiliate-Link
+```
+
+### Cookie-Banner
+
+Nur nötig wenn:
+- Analytics (nicht im MVP)
+- Marketing-Cookies (haben wir nicht)
+
+OAuth-Cookies sind "technisch notwendig" → kein Banner nötig.
+
+**Trotzdem:** Cookie-Hinweis im Footer empfohlen.
+
 ## Security Checklist vor Launch
 
 - [ ] Alle Env Variables in Production gesetzt
@@ -127,3 +170,6 @@ function isAllowedUrl(url: string): boolean {
 - [ ] CSP Headers konfiguriert
 - [ ] Keine Secrets im Code
 - [ ] Dependencies auf Vulnerabilities geprüft (pnpm audit)
+- [ ] Impressum vorhanden
+- [ ] Datenschutzerklärung vorhanden
+- [ ] Affiliate-Disclosure sichtbar

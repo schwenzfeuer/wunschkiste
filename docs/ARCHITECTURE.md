@@ -148,6 +148,42 @@ function detectAffiliateNetwork(url: string): 'amazon' | 'awin' | null {
 }
 ```
 
+## Bilder-Strategie
+
+### MVP: Externe URLs
+
+Produktbilder werden direkt von der Quelle geladen (hotlinking):
+```typescript
+// Speichern der Original-URL
+image_url: "https://m.media-amazon.com/images/I/..."
+```
+
+**Vorteile:** Kein Storage-Kosten, einfach
+**Nachteile:** Bilder können verschwinden, langsamer, manche Shops blockieren
+
+### Später: Eigenes Caching
+
+Optional: Bilder beim Hinzufügen cachen:
+```typescript
+// Später erweitern
+image_url: "https://cdn.wunschkiste.de/products/abc123.jpg"
+image_url_original: "https://m.media-amazon.com/images/I/..."
+```
+
+Datenbank-Feld `image_url_original` ist bereits eingeplant für spätere Migration.
+
+## Social Sharing
+
+Jede Wunschliste braucht eigene OpenGraph-Tags:
+
+```html
+<meta property="og:title" content="Lenas Geburtstagswünsche" />
+<meta property="og:description" content="5 Wünsche auf der Liste" />
+<meta property="og:image" content="/api/og/wishlist/[id]" />
+```
+
+Dynamisches OG-Image generieren (z.B. mit `@vercel/og` oder `satori`).
+
 ## Security Considerations
 
 - Affiliate-Tags sind öffentlich (kein Secret)
