@@ -34,6 +34,10 @@
 - [x] **Themes**: Birthday, Christmas, Wedding, Baby (Hex-Farben, data-theme)
 - [x] **Legal Pages**: Impressum & Datenschutz (mit TODO-Platzhaltern für persönliche Daten)
 - [x] **Deployment**: Dockerfile (multi-stage, standalone), docker-compose, Drizzle Migrations, Health Check
+- [x] **Google Auth Button**: Login + Register Seiten mit Google OAuth Button
+- [x] **MainNav Komponente**: Auth-State-Aware Nav (Login/Register vs. Meine Wunschlisten/Logout)
+- [x] **HeroCta Komponente**: Dynamischer CTA basierend auf Auth-State
+- [x] **Playwright Tests**: 22 API-Tests + 13 E2E-Tests (Auth, Wishlists, Products, Share, Reservations, Landing, Wishlist-Flow)
 
 ## Tech-Stack (installiert)
 
@@ -89,10 +93,19 @@ messages/
 
 ## Nächste Schritte
 
+### Bug Fixes
+- [x] Themes wirken nicht – CSS-Variablen in Wishlist-Komponenten nutzen (data-theme auf Editor-Seite)
+- [x] Google Auth Button fehlt im Login/Register UI (Google-Button mit Divider hinzugefügt)
+- [x] Nav Auth-State – MainNav-Komponente mit dynamischem Auth-State + HeroCta-Komponente
+
+### Tests
+- [x] Playwright E2E Setup + User-Flow Tests (Register, Login, Wishlist CRUD, Share, Reservierung)
+- [x] API-Tests für alle Routes (Wishlists, Products, Scraper, Share, Auth)
+- 35 Tests gesamt: 22 API + 13 E2E, alle grün
+
 ### Sonstiges
 - [ ] Persönliche Daten eintragen in messages/*.json (TODO-Platzhalter ersetzen)
-- [ ] Google OAuth Credentials einrichten (Cloud Console)
-- [ ] E2E Testing - User-Flow testen
+- [x] Google OAuth Credentials einrichten (Cloud Console)
 - [ ] Dokploy einrichten - App auf Hetzner deployen
 
 ## Lokale Entwicklung
@@ -120,6 +133,15 @@ docker run -d --name wunschkiste-postgres \
 - [x] PostgreSQL für lokale Entwicklung
 
 ## Letzte Sessions
+
+### 06.02.2026 - Bug Fixes & Test Suite
+- 3 Bug Fixes: Theme im Editor (data-theme), Google Auth Button, Nav Auth-State
+- MainNav Komponente: Dynamische Nav mit Auth-State (Login/Register vs. Meine Wunschlisten/Logout)
+- HeroCta Komponente: CTA passt sich Auth-State an
+- Playwright installiert + konfiguriert
+- 22 API-Tests: Health, Auth (Register, Login, Fehler), Wishlists (CRUD, Auth-Guard, Cross-User), Products (CRUD), Share (Token, Reservierung, Doppel-Reservierung)
+- 13 E2E-Tests: Landing Page, Auth Flow (Register, Login, Google Button, Navigation), Wishlist Flow (Erstellen, Dashboard, Theme)
+- Turbopack Cache Bug: `.next` Verzeichnis löschen wenn SST-Dateien korrupt
 
 ### 06.02.2026 - Design Redesign (ADR-005)
 - Komplettes Redesign aller Frontend-Seiten nach ADR-005
@@ -160,3 +182,7 @@ docker run -d --name wunschkiste-postgres \
 - Port 5432 war schon belegt → Docker auf 5433
 - Amazon blockiert Scraper für Preis/Bild, aber Titel geht. Otto funktioniert komplett.
 - `<img>` Warnings im Lint sind OK - externe Shop-Bilder können nicht über `next/image` laufen
+- Turbopack Cache kann korrupt werden → `.next` löschen und neu starten
+- better-auth API braucht `origin` Header für CSRF-Schutz → in Playwright global setzen
+- Playwright: `locale: "de-DE"` in Config setzen damit next-intl die richtige Sprache erkennt
+- Playwright: Für Cross-User-Tests separate `request.newContext()` nutzen (Cookie-Jar ist shared)

@@ -192,3 +192,32 @@ Komplett-Redesign inspiriert von pomegranate.health: warm-minimalistisch, editor
 - Komplettes Redesign aller bestehenden Seiten nötig
 - Custom Button-Komponente statt Standard-shadcn
 - Anlass-Themes müssen auf neue Basis angepasst werden
+
+---
+
+## ADR-006: Kein Firecrawl – Cheerio-Scraper bleibt
+
+**Datum:** 06.02.2026
+**Status:** ✅ Accepted
+
+### Kontext
+
+Amazon blockiert Cheerio-Scraper für Bilder und Preise (Titel funktioniert). Firecrawl wurde als Alternative evaluiert.
+
+### Entscheidung
+
+Firecrawl verworfen. Cheerio-Scraper bleibt, manuelle Eingabe als Fallback.
+
+### Alternativen
+
+| Option | Vorteile | Nachteile |
+|--------|----------|-----------|
+| **Gewählt: Cheerio beibehalten** | Kostenlos, keine Dependency, funktioniert für meiste Shops | Amazon-Bilder/Preise fehlen |
+| Firecrawl | JS-Rendering, Proxy-Management | Wird selbst von Cloudflare geblockt, hilft nicht bei Amazon, $9+/Monat, neue Dependency |
+| ScrapFly / Bright Data | Echte Anti-Bot-Bypasses | Teuer, Over-Engineering fürs MVP |
+| Amazon Creators API | Offizielle Lösung | Braucht 10 Sales für Zugang |
+
+### Konsequenzen
+
+**Positiv:** Keine zusätzlichen Kosten, keine neue Dependency, einfache Architektur
+**Negativ:** Amazon-Produkte brauchen manuelle Bild/Preis-Eingabe (akzeptabel fürs MVP)
