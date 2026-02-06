@@ -292,3 +292,85 @@ Config: `~/.cloudflared/config.yml`
 - `Accept-Language: de-DE` für deutsche Preise
 - JSON-LD ist oft zuverlässiger als OG-Tags für Preise
 - Fallback-Kette: OG → JSON-LD → Meta-Tags → manuell
+
+---
+
+## Amazon Affiliate URLs
+
+**Recherche-Datum:** 06.02.2026
+
+### URL-Formate
+
+Amazon-URLs kommen in vielen Varianten:
+- Sauber: `amazon.de/dp/ASIN/`
+- Suche: `amazon.de/.../dp/ASIN/ref=sr_1_1?dib=...&keywords=...&qid=...`
+- Affiliate: `...?linkCode=ll2&tag=xxx-21&linkId=...&ref_=as_li_ss_tl`
+- Short: `amzn.to/3ZlUJXO`
+
+### ASIN-Extraktion
+
+ASIN ist ein 10-stelliger alphanumerischer Code, immer in `/dp/ASIN` oder `/gp/product/ASIN`.
+Regex: `/\/(?:dp|gp\/product|gp\/aw\/d)\/([A-Z0-9]{10})/i`
+
+### Clean URL Strategie
+
+1. ASIN aus URL extrahieren
+2. Alle Query-Parameter wegwerfen (Tracking-Ballast)
+3. Clean URL bauen: `https://www.amazon.de/dp/ASIN?tag=wunschkiste-21`
+4. Für `amzn.to` Short-Links: nur `?tag=` anhängen (kein ASIN extrahierbar)
+
+### Affiliate Tag
+
+- Tag: `wunschkiste-21`
+- In `.env.local` als `AMAZON_AFFILIATE_TAG`
+- Links brauchen `rel="sponsored nofollow"` (Google SEO Requirement)
+
+---
+
+## next-intl Navigation
+
+**Recherche-Datum:** 06.02.2026
+
+### Problem
+
+Mit `localePrefix: "as-needed"` und `defaultLocale: "de"`:
+- `next/link` mit `href="/login"` → geht IMMER zu `/login` (= deutsch)
+- User auf `/en/` klickt Login → landet auf `/login` statt `/en/login`
+
+### Lösung
+
+`createNavigation(routing)` aus `next-intl/navigation` exportiert locale-aware Versionen:
+```typescript
+export const { Link, redirect, usePathname, useRouter } = createNavigation(routing);
+```
+
+Diese MÜSSEN statt `next/link` und `next/navigation` verwendet werden.
+Import: `import { Link, useRouter } from "@/i18n/routing"`
+
+### Pitfall: Playwright Tests
+
+Wenn der Dev-Server mit `BETTER_AUTH_URL=https://tunnel.example.com` läuft und Playwright startet, blockiert der belegte Port 3000 Playwrights eigenen WebServer → Tests schlagen fehl. Dev-Server vorher stoppen.
+
+---
+
+## AWIN Publisher API (Recherche)
+
+**Recherche-Datum:** 06.02.2026
+
+### Wichtige Shops bei AWIN (DE)
+
+Otto, Thalia, Douglas, Tchibo, MediaMarkt/Saturn, Zalando Lounge.
+Amazon ist NICHT bei AWIN (eigenes PartnerNet).
+
+### Integration-Flow
+
+1. `GET /publishers/{id}/programmes` → alle Advertiser mit `validDomains`
+2. Domain-Mapping bauen: `www.otto.de` → Advertiser-ID 14336
+3. `POST /publishers/{id}/linkbuilder/generate` → Affiliate-Link zurück
+4. Rate Limit: 20 API-Calls/Minute
+
+### Kosten
+
+- 5€ Deposit (wird zurückgezahlt)
+- Kein laufender Kostenpunkt für Publisher
+- Bei jedem Advertiser einzeln bewerben

@@ -1,10 +1,10 @@
 # Current State
 
-> Letzte Aktualisierung: 06.02.2026
+> Letzte Aktualisierung: 06.02.2026 (Abend-Session)
 
 ## Status
 
-**Phase:** MVP komplett + Design Redesign (ADR-005) umgesetzt. Deployment-ready.
+**Phase:** MVP komplett + Polishing (Themes, Affiliate, i18n). Deployment-ready.
 
 ## Was existiert
 
@@ -41,6 +41,12 @@
 - [x] **TanStack Query**: QueryClientProvider + Share-Page Polling (10s refetch + refetchOnWindowFocus)
 - [x] **ProductImage**: Wiederverwendbare Komponente mit onError Fallback (Gift-Icon)
 - [x] **Immersive Themes**: CSS-Animationen (Schneeflocken, Konfetti, Shimmer, Wolken) + prefers-reduced-motion
+- [x] **ThemeCard**: Vorschaukarten mit echtem Theme-Hintergrund + Mini-Animationen
+- [x] **Theme-Picker im Editor**: Theme nach Erstellung änderbar (PATCH API)
+- [x] **Dashboard Theme-Cards**: Wunschlisten-Cards zeigen Theme-Hintergrund + Animation
+- [x] **Amazon Affiliate**: ASIN-Extraktion, clean URLs, Tag `wunschkiste-21`
+- [x] **Affiliate SEO**: `rel="sponsored nofollow"` auf Affiliate-Links
+- [x] **Locale-aware Navigation**: next-intl `Link`/`useRouter` in allen Seiten (kein Locale-Verlust mehr)
 
 ## Tech-Stack (installiert)
 
@@ -81,6 +87,7 @@ src/
 ├── components/
 │   ├── animate-on-scroll.tsx          # Scroll-Animation Wrapper
 │   ├── product-image.tsx              # Bild mit Broken-Image-Fallback
+│   ├── theme-card.tsx                 # Theme-Vorschaukarte mit Mini-Animation
 │   ├── providers/
 │   │   └── query-provider.tsx         # TanStack Query Provider
 │   └── ui/                            # shadcn Components
@@ -115,6 +122,10 @@ messages/
 - [x] Share-Page: `useQuery` mit `refetchInterval: 10s` + `refetchOnWindowFocus: true`
 - [x] Broken Images Fix: `ProductImage`-Komponente mit Fallback (Gift-Icon)
 - [x] Immersive Themes: Christmas (Schneeflocken), Birthday (Konfetti), Wedding (Shimmer), Baby (Wolken)
+
+### AWIN Integration (nach Account-Freischaltung)
+- [ ] Programmes API abrufen → Domain-Mapping aufbauen
+- [ ] Link Builder API integrieren → Affiliate-Links für AWIN-Shops generieren
 
 ### Sonstiges
 - [ ] Persönliche Daten eintragen in messages/*.json (TODO-Platzhalter ersetzen)
@@ -154,22 +165,27 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 ## Offene Punkte
 
 - [ ] Finaler Projektname (Arbeitstitel: Wunschkiste)
-- [ ] Amazon Associates Account erstellen
-- [ ] AWIN Publisher Account beantragen
+- [x] Amazon Associates Account (Tag: `wunschkiste-21`, in .env.local gesetzt)
+- [ ] AWIN Publisher Account (beantragt, warte auf Freischaltung)
 - [ ] Google OAuth Credentials
 - [ ] Facebook App Credentials
 - [x] PostgreSQL für lokale Entwicklung
 
 ## Letzte Sessions
 
-### 06.02.2026 - TanStack Query + Immersive Themes + ProductImage
-- TanStack Query 5.90 installiert, QueryClientProvider in Layout eingebunden
-- Share-Page: useState/useEffect → useQuery mit refetchInterval: 10s + refetchOnWindowFocus: true
-- Nach Reservierung: queryClient.invalidateQueries statt manuelles State-Update
-- ProductImage-Komponente: onError → Gift-Icon Fallback, eingesetzt in Share-Page + Wishlist-Editor
-- Immersive CSS Theme-Animationen: Christmas (Schneeflocken), Birthday (Konfetti), Wedding (Shimmer+Sparkle), Baby (Wolken)
-- prefers-reduced-motion: Alle Animationen deaktiviert für Accessibility
-- Build erfolgreich, alle 35 Playwright-Tests grün
+### 06.02.2026 - Polling, Themes, Affiliate, i18n-Fix
+- TanStack Query 5.90: Share-Page pollt alle 10s + refetchOnWindowFocus
+- ProductImage-Komponente: onError → Gift-Icon Fallback
+- Immersive CSS Theme-Animationen: Schneeflocken, Konfetti, Shimmer, Wolken
+- ThemeCard-Komponente: Vorschaukarten mit echtem Hintergrund + Mini-Animation
+- Theme-Picker im Wishlist-Editor: Theme nach Erstellung änderbar
+- Dashboard-Cards: Theme-Hintergrund + Mini-Animationen pro Wunschliste
+- Amazon Affiliate: ASIN aus URL extrahieren, clean URL bauen, Tag `wunschkiste-21`
+- `rel="sponsored nofollow"` auf Affiliate-Links (SEO/Legal)
+- Locale-Fix: `next/link` → `@/i18n/routing` Link in allen 11 Dateien (kein Locale-Verlust)
+- AWIN-Recherche: Programmes API + Link Builder API dokumentiert
+- prefers-reduced-motion für alle Animationen
+- Build OK, alle 35 Tests grün
 
 ### 06.02.2026 - Bug Fixes & Test Suite
 - 3 Bug Fixes: Theme im Editor (data-theme), Google Auth Button, Nav Auth-State
@@ -210,16 +226,6 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - Komplettes Backend: Wishlists, Products, Scraper, Share, Reservations API
 - Komplettes Frontend: Login, Register, Dashboard, Wishlist-Editor, Share-View
 - Design verbessert: Catchy Landing Page, visuelle Theme-Picker, echte CSS-Themes
-
-## Letzte Sessions
-
-### 06.02.2026 - Cloudflare Tunnel & Diskussion
-- Cloudflare Tunnel eingerichtet: `wunschkiste.schwenzfeuer.com` → `localhost:3000`
-- Mobile-Testing: Login, Sharing, Reservierung funktioniert über Tunnel
-- Bug gefunden: Reservierungen aktualisieren sich nicht live auf anderen Geräten
-- Bug gefunden: Broken Images auf Share-Page (Hotlinking von Shop-Servern)
-- Diskussion: Themes zu langweilig, nur Farbwechsel → Immersive Themes geplant
-- Plan erstellt: `~/.claude/plans/serene-greeting-moon.md`
 
 ## Notizen für nächste Session
 
