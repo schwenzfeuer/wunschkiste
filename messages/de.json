@@ -19,6 +19,53 @@
     "continueWithFacebook": "Mit Facebook fortfahren",
     "or": "oder"
   },
+  "nav": {
+    "features": "So gehts",
+    "occasions": "Anlässe",
+    "login": "Anmelden",
+    "getStarted": "Loslegen"
+  },
+  "landing": {
+    "hero": {
+      "title": "Wünsche teilen,",
+      "titleAccent": "Freude schenken.",
+      "subtitle": "Erstelle Wunschlisten für jeden Anlass und teile sie mit deinen Liebsten. Kostenlos, einfach, schön.",
+      "cta": "Wunschliste erstellen",
+      "ctaSecondary": "So funktioniert's"
+    },
+    "problem": {
+      "label": "Das Problem",
+      "title": "Jeder fragt: Was wünschst du dir?",
+      "text": "Du schreibst die gleichen Wünsche in fünf verschiedene Chats. Tante Inge fragt per SMS, Opa per Anruf, und am Ende bekommst du dreimal das Gleiche."
+    },
+    "solution": {
+      "label": "Die Lösung",
+      "title": "Ein Link für alle.",
+      "text": "Erstell eine Wunschliste, teil den Link — fertig. Jeder sieht, was du dir wünschst, und kann Geschenke reservieren. Keine doppelten Geschenke mehr."
+    },
+    "features": {
+      "scraper": {
+        "label": "Automatisch",
+        "title": "Link rein — Produkt erkannt.",
+        "text": "Füge einfach einen Link ein. Titel, Bild und Preis werden automatisch geladen. Kein lästiges Abtippen."
+      },
+      "share": {
+        "label": "Teilen",
+        "title": "Teilen & Reservieren.",
+        "text": "Teile deine Liste per Link. Familie und Freunde können Wünsche reservieren — ganz ohne Account. So weiß jeder, was noch frei ist."
+      },
+      "themes": {
+        "label": "Anlässe",
+        "title": "Für jeden Anlass das passende Design.",
+        "text": "Geburtstag, Weihnachten, Hochzeit oder Baby — wähle ein Theme und mach deine Wunschliste besonders."
+      }
+    },
+    "cta": {
+      "title": "Bereit für deine erste Wunschliste?",
+      "text": "Kostenlos. Keine Werbung. Für immer.",
+      "button": "Jetzt loslegen"
+    }
+  },
   "wishlist": {
     "title": "Wunschliste",
     "create": "Wunschliste erstellen",

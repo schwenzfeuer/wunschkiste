@@ -1,10 +1,10 @@
 # Current State
 
-> Letzte Aktualisierung: 05.02.2026
+> Letzte Aktualisierung: 06.02.2026
 
 ## Status
 
-**Phase:** MVP komplett. Deployment-ready. Bereit für Hetzner/Dokploy Setup.
+**Phase:** MVP komplett + Design Redesign (ADR-005) umgesetzt. Deployment-ready.
 
 ## Was existiert
 
@@ -25,8 +25,13 @@
 - [x] **URL-Scraper** (Cheerio: OpenGraph + JSON-LD + Meta-Tags Fallback)
 - [x] **Share API** (öffentliche Wunschlisten mit Reservierungen)
 - [x] **Frontend-Seiten**: Login, Register, Dashboard, Wishlist-Editor, Share-View
-- [x] **Design**: Catchy Landing Page mit Hero, Gradient, Occasion-Badges, Feature-Cards
-- [x] **Themes**: Birthday, Christmas, Wedding, Baby via CSS-Variablen (`data-theme`)
+- [x] **Design Redesign (ADR-005)**: Warm-minimalistisch mit Storytelling-Flow
+- [x] **Fonts**: Playfair Display (Serif) + DM Sans (Sans) Font-Pairing
+- [x] **Button**: Custom :before-Layer-Trick (Pomegranate-Stil), accent-Variant
+- [x] **Scroll-Animationen**: useInView Hook + AnimateOnScroll Komponente
+- [x] **Landing Page**: Storytelling-Flow (Problem → Lösung → Features → CTA)
+- [x] **Alle Seiten redesigned**: Auth, Dashboard, Editor, Share-View
+- [x] **Themes**: Birthday, Christmas, Wedding, Baby (Hex-Farben, data-theme)
 - [x] **Legal Pages**: Impressum & Datenschutz (mit TODO-Platzhaltern für persönliche Daten)
 - [x] **Deployment**: Dockerfile (multi-stage, standalone), docker-compose, Drizzle Migrations, Health Check
 
@@ -66,7 +71,10 @@ src/
 │       │   └── reserve/               # Reservations
 │       └── scrape/                    # URL Scraping
 ├── components/
+│   ├── animate-on-scroll.tsx          # Scroll-Animation Wrapper
 │   └── ui/                            # shadcn Components
+├── hooks/
+│   └── use-in-view.ts                 # Intersection Observer Hook
 ├── lib/
 │   ├── auth/                          # better-auth Config (UUID-Mode)
 │   ├── db/                            # Drizzle Schema & Connection
@@ -80,16 +88,6 @@ messages/
 ```
 
 ## Nächste Schritte
-
-### Design Redesign (siehe ADR-005)
-1. [ ] Design System neu aufsetzen (CSS-Variablen, Fonts, Button-Komponente mit :before-Trick)
-2. [ ] `useInView` Hook für Scroll-Animationen
-3. [ ] Landing Page komplett neu (Storytelling-Flow)
-4. [ ] Auth-Seiten (Login/Register) an neuen Stil anpassen
-5. [ ] Dashboard redesignen
-6. [ ] Wishlist-Editor anpassen
-7. [ ] Share-View anpassen
-8. [ ] Anlass-Themes an neue Basis anpassen
 
 ### Sonstiges
 - [ ] Persönliche Daten eintragen in messages/*.json (TODO-Platzhalter ersetzen)
@@ -122,6 +120,21 @@ docker run -d --name wunschkiste-postgres \
 - [x] PostgreSQL für lokale Entwicklung
 
 ## Letzte Sessions
+
+### 06.02.2026 - Design Redesign (ADR-005)
+- Komplettes Redesign aller Frontend-Seiten nach ADR-005
+- Neue Farbpalette: Warmes Creme (#FEF1D0) + Tiefes Blau (#0042AF) + Soft Tangerine (#FF8C42)
+- Font-Pairing: Playfair Display (Serif-Headlines) + DM Sans (Body)
+- Custom Button mit :before-Layer-Trick für Tiefe ohne Schatten
+- useInView Hook + AnimateOnScroll Komponente für Scroll-Animationen
+- Landing Page: Storytelling-Flow (Problem → Lösung → 3 Features → CTA)
+- Auth-Seiten: Minimalistisch ohne Card-Wrapper
+- Dashboard: Listenansicht statt Card-Grid, hover-Actions
+- Wishlist-Editor: Schmaler Container, Listenansicht für Produkte
+- Share-View: Zentrierter editorial Stil
+- Anlass-Themes aktualisiert (Hex-Farben statt OKLCH)
+- i18n Messages erweitert (nav, landing Sections)
+- Build erfolgreich, keine Fehler
 
 ### 05.02.2026 - Legal Pages & Deployment
 - Impressum & Datenschutz Seiten erstellt (DE + EN, i18n-fähig)

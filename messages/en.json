@@ -19,6 +19,53 @@
     "continueWithFacebook": "Continue with Facebook",
     "or": "or"
   },
+  "nav": {
+    "features": "Features",
+    "occasions": "Occasions",
+    "login": "Login",
+    "getStarted": "Get Started"
+  },
+  "landing": {
+    "hero": {
+      "title": "Share wishes,",
+      "titleAccent": "give joy.",
+      "subtitle": "Create wishlists for any occasion and share them with your loved ones. Free, simple, beautiful.",
+      "cta": "Create a wishlist",
+      "ctaSecondary": "How it works"
+    },
+    "problem": {
+      "label": "The problem",
+      "title": "Everyone asks: What do you want?",
+      "text": "You type the same wishes into five different chats. Aunt Inge asks by text, grandpa calls, and in the end you get the same gift three times."
+    },
+    "solution": {
+      "label": "The solution",
+      "title": "One link for everyone.",
+      "text": "Create a wishlist, share the link — done. Everyone sees what you wish for and can reserve gifts. No more duplicates."
+    },
+    "features": {
+      "scraper": {
+        "label": "Automatic",
+        "title": "Paste a link — product recognized.",
+        "text": "Just paste a link. Title, image and price are loaded automatically. No tedious typing."
+      },
+      "share": {
+        "label": "Sharing",
+        "title": "Share & Reserve.",
+        "text": "Share your list via link. Family and friends can reserve wishes — no account needed. Everyone knows what's still available."
+      },
+      "themes": {
+        "label": "Occasions",
+        "title": "The right design for every occasion.",
+        "text": "Birthday, Christmas, wedding or baby — choose a theme and make your wishlist special."
+      }
+    },
+    "cta": {
+      "title": "Ready for your first wishlist?",
+      "text": "Free. No ads. Forever.",
+      "button": "Get started"
+    }
+  },
   "wishlist": {
     "title": "Wishlist",
     "create": "Create wishlist",

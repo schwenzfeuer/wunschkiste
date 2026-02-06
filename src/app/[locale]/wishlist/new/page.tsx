@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 
 const themes = [
@@ -58,7 +57,7 @@ export default function NewWishlistPage() {
   if (isPending) {
     return (
       <main className="flex min-h-screen items-center justify-center">
-        <p className="text-muted-foreground">Laden...</p>
+        <p className="text-foreground/40">Laden...</p>
       </main>
     );
   }
@@ -68,99 +67,93 @@ export default function NewWishlistPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background">
-      <div className="container mx-auto max-w-2xl px-4 py-8">
+    <main className="min-h-screen">
+      <div className="mx-auto max-w-xl px-6 py-8">
         <Link
           href="/dashboard"
-          className="mb-6 inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
+          className="mb-8 inline-flex items-center text-sm text-foreground/50 hover:text-foreground transition-colors"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
+          <ArrowLeft className="mr-2 size-4" />
           Zurück zum Dashboard
         </Link>
 
-        <Card className="overflow-hidden rounded-3xl">
-          <CardHeader className="bg-gradient-to-br from-primary/5 to-secondary/10 pb-8">
-            <div className="mb-2 text-4xl">✨</div>
-            <CardTitle className="text-2xl">Neue Wunschliste</CardTitle>
-            <CardDescription>
-              Erstelle eine Wunschliste für deinen besonderen Anlass
-            </CardDescription>
-          </CardHeader>
-          <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-6 pt-6">
-              {error && (
-                <div className="rounded-xl bg-destructive/10 p-4 text-sm text-destructive">
-                  {error}
-                </div>
-              )}
+        <h1 className="font-serif text-3xl md:text-4xl">Neue Wunschliste</h1>
+        <p className="mt-2 text-foreground/50">
+          Erstelle eine Wunschliste für deinen besonderen Anlass
+        </p>
 
-              {/* Theme Selection */}
-              <div className="space-y-3">
-                <Label>Wähle ein Theme</Label>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-                  {themes.map((t) => (
-                    <button
-                      key={t.value}
-                      type="button"
-                      onClick={() => setTheme(t.value)}
-                      className={`flex flex-col items-center rounded-2xl border-2 p-4 transition-all hover:scale-105 ${
-                        theme === t.value
-                          ? "border-primary bg-primary/5 shadow-md"
-                          : "border-transparent bg-muted/50 hover:border-muted-foreground/20"
-                      }`}
-                    >
-                      <span className="mb-1 text-3xl">{t.emoji}</span>
-                      <span className="text-xs font-medium">{t.label}</span>
-                    </button>
-                  ))}
-                </div>
-                <p className="text-center text-sm text-muted-foreground">
-                  {themes.find((t) => t.value === theme)?.description}
-                </p>
-              </div>
+        <form onSubmit={handleSubmit} className="mt-10 space-y-8">
+          {error && (
+            <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+              {error}
+            </div>
+          )}
 
-              <div className="space-y-2">
-                <Label htmlFor="title">Titel *</Label>
-                <Input
-                  id="title"
-                  placeholder="z.B. Meine Geburtstagswünsche"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                  maxLength={100}
-                  className="rounded-xl"
-                />
-              </div>
+          {/* Theme Selection */}
+          <div className="space-y-3">
+            <Label>Wähle ein Theme</Label>
+            <div className="grid grid-cols-5 gap-3">
+              {themes.map((t) => (
+                <button
+                  key={t.value}
+                  type="button"
+                  onClick={() => setTheme(t.value)}
+                  className={`flex flex-col items-center rounded-xl border-2 p-3 transition-all ${
+                    theme === t.value
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/30"
+                  }`}
+                >
+                  <span className="text-2xl">{t.emoji}</span>
+                  <span className="mt-1 text-xs font-medium">{t.label}</span>
+                </button>
+              ))}
+            </div>
+            <p className="text-center text-sm text-foreground/50">
+              {themes.find((t) => t.value === theme)?.description}
+            </p>
+          </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">Beschreibung (optional)</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Eine kurze Nachricht für deine Gäste..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  maxLength={500}
-                  rows={3}
-                  className="rounded-xl"
-                />
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-end gap-3 border-t bg-muted/30 px-6 py-4">
-              <Link href="/dashboard">
-                <Button type="button" variant="ghost">
-                  Abbrechen
-                </Button>
-              </Link>
-              <Button
-                type="submit"
-                disabled={loading || !title}
-                className="rounded-full px-6"
-              >
-                {loading ? "Erstellen..." : "Wunschliste erstellen"}
+          <div className="space-y-2">
+            <Label htmlFor="title">Titel *</Label>
+            <Input
+              id="title"
+              placeholder="z.B. Meine Geburtstagswünsche"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              maxLength={100}
+              className="h-11 rounded-lg border-2 bg-card"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Beschreibung (optional)</Label>
+            <Textarea
+              id="description"
+              placeholder="Eine kurze Nachricht für deine Gäste..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              maxLength={500}
+              rows={3}
+              className="rounded-lg border-2 bg-card"
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4">
+            <Link href="/dashboard">
+              <Button type="button" variant="ghost">
+                Abbrechen
               </Button>
-            </CardFooter>
-          </form>
-        </Card>
+            </Link>
+            <Button
+              type="submit"
+              disabled={loading || !title}
+            >
+              {loading ? "Erstellen..." : "Wunschliste erstellen"}
+            </Button>
+          </div>
+        </form>
       </div>
     </main>
   );

@@ -1,14 +1,19 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { DM_Sans, Playfair_Display } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-sans-value",
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-serif-value",
 });
 
 export const metadata: Metadata = {
@@ -40,7 +45,7 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${dmSans.variable} ${playfair.variable} font-sans antialiased`}>
         <NextIntlClientProvider messages={messages}>
           {children}
         </NextIntlClientProvider>

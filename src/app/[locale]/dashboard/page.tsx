@@ -5,9 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession, signOut } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Gift, Share2, LogOut, Trash2 } from "lucide-react";
+import { Plus, Gift, Share2, LogOut, Trash2, Pencil } from "lucide-react";
 
 interface Wishlist {
   id: string;
@@ -19,12 +17,12 @@ interface Wishlist {
   createdAt: string;
 }
 
-const themeLabels: Record<string, string> = {
-  standard: "Standard",
-  birthday: "Geburtstag",
-  christmas: "Weihnachten",
-  wedding: "Hochzeit",
-  baby: "Baby",
+const themeEmojis: Record<string, string> = {
+  standard: "",
+  birthday: "🎂",
+  christmas: "🎄",
+  wedding: "💒",
+  baby: "👶",
 };
 
 export default function DashboardPage() {
@@ -71,7 +69,7 @@ export default function DashboardPage() {
   if (isPending || loading) {
     return (
       <main className="flex min-h-screen items-center justify-center">
-        <p className="text-muted-foreground">Laden...</p>
+        <p className="text-foreground/40">Laden...</p>
       </main>
     );
   }
@@ -81,102 +79,105 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto flex items-center justify-between px-4 py-4">
-          <Link href="/" className="text-xl font-bold">
+    <main className="min-h-screen">
+      {/* Header */}
+      <header className="border-b border-border">
+        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
+          <Link href="/" className="font-serif text-xl font-bold">
             Wunschkiste
           </Link>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-foreground/50">
               {session.user.name || session.user.email}
             </span>
             <Button variant="ghost" size="sm" onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
+              <LogOut className="size-4" />
               Abmelden
             </Button>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8 flex items-center justify-between">
+      <div className="mx-auto max-w-3xl px-6 py-12">
+        <div className="mb-10 flex items-end justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Meine Wunschlisten</h1>
-            <p className="mt-1 text-muted-foreground">
+            <h1 className="font-serif text-3xl md:text-4xl">Meine Wunschlisten</h1>
+            <p className="mt-2 text-foreground/50">
               Verwalte deine Wunschlisten und teile sie mit anderen
             </p>
           </div>
           <Link href="/wishlist/new">
             <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Neue Wunschliste
+              <Plus className="size-4" />
+              Neue Liste
             </Button>
           </Link>
         </div>
 
         {wishlists.length === 0 ? (
-          <Card className="py-12">
-            <CardContent className="text-center">
-              <Gift className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-4 text-lg font-semibold">
-                Noch keine Wunschlisten
-              </h3>
-              <p className="mt-2 text-muted-foreground">
-                Erstelle deine erste Wunschliste und teile sie mit Freunden und Familie.
-              </p>
-              <Link href="/wishlist/new">
-                <Button className="mt-4">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Erste Wunschliste erstellen
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+          <div className="py-20 text-center">
+            <Gift className="mx-auto size-12 text-foreground/20" />
+            <h3 className="mt-6 font-serif text-xl">
+              Noch keine Wunschlisten
+            </h3>
+            <p className="mt-2 text-foreground/50">
+              Erstelle deine erste Wunschliste und teile sie mit Freunden und Familie.
+            </p>
+            <Link href="/wishlist/new">
+              <Button variant="accent" className="mt-6">
+                <Plus className="size-4" />
+                Erste Wunschliste erstellen
+              </Button>
+            </Link>
+          </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="space-y-3">
             {wishlists.map((wishlist) => (
-              <Card key={wishlist.id} className="relative">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
+              <div
+                key={wishlist.id}
+                className="group flex items-center justify-between rounded-xl border-2 border-border bg-card px-6 py-5 transition-colors hover:border-primary/20"
+              >
+                <Link href={`/wishlist/${wishlist.id}`} className="flex-1">
+                  <div className="flex items-center gap-3">
+                    {themeEmojis[wishlist.theme] && (
+                      <span className="text-xl">{themeEmojis[wishlist.theme]}</span>
+                    )}
                     <div>
-                      <CardTitle className="text-lg">{wishlist.title}</CardTitle>
-                      <CardDescription className="mt-1">
-                        {wishlist.description || "Keine Beschreibung"}
-                      </CardDescription>
+                      <h3 className="font-medium">{wishlist.title}</h3>
+                      {wishlist.description && (
+                        <p className="mt-0.5 text-sm text-foreground/50">{wishlist.description}</p>
+                      )}
                     </div>
-                    <Badge variant="secondary">{themeLabels[wishlist.theme]}</Badge>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex gap-2">
-                    <Link href={`/wishlist/${wishlist.id}`} className="flex-1">
-                      <Button variant="outline" className="w-full">
-                        Bearbeiten
-                      </Button>
-                    </Link>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => {
-                        navigator.clipboard.writeText(
-                          `${window.location.origin}/share/${wishlist.shareToken}`
-                        );
-                        alert("Link kopiert!");
-                      }}
-                    >
-                      <Share2 className="h-4 w-4" />
+                </Link>
+                <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                  <Link href={`/wishlist/${wishlist.id}`}>
+                    <Button variant="ghost" size="icon-sm">
+                      <Pencil className="size-4" />
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => handleDelete(wishlist.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        `${window.location.origin}/share/${wishlist.shareToken}`
+                      );
+                      alert("Link kopiert!");
+                    }}
+                  >
+                    <Share2 className="size-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => handleDelete(wishlist.id)}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </div>
+              </div>
             ))}
           </div>
         )}

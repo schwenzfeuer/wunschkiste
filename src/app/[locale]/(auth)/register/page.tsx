@@ -7,7 +7,6 @@ import { signUp } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -44,69 +43,78 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Registrieren</CardTitle>
-          <CardDescription>
-            Erstelle ein kostenloses Konto
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            {error && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
-              </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Max Mustermann"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
+    <main className="flex min-h-screen items-center justify-center px-6">
+      <div className="w-full max-w-sm">
+        <div className="mb-10 text-center">
+          <Link href="/" className="font-serif text-2xl font-bold">
+            Wunschkiste
+          </Link>
+        </div>
+
+        <h1 className="font-serif text-3xl">Registrieren</h1>
+        <p className="mt-2 text-sm text-foreground/60">
+          Erstelle ein kostenloses Konto
+        </p>
+
+        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+          {error && (
+            <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+              {error}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">E-Mail</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Passwort</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Mindestens 8 Zeichen"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={8}
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Registrieren..." : "Registrieren"}
-            </Button>
-            <p className="text-center text-sm text-muted-foreground">
-              Bereits ein Konto?{" "}
-              <Link href="/login" className="text-primary hover:underline">
-                Anmelden
-              </Link>
-            </p>
-          </CardFooter>
+          )}
+
+          <div className="space-y-2">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              type="text"
+              placeholder="Max Mustermann"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="h-11 rounded-lg border-2 bg-card"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="email">E-Mail</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="h-11 rounded-lg border-2 bg-card"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="password">Passwort</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="Mindestens 8 Zeichen"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={8}
+              className="h-11 rounded-lg border-2 bg-card"
+            />
+          </div>
+
+          <Button type="submit" className="w-full" size="lg" disabled={loading}>
+            {loading ? "Registrieren..." : "Registrieren"}
+          </Button>
+
+          <p className="text-center text-sm text-foreground/60">
+            Bereits ein Konto?{" "}
+            <Link href="/login" className="font-medium text-primary hover:underline">
+              Anmelden
+            </Link>
+          </p>
         </form>
-      </Card>
+      </div>
     </main>
   );
 }
