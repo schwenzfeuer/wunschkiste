@@ -23,7 +23,9 @@
     "features": "So gehts",
     "occasions": "Anlässe",
     "login": "Anmelden",
-    "getStarted": "Loslegen"
+    "getStarted": "Loslegen",
+    "myWishlists": "Meine Wunschlisten",
+    "logout": "Abmelden"
   },
   "landing": {
     "hero": {

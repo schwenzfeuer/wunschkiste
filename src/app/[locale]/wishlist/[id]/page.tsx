@@ -158,7 +158,10 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
   }
 
   return (
-    <main className="min-h-screen">
+    <main
+      className="min-h-screen transition-colors"
+      data-theme={wishlist.theme !== "standard" ? wishlist.theme : undefined}
+    >
       <div className="mx-auto max-w-3xl px-6 py-8">
         <Link
           href="/dashboard"

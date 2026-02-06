@@ -3,6 +3,8 @@ import { useTranslations } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { AnimateOnScroll } from "@/components/animate-on-scroll";
+import { MainNav } from "@/components/main-nav";
+import { HeroCta } from "@/components/hero-cta";
 import { Link2, Users, Palette, ArrowDown } from "lucide-react";
 
 interface HomePageProps {
@@ -29,19 +31,7 @@ function HomeContent() {
   return (
     <main className="min-h-screen">
       {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-          <span className="font-serif text-xl font-bold">Wunschkiste</span>
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors">
-              {t("nav.login")}
-            </Link>
-            <Link href="/register">
-              <Button size="sm">{t("nav.getStarted")}</Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <MainNav />
 
       {/* Hero */}
       <section className="flex min-h-screen flex-col items-center justify-center px-6 pt-16">
@@ -55,11 +45,10 @@ function HomeContent() {
             {t("landing.hero.subtitle")}
           </p>
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Link href="/register">
-              <Button variant="accent" size="xl">
-                {t("landing.hero.cta")}
-              </Button>
-            </Link>
+            <HeroCta
+              ctaNew={t("landing.hero.cta")}
+              ctaExisting={t("nav.myWishlists")}
+            />
             <a href="#problem">
               <Button variant="outline" size="lg">
                 <ArrowDown className="size-4" />
@@ -186,11 +175,10 @@ function HomeContent() {
               {t("landing.cta.text")}
             </p>
             <div className="mt-10">
-              <Link href="/register">
-                <Button variant="accent" size="xl">
-                  {t("landing.cta.button")}
-                </Button>
-              </Link>
+              <HeroCta
+                ctaNew={t("landing.cta.button")}
+                ctaExisting={t("nav.myWishlists")}
+              />
             </div>
           </div>
         </AnimateOnScroll>

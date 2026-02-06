@@ -23,7 +23,9 @@
     "features": "Features",
     "occasions": "Occasions",
     "login": "Login",
-    "getStarted": "Get Started"
+    "getStarted": "Get Started",
+    "myWishlists": "My Wishlists",
+    "logout": "Logout"
   },
   "landing": {
     "hero": {
