@@ -81,12 +81,21 @@ messages/
 
 ## Nächste Schritte
 
-1. ~~**Impressum & Datenschutz** Seiten erstellen~~ ✅
-2. ~~**Deployment vorbereiten**~~ ✅
-3. **Persönliche Daten eintragen** in messages/de.json und messages/en.json (TODO-Platzhalter ersetzen)
-4. **Google OAuth** Credentials einrichten (Cloud Console)
-5. **E2E Testing** - User-Flow testen
-6. **Dokploy einrichten** - App auf Hetzner deployen
+### Design Redesign (siehe ADR-005)
+1. [ ] Design System neu aufsetzen (CSS-Variablen, Fonts, Button-Komponente mit :before-Trick)
+2. [ ] `useInView` Hook für Scroll-Animationen
+3. [ ] Landing Page komplett neu (Storytelling-Flow)
+4. [ ] Auth-Seiten (Login/Register) an neuen Stil anpassen
+5. [ ] Dashboard redesignen
+6. [ ] Wishlist-Editor anpassen
+7. [ ] Share-View anpassen
+8. [ ] Anlass-Themes an neue Basis anpassen
+
+### Sonstiges
+- [ ] Persönliche Daten eintragen in messages/*.json (TODO-Platzhalter ersetzen)
+- [ ] Google OAuth Credentials einrichten (Cloud Console)
+- [ ] E2E Testing - User-Flow testen
+- [ ] Dokploy einrichten - App auf Hetzner deployen
 
 ## Lokale Entwicklung
 
