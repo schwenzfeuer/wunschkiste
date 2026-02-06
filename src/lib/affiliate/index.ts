@@ -10,11 +10,7 @@ export function detectAffiliateNetwork(url: string): AffiliateNetwork {
       return "amazon";
     }
 
-    // TODO: Add AWIN partner domains
-    // const awinPartners = ["otto.de", "mediamarkt.de", ...];
-    // if (awinPartners.some(d => hostname.includes(d))) {
-    //   return "awin";
-    // }
+    // TODO: Add AWIN partner domains (after account approval)
 
     return null;
   } catch {
@@ -26,23 +22,53 @@ export function createAffiliateUrl(url: string): string {
   const network = detectAffiliateNetwork(url);
 
   if (network === "amazon" && AMAZON_TAG) {
-    return addAmazonTag(url, AMAZON_TAG);
+    return buildCleanAmazonUrl(url, AMAZON_TAG);
   }
 
   // TODO: Implement AWIN Link Builder API
-  // if (network === "awin") {
-  //   return await createAwinLink(url);
-  // }
 
   return url;
 }
 
-function addAmazonTag(url: string, tag: string): string {
+/**
+ * Extracts ASIN from Amazon URL and builds a clean affiliate link.
+ * Handles: /dp/ASIN, /gp/product/ASIN, /gp/aw/d/ASIN
+ * For amzn.to short links: just appends tag (no ASIN to extract).
+ */
+function buildCleanAmazonUrl(url: string, tag: string): string {
   try {
     const parsed = new URL(url);
-    parsed.searchParams.set("tag", tag);
-    return parsed.toString();
+
+    // amzn.to short links — can't extract ASIN, just append tag
+    if (parsed.hostname === "amzn.to") {
+      parsed.searchParams.set("tag", tag);
+      return parsed.toString();
+    }
+
+    // Extract ASIN from path
+    const asin = extractAsin(parsed.pathname);
+    if (!asin) {
+      // Fallback: keep original URL, just set tag
+      parsed.searchParams.set("tag", tag);
+      return parsed.toString();
+    }
+
+    // Extract TLD from hostname (amazon.de, amazon.com, etc.)
+    const hostname = parsed.hostname;
+
+    // Build clean URL with only the ASIN and tag
+    return `https://${hostname}/dp/${asin}?tag=${encodeURIComponent(tag)}`;
   } catch {
     return url;
   }
+}
+
+/**
+ * Extracts ASIN from Amazon URL pathname.
+ * ASIN is a 10-character alphanumeric code (e.g. B0CX23V2ZK, 347355491X).
+ */
+function extractAsin(pathname: string): string | null {
+  // Match /dp/ASIN, /gp/product/ASIN, /gp/aw/d/ASIN
+  const match = pathname.match(/\/(?:dp|gp\/product|gp\/aw\/d)\/([A-Z0-9]{10})/i);
+  return match ? match[1] : null;
 }

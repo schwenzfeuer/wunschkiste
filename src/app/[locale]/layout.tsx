@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
+import { QueryProvider } from "@/components/providers/query-provider";
 import "../globals.css";
 
 const dmSans = DM_Sans({
@@ -47,7 +48,7 @@ export default async function LocaleLayout({
     <html lang={locale}>
       <body className={`${dmSans.variable} ${playfair.variable} font-sans antialiased`}>
         <NextIntlClientProvider messages={messages}>
-          {children}
+          <QueryProvider>{children}</QueryProvider>
         </NextIntlClientProvider>
       </body>
     </html>

@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useRouter, Link } from "@/i18n/routing";
 import { useSession, signOut } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Plus, Gift, Share2, LogOut, Trash2, Pencil } from "lucide-react";
@@ -135,9 +134,11 @@ export default function DashboardPage() {
             {wishlists.map((wishlist) => (
               <div
                 key={wishlist.id}
-                className="group flex items-center justify-between rounded-xl border-2 border-border bg-card px-6 py-5 transition-colors hover:border-primary/20"
+                data-theme={wishlist.theme !== "standard" ? wishlist.theme : undefined}
+                className="theme-preview group relative flex items-center justify-between overflow-hidden rounded-xl border-2 border-border bg-background px-6 py-5 transition-colors hover:border-primary/20"
               >
-                <Link href={`/wishlist/${wishlist.id}`} className="flex-1">
+                <div className="theme-preview-animation" />
+                <Link href={`/wishlist/${wishlist.id}`} className="relative z-10 flex-1">
                   <div className="flex items-center gap-3">
                     {themeEmojis[wishlist.theme] && (
                       <span className="text-xl">{themeEmojis[wishlist.theme]}</span>
@@ -150,7 +151,7 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 </Link>
-                <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="relative z-10 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                   <Link href={`/wishlist/${wishlist.id}`}>
                     <Button variant="ghost" size="icon-sm">
                       <Pencil className="size-4" />

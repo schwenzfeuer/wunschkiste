@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link, useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { useSession, signOut } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";

@@ -244,6 +244,38 @@ DATABASE_URL="postgres://..." pnpm db:push
 
 ---
 
+## Cloudflare Tunnel (Mobile-Testing)
+
+**Dokumentation:** https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/
+**Recherche-Datum:** 06.02.2026
+
+### Setup
+
+```bash
+# Installation
+sudo dpkg -i cloudflared-linux-amd64.deb
+
+# Login (öffnet Browser, Domain auswählen)
+cloudflared tunnel login
+
+# Tunnel erstellen
+cloudflared tunnel create wunschkiste
+
+# DNS Route setzen
+cloudflared tunnel route dns wunschkiste wunschkiste.schwenzfeuer.com
+```
+
+Config: `~/.cloudflared/config.yml`
+
+### Bekannte Pitfalls
+
+- **BETTER_AUTH_URL** muss auf die Tunnel-Domain gesetzt werden, sonst scheitert Auth (Cookies, Redirects)
+- `.env.local` NICHT ändern → stattdessen per Env-Override: `BETTER_AUTH_URL=https://... pnpm dev`
+- Bestehender `bot.schwenzfeuer.com` Tunnel läuft auf dem Raspberry Pi (separater Tunnel)
+- `cloudflared tunnel run` muss manuell gestartet werden (kein systemd Service auf Dev-Rechner)
+
+---
+
 ## Scraper-Erfahrungen
 
 **Recherche-Datum:** 05.02.2026

@@ -217,3 +217,343 @@
 .animate-on-scroll.is-visible {
   animation: fade-in-up 0.6s ease-out forwards;
 }
+
+/* ========================================
+   Immersive Theme Animations
+   ======================================== */
+
+/* Christmas: Snowflakes */
+@keyframes snowfall {
+  0% {
+    background-position: 0 -100vh, 0 -100vh, 0 -100vh;
+  }
+  100% {
+    background-position: 0 100vh, 0 100vh, 0 100vh;
+  }
+}
+
+[data-theme="christmas"] > * {
+  position: relative;
+  z-index: 1;
+}
+
+[data-theme="christmas"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(2px 2px at 20% 10%, rgba(255, 255, 255, 0.8) 50%, transparent 50%),
+    radial-gradient(2px 2px at 40% 30%, rgba(255, 255, 255, 0.6) 50%, transparent 50%),
+    radial-gradient(3px 3px at 60% 50%, rgba(255, 255, 255, 0.7) 50%, transparent 50%),
+    radial-gradient(2px 2px at 80% 20%, rgba(255, 255, 255, 0.5) 50%, transparent 50%),
+    radial-gradient(2px 2px at 10% 60%, rgba(255, 255, 255, 0.6) 50%, transparent 50%),
+    radial-gradient(3px 3px at 50% 80%, rgba(255, 255, 255, 0.7) 50%, transparent 50%),
+    radial-gradient(2px 2px at 70% 40%, rgba(255, 255, 255, 0.5) 50%, transparent 50%),
+    radial-gradient(2px 2px at 90% 70%, rgba(255, 255, 255, 0.6) 50%, transparent 50%),
+    radial-gradient(3px 3px at 30% 90%, rgba(255, 255, 255, 0.8) 50%, transparent 50%),
+    radial-gradient(2px 2px at 85% 55%, rgba(255, 255, 255, 0.5) 50%, transparent 50%);
+  background-size:
+    300px 600px,
+    400px 700px,
+    350px 500px,
+    250px 650px,
+    320px 550px,
+    380px 620px,
+    280px 580px,
+    360px 640px,
+    300px 560px,
+    340px 600px;
+  animation: snowfall 12s linear infinite;
+  will-change: background-position;
+}
+
+/* Birthday: Confetti */
+@keyframes confetti-fall {
+  0% {
+    background-position: 0 -100vh, 0 -100vh, 0 -100vh;
+  }
+  100% {
+    background-position: 50px 100vh, -30px 100vh, 20px 100vh;
+  }
+}
+
+[data-theme="birthday"] > * {
+  position: relative;
+  z-index: 1;
+}
+
+[data-theme="birthday"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(135deg, #F472B6 3px, transparent 3px),
+    linear-gradient(225deg, #A78BFA 3px, transparent 3px),
+    linear-gradient(45deg, #FBBF24 3px, transparent 3px),
+    linear-gradient(315deg, #34D399 2px, transparent 2px),
+    linear-gradient(135deg, #60A5FA 2px, transparent 2px),
+    linear-gradient(225deg, #FB923C 3px, transparent 3px),
+    linear-gradient(45deg, #E879F9 2px, transparent 2px),
+    linear-gradient(315deg, #F472B6 3px, transparent 3px);
+  background-size:
+    200px 400px,
+    250px 500px,
+    180px 450px,
+    220px 380px,
+    260px 420px,
+    190px 460px,
+    240px 390px,
+    210px 440px;
+  opacity: 0.35;
+  animation: confetti-fall 8s linear infinite;
+  will-change: background-position;
+}
+
+/* Wedding: Shimmer */
+@keyframes shimmer-glow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes sparkle-drift {
+  0% {
+    background-position: 0 0, 0 0, 0 0;
+  }
+  100% {
+    background-position: 100px 60px, -80px 40px, 50px -30px;
+  }
+}
+
+[data-theme="wedding"] > * {
+  position: relative;
+  z-index: 1;
+}
+
+[data-theme="wedding"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 30% 20%, rgba(212, 168, 148, 0.15) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 60%, rgba(176, 141, 130, 0.1) 0%, transparent 60%),
+              radial-gradient(ellipse at 50% 90%, rgba(212, 168, 148, 0.12) 0%, transparent 50%);
+  animation: shimmer-glow 6s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+[data-theme="wedding"]::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 15% 25%, rgba(212, 168, 148, 0.5) 50%, transparent 50%),
+    radial-gradient(1.5px 1.5px at 45% 55%, rgba(176, 141, 130, 0.4) 50%, transparent 50%),
+    radial-gradient(1px 1px at 75% 35%, rgba(212, 168, 148, 0.5) 50%, transparent 50%),
+    radial-gradient(1.5px 1.5px at 25% 75%, rgba(176, 141, 130, 0.3) 50%, transparent 50%),
+    radial-gradient(1px 1px at 85% 85%, rgba(212, 168, 148, 0.4) 50%, transparent 50%),
+    radial-gradient(1.5px 1.5px at 55% 15%, rgba(176, 141, 130, 0.5) 50%, transparent 50%);
+  background-size:
+    300px 300px,
+    350px 350px,
+    280px 280px,
+    320px 320px,
+    290px 290px,
+    340px 340px;
+  animation: sparkle-drift 10s ease-in-out infinite alternate;
+  will-change: background-position;
+}
+
+/* Baby: Floating Clouds */
+@keyframes cloud-float {
+  0% {
+    transform: translateX(0) translateY(0);
+  }
+  25% {
+    transform: translateX(20px) translateY(-10px);
+  }
+  50% {
+    transform: translateX(-10px) translateY(5px);
+  }
+  75% {
+    transform: translateX(15px) translateY(-5px);
+  }
+  100% {
+    transform: translateX(0) translateY(0);
+  }
+}
+
+@keyframes cloud-float-slow {
+  0% {
+    transform: translateX(0) translateY(0);
+  }
+  33% {
+    transform: translateX(-15px) translateY(8px);
+  }
+  66% {
+    transform: translateX(10px) translateY(-6px);
+  }
+  100% {
+    transform: translateX(0) translateY(0);
+  }
+}
+
+[data-theme="baby"] > * {
+  position: relative;
+  z-index: 1;
+}
+
+[data-theme="baby"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 120px 40px at 15% 15%, rgba(96, 165, 250, 0.08) 50%, transparent 50%),
+    radial-gradient(ellipse 150px 50px at 75% 25%, rgba(249, 168, 212, 0.06) 50%, transparent 50%),
+    radial-gradient(ellipse 100px 35px at 40% 70%, rgba(96, 165, 250, 0.07) 50%, transparent 50%),
+    radial-gradient(ellipse 130px 45px at 85% 80%, rgba(249, 168, 212, 0.05) 50%, transparent 50%),
+    radial-gradient(ellipse 110px 38px at 25% 45%, rgba(96, 165, 250, 0.06) 50%, transparent 50%);
+  animation: cloud-float 20s ease-in-out infinite;
+  will-change: transform;
+}
+
+[data-theme="baby"]::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 140px 48px at 55% 10%, rgba(249, 168, 212, 0.05) 50%, transparent 50%),
+    radial-gradient(ellipse 90px 30px at 20% 85%, rgba(96, 165, 250, 0.06) 50%, transparent 50%),
+    radial-gradient(ellipse 160px 55px at 65% 55%, rgba(249, 168, 212, 0.04) 50%, transparent 50%),
+    radial-gradient(ellipse 100px 36px at 90% 40%, rgba(96, 165, 250, 0.05) 50%, transparent 50%);
+  animation: cloud-float-slow 25s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* ========================================
+   Theme Preview Cards (miniature animations)
+   ======================================== */
+
+/* Override: no z-index stacking in preview cards */
+.theme-preview [data-theme] > * {
+  position: static;
+  z-index: auto;
+}
+
+/* Override: absolute instead of fixed for contained animations */
+.theme-preview [data-theme]::before,
+.theme-preview [data-theme]::after {
+  position: absolute !important;
+}
+
+/* Preview animation element */
+.theme-preview-animation {
+  position: absolute;
+  inset: 0;
+}
+
+/* Christmas preview */
+.theme-preview [data-theme="christmas"] .theme-preview-animation {
+  background-image:
+    radial-gradient(2px 2px at 25% 20%, rgba(255, 255, 255, 0.9) 50%, transparent 50%),
+    radial-gradient(2px 2px at 50% 50%, rgba(255, 255, 255, 0.7) 50%, transparent 50%),
+    radial-gradient(1.5px 1.5px at 75% 30%, rgba(255, 255, 255, 0.8) 50%, transparent 50%),
+    radial-gradient(2px 2px at 35% 70%, rgba(255, 255, 255, 0.6) 50%, transparent 50%),
+    radial-gradient(1.5px 1.5px at 65% 80%, rgba(255, 255, 255, 0.7) 50%, transparent 50%),
+    radial-gradient(2px 2px at 15% 55%, rgba(255, 255, 255, 0.5) 50%, transparent 50%);
+  background-size: 40px 60px, 50px 70px, 35px 50px, 45px 55px, 38px 65px, 42px 58px;
+  animation: snowfall-preview 4s linear infinite;
+}
+
+@keyframes snowfall-preview {
+  0% { background-position: 0 -60px, 0 -60px, 0 -60px, 0 -60px, 0 -60px, 0 -60px; }
+  100% { background-position: 0 60px, 0 60px, 0 60px, 0 60px, 0 60px, 0 60px; }
+}
+
+/* Birthday preview */
+.theme-preview [data-theme="birthday"] .theme-preview-animation {
+  background-image:
+    linear-gradient(135deg, #F472B6 2px, transparent 2px),
+    linear-gradient(225deg, #A78BFA 2px, transparent 2px),
+    linear-gradient(45deg, #FBBF24 2px, transparent 2px),
+    linear-gradient(315deg, #34D399 2px, transparent 2px),
+    linear-gradient(135deg, #60A5FA 2px, transparent 2px);
+  background-size: 25px 35px, 30px 40px, 22px 38px, 28px 32px, 26px 36px;
+  opacity: 0.5;
+  animation: confetti-preview 3s linear infinite;
+}
+
+@keyframes confetti-preview {
+  0% { background-position: 0 -60px, 0 -60px, 0 -60px, 0 -60px, 0 -60px; }
+  100% { background-position: 5px 60px, -3px 60px, 4px 60px, -2px 60px, 3px 60px; }
+}
+
+/* Wedding preview */
+.theme-preview [data-theme="wedding"] .theme-preview-animation {
+  background:
+    radial-gradient(ellipse at 30% 30%, rgba(212, 168, 148, 0.25) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 70%, rgba(176, 141, 130, 0.2) 0%, transparent 60%);
+  animation: shimmer-glow 4s ease-in-out infinite;
+}
+
+.theme-preview [data-theme="wedding"] .theme-preview-animation::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(212, 168, 148, 0.6) 50%, transparent 50%),
+    radial-gradient(1.5px 1.5px at 60% 50%, rgba(176, 141, 130, 0.5) 50%, transparent 50%),
+    radial-gradient(1px 1px at 80% 25%, rgba(212, 168, 148, 0.6) 50%, transparent 50%),
+    radial-gradient(1px 1px at 40% 75%, rgba(176, 141, 130, 0.4) 50%, transparent 50%);
+  background-size: 40px 40px, 45px 45px, 35px 35px, 42px 42px;
+  animation: sparkle-drift 6s ease-in-out infinite alternate;
+}
+
+/* Baby preview */
+.theme-preview [data-theme="baby"] .theme-preview-animation {
+  background:
+    radial-gradient(ellipse 30px 12px at 25% 30%, rgba(96, 165, 250, 0.15) 50%, transparent 50%),
+    radial-gradient(ellipse 35px 14px at 70% 60%, rgba(249, 168, 212, 0.12) 50%, transparent 50%),
+    radial-gradient(ellipse 25px 10px at 50% 80%, rgba(96, 165, 250, 0.1) 50%, transparent 50%);
+  animation: cloud-float 12s ease-in-out infinite;
+}
+
+/* Disable page-level pseudo-elements inside preview cards */
+.theme-preview [data-theme="christmas"]::before,
+.theme-preview [data-theme="birthday"]::before,
+.theme-preview [data-theme="wedding"]::before,
+.theme-preview [data-theme="wedding"]::after,
+.theme-preview [data-theme="baby"]::before,
+.theme-preview [data-theme="baby"]::after {
+  display: none;
+}
+
+/* Accessibility: Disable animations for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="christmas"]::before,
+  [data-theme="birthday"]::before,
+  [data-theme="wedding"]::before,
+  [data-theme="wedding"]::after,
+  [data-theme="baby"]::before,
+  [data-theme="baby"]::after,
+  .theme-preview-animation,
+  .theme-preview-animation::after {
+    animation: none;
+  }
+}

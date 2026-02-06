@@ -1,14 +1,23 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useRouter, Link } from "@/i18n/routing";
 import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ProductImage } from "@/components/product-image";
+import { ThemeCard } from "@/components/theme-card";
 import { ArrowLeft, Plus, Trash2, ExternalLink, Share2, Loader2 } from "lucide-react";
+
+const themes = [
+  { value: "standard", label: "Standard" },
+  { value: "birthday", label: "Geburtstag" },
+  { value: "christmas", label: "Weihnachten" },
+  { value: "wedding", label: "Hochzeit" },
+  { value: "baby", label: "Baby" },
+];
 
 interface Product {
   id: string;
@@ -138,6 +147,20 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
     }
   }
 
+  async function handleThemeChange(newTheme: string) {
+    if (!wishlist || newTheme === wishlist.theme) return;
+
+    const response = await fetch(`/api/wishlists/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ theme: newTheme }),
+    });
+
+    if (response.ok) {
+      setWishlist({ ...wishlist, theme: newTheme });
+    }
+  }
+
   function handleShare() {
     if (!wishlist) return;
     const shareUrl = `${window.location.origin}/share/${wishlist.shareToken}`;
@@ -159,7 +182,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
 
   return (
     <main
-      className="min-h-screen transition-colors"
+      className="min-h-screen bg-background transition-colors"
       data-theme={wishlist.theme !== "standard" ? wishlist.theme : undefined}
     >
       <div className="mx-auto max-w-3xl px-6 py-8">
@@ -177,6 +200,17 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
             {wishlist.description && (
               <p className="mt-2 text-foreground/50">{wishlist.description}</p>
             )}
+            <div className="mt-3 flex gap-2">
+              {themes.map((t) => (
+                <ThemeCard
+                  key={t.value}
+                  value={t.value}
+                  label={t.label}
+                  active={wishlist.theme === t.value}
+                  onClick={() => handleThemeChange(t.value)}
+                />
+              ))}
+            </div>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={handleShare}>
@@ -234,7 +268,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
 
                       {scrapedData.image && (
                         <div className="flex justify-center">
-                          <img
+                          <ProductImage
                             src={scrapedData.image}
                             alt={productTitle}
                             className="h-32 w-32 rounded-lg object-contain"
@@ -288,13 +322,11 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                 key={product.id}
                 className="group flex items-center gap-4 rounded-xl border-2 border-border bg-card p-4 transition-colors hover:border-primary/20"
               >
-                {product.imageUrl && (
-                  <img
-                    src={product.imageUrl}
-                    alt={product.title}
-                    className="size-16 shrink-0 rounded-lg object-contain"
-                  />
-                )}
+                <ProductImage
+                  src={product.imageUrl}
+                  alt={product.title}
+                  className="size-16 shrink-0 rounded-lg object-contain"
+                />
                 <div className="flex-1 min-w-0">
                   <h3 className="font-medium leading-snug line-clamp-2">{product.title}</h3>
                   <div className="mt-1 flex items-center gap-3 text-sm text-foreground/50">
@@ -310,7 +342,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                   <a
                     href={product.affiliateUrl || product.originalUrl}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel={`noopener${product.affiliateUrl ? " sponsored nofollow" : ""}`}
                   >
                     <Button variant="ghost" size="icon-sm">
                       <ExternalLink className="size-4" />

@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, use } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Gift, Check, ShoppingBag, ExternalLink } from "lucide-react";
-import Link from "next/link";
+import { ProductImage } from "@/components/product-image";
+import { Gift, Check, ShoppingBag } from "lucide-react";
+import { Link } from "@/i18n/routing";
 
 interface Product {
   id: string;
@@ -40,28 +42,23 @@ const themeEmojis: Record<string, string> = {
 
 export default function SharePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = use(params);
-  const [wishlist, setWishlist] = useState<SharedWishlist | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const queryClient = useQueryClient();
   const [reserveDialogOpen, setReserveDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [reserveName, setReserveName] = useState("");
   const [reserveMessage, setReserveMessage] = useState("");
   const [reserving, setReserving] = useState(false);
 
-  useEffect(() => {
-    async function fetchWishlist() {
+  const { data: wishlist, isLoading, isError } = useQuery<SharedWishlist>({
+    queryKey: ["share", token],
+    queryFn: async () => {
       const response = await fetch(`/api/share/${token}`);
-      if (response.ok) {
-        setWishlist(await response.json());
-      } else {
-        setError(true);
-      }
-      setLoading(false);
-    }
-
-    fetchWishlist();
-  }, [token]);
+      if (!response.ok) throw new Error("Not found");
+      return response.json();
+    },
+    refetchInterval: 10_000,
+    refetchOnWindowFocus: true,
+  });
 
   async function handleReserve() {
     if (!selectedProduct || !reserveName) return;
@@ -78,16 +75,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
     });
 
     if (response.ok) {
-      setWishlist((prev) =>
-        prev
-          ? {
-              ...prev,
-              products: prev.products.map((p) =>
-                p.id === selectedProduct.id ? { ...p, isReserved: true } : p
-              ),
-            }
-          : null
-      );
+      await queryClient.invalidateQueries({ queryKey: ["share", token] });
       setReserveDialogOpen(false);
       setSelectedProduct(null);
       setReserveName("");
@@ -96,7 +84,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
     setReserving(false);
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <main className="flex min-h-screen items-center justify-center">
         <p className="text-foreground/40">Laden...</p>
@@ -104,7 +92,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
     );
   }
 
-  if (error || !wishlist) {
+  if (isError || !wishlist) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-4 px-6">
         <Gift className="size-16 text-foreground/20" />
@@ -118,7 +106,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
 
   return (
     <main
-      className="min-h-screen transition-colors"
+      className="min-h-screen bg-background transition-colors"
       data-theme={wishlist.theme !== "standard" ? wishlist.theme : undefined}
     >
       <div className="mx-auto max-w-2xl px-6 py-12">
@@ -153,13 +141,11 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                   product.isReserved ? "opacity-50" : ""
                 }`}
               >
-                {product.imageUrl && (
-                  <img
-                    src={product.imageUrl}
-                    alt={product.title}
-                    className="size-20 shrink-0 rounded-lg object-contain"
-                  />
-                )}
+                <ProductImage
+                  src={product.imageUrl}
+                  alt={product.title}
+                  className="size-20 shrink-0 rounded-lg object-contain"
+                />
                 <div className="flex-1 min-w-0">
                   <h3 className="font-medium leading-snug line-clamp-2">{product.title}</h3>
                   <div className="mt-1 flex items-center gap-3 text-sm text-foreground/50">
@@ -181,7 +167,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                   <a
                     href={product.affiliateUrl || product.originalUrl}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel={`noopener${product.affiliateUrl ? " sponsored nofollow" : ""}`}
                   >
                     <Button variant="outline" size="sm">
                       <ShoppingBag className="size-4" />

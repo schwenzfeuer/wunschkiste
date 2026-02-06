@@ -38,6 +38,9 @@
 - [x] **MainNav Komponente**: Auth-State-Aware Nav (Login/Register vs. Meine Wunschlisten/Logout)
 - [x] **HeroCta Komponente**: Dynamischer CTA basierend auf Auth-State
 - [x] **Playwright Tests**: 22 API-Tests + 13 E2E-Tests (Auth, Wishlists, Products, Share, Reservations, Landing, Wishlist-Flow)
+- [x] **TanStack Query**: QueryClientProvider + Share-Page Polling (10s refetch + refetchOnWindowFocus)
+- [x] **ProductImage**: Wiederverwendbare Komponente mit onError Fallback (Gift-Icon)
+- [x] **Immersive Themes**: CSS-Animationen (Schneeflocken, Konfetti, Shimmer, Wolken) + prefers-reduced-motion
 
 ## Tech-Stack (installiert)
 
@@ -48,6 +51,7 @@
 - Drizzle ORM 0.45.1 + postgres.js
 - better-auth 1.4.18
 - next-intl 4.8.2
+- TanStack Query 5.90.20
 - Cheerio 1.2.0, nanoid 5.1.6, zod 4.3.6
 - Lucide Icons
 
@@ -76,6 +80,9 @@ src/
 │       └── scrape/                    # URL Scraping
 ├── components/
 │   ├── animate-on-scroll.tsx          # Scroll-Animation Wrapper
+│   ├── product-image.tsx              # Bild mit Broken-Image-Fallback
+│   ├── providers/
+│   │   └── query-provider.tsx         # TanStack Query Provider
 │   └── ui/                            # shadcn Components
 ├── hooks/
 │   └── use-in-view.ts                 # Intersection Observer Hook
@@ -103,6 +110,12 @@ messages/
 - [x] API-Tests für alle Routes (Wishlists, Products, Scraper, Share, Auth)
 - 35 Tests gesamt: 22 API + 13 E2E, alle grün
 
+### Mobile-Testing & Live-Updates (Plan: `~/.claude/plans/serene-greeting-moon.md`)
+- [x] TanStack Query installieren + QueryClientProvider einrichten
+- [x] Share-Page: `useQuery` mit `refetchInterval: 10s` + `refetchOnWindowFocus: true`
+- [x] Broken Images Fix: `ProductImage`-Komponente mit Fallback (Gift-Icon)
+- [x] Immersive Themes: Christmas (Schneeflocken), Birthday (Konfetti), Wedding (Shimmer), Baby (Wolken)
+
 ### Sonstiges
 - [ ] Persönliche Daten eintragen in messages/*.json (TODO-Platzhalter ersetzen)
 - [x] Google OAuth Credentials einrichten (Cloud Console)
@@ -123,6 +136,21 @@ docker run -d --name wunschkiste-postgres \
   -p 5433:5432 postgres:16-alpine
 ```
 
+### Cloudflare Tunnel (Mobile-Testing)
+
+Tunnel `wunschkiste` → `wunschkiste.schwenzfeuer.com` → `localhost:3000`
+Config: `~/.cloudflared/config.yml`, Tunnel-ID: `34bc76f6-abac-43a2-a2a0-5c6ff2327806`
+
+```bash
+# Terminal 1: Tunnel starten
+cloudflared tunnel run wunschkiste
+
+# Terminal 2: Dev-Server mit Tunnel-URL (BETTER_AUTH_URL Override!)
+BETTER_AUTH_URL=https://wunschkiste.schwenzfeuer.com pnpm dev
+```
+
+Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktioniert Login nicht.
+
 ## Offene Punkte
 
 - [ ] Finaler Projektname (Arbeitstitel: Wunschkiste)
@@ -133,6 +161,15 @@ docker run -d --name wunschkiste-postgres \
 - [x] PostgreSQL für lokale Entwicklung
 
 ## Letzte Sessions
+
+### 06.02.2026 - TanStack Query + Immersive Themes + ProductImage
+- TanStack Query 5.90 installiert, QueryClientProvider in Layout eingebunden
+- Share-Page: useState/useEffect → useQuery mit refetchInterval: 10s + refetchOnWindowFocus: true
+- Nach Reservierung: queryClient.invalidateQueries statt manuelles State-Update
+- ProductImage-Komponente: onError → Gift-Icon Fallback, eingesetzt in Share-Page + Wishlist-Editor
+- Immersive CSS Theme-Animationen: Christmas (Schneeflocken), Birthday (Konfetti), Wedding (Shimmer+Sparkle), Baby (Wolken)
+- prefers-reduced-motion: Alle Animationen deaktiviert für Accessibility
+- Build erfolgreich, alle 35 Playwright-Tests grün
 
 ### 06.02.2026 - Bug Fixes & Test Suite
 - 3 Bug Fixes: Theme im Editor (data-theme), Google Auth Button, Nav Auth-State
@@ -173,6 +210,16 @@ docker run -d --name wunschkiste-postgres \
 - Komplettes Backend: Wishlists, Products, Scraper, Share, Reservations API
 - Komplettes Frontend: Login, Register, Dashboard, Wishlist-Editor, Share-View
 - Design verbessert: Catchy Landing Page, visuelle Theme-Picker, echte CSS-Themes
+
+## Letzte Sessions
+
+### 06.02.2026 - Cloudflare Tunnel & Diskussion
+- Cloudflare Tunnel eingerichtet: `wunschkiste.schwenzfeuer.com` → `localhost:3000`
+- Mobile-Testing: Login, Sharing, Reservierung funktioniert über Tunnel
+- Bug gefunden: Reservierungen aktualisieren sich nicht live auf anderen Geräten
+- Bug gefunden: Broken Images auf Share-Page (Hotlinking von Shop-Servern)
+- Diskussion: Themes zu langweilig, nur Farbwechsel → Immersive Themes geplant
+- Plan erstellt: `~/.claude/plans/serene-greeting-moon.md`
 
 ## Notizen für nächste Session
 
