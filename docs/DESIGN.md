@@ -1,6 +1,6 @@
 # Design System
 
-> Basis: shadcn/ui mit Custom Theme
+> Basis: shadcn/ui mit Custom Theme | Tailwind CSS v4 | Next.js Font Loading
 
 ## Design-Prinzipien
 
@@ -8,70 +8,65 @@
 2. **Einfach** - Familien sollen es sofort verstehen
 3. **Warm** - Farben die Freude am Schenken vermitteln
 4. **Accessible** - Kontrastreiche Farben, lesbare Schriften
+5. **Immersiv** - Jedes Theme hat eigene Animationen und Atmosphäre
 
-## Farbpalette
+## Farbpalette (Standard-Theme)
 
-### Primärfarbe: Koralle/Warm Orange
-
-```css
---primary: 15 90% 60%;        /* Warmes Koralle */
---primary-foreground: 0 0% 100%;
-```
-
-Begründung: Warm, freundlich, hebt sich von typischen Tech-Apps ab.
-
-### Sekundärfarbe: Sanftes Mint
+### Kernpalette: Creme + Blau + Tangerine
 
 ```css
---secondary: 160 40% 90%;     /* Helles Mint für Akzente */
---secondary-foreground: 160 40% 20%;
+--background: #FEF1D0;          /* Warmes Creme */
+--foreground: #0042AF;          /* Tiefes Blau */
+--primary: #0042AF;             /* Tiefes Blau */
+--primary-foreground: #FEF1D0;  /* Warmes Creme */
+--accent: #FF8C42;              /* Soft Tangerine */
+--accent-foreground: #FFFFFF;
 ```
 
-### Hintergrund: Cremeweiß
+### Vollständige Token-Tabelle
 
-```css
---background: 30 20% 98%;     /* Leicht warmes Weiß */
---foreground: 20 15% 20%;     /* Weiches Dunkelbraun statt Schwarz */
-```
+| Token | Hex | Beschreibung |
+|-------|-----|-------------|
+| `--background` | `#FEF1D0` | Warmes Creme |
+| `--foreground` | `#0042AF` | Tiefes Blau |
+| `--card` | `#FFF8E7` | Aufgehelltes Creme |
+| `--card-foreground` | `#0042AF` | Tiefes Blau |
+| `--popover` | `#FFF8E7` | Aufgehelltes Creme |
+| `--popover-foreground` | `#0042AF` | Tiefes Blau |
+| `--primary` | `#0042AF` | Tiefes Blau |
+| `--primary-foreground` | `#FEF1D0` | Warmes Creme |
+| `--secondary` | `#E8EFFA` | Aufgehelltes Blau |
+| `--secondary-foreground` | `#0042AF` | Tiefes Blau |
+| `--muted` | `#F5E6C0` | Gedämpftes Creme |
+| `--muted-foreground` | `#6B7A99` | Grau-Blau |
+| `--accent` | `#FF8C42` | Soft Tangerine |
+| `--accent-foreground` | `#FFFFFF` | Weiß |
+| `--destructive` | `#DC2626` | Rot |
+| `--border` | `#E8DFC0` | Helles Sandbeige |
+| `--input` | `#E8DFC0` | Helles Sandbeige |
+| `--ring` | `#0042AF` | Tiefes Blau |
+| `--success` | `#16A34A` | Grün |
+| `--warning` | `#F59E0B` | Amber |
 
 ### Semantische Farben
 
 ```css
---success: 145 60% 45%;       /* Grün - Reserviert */
---warning: 40 95% 55%;        /* Gelb - Hinweise */
---destructive: 0 70% 55%;     /* Rot - Löschen */
+--success: #16A34A;    /* Grün - Reserviert/Erfolgreich */
+--warning: #F59E0B;    /* Amber - Hinweise */
+--destructive: #DC2626; /* Rot - Löschen */
 ```
 
-## Border Radius
-
-Überall großzügiger Radius für weichen Look:
-
-```css
---radius: 1rem;               /* 16px - Default für Buttons, Cards */
---radius-sm: 0.75rem;         /* 12px - Kleine Elemente */
---radius-lg: 1.5rem;          /* 24px - Cards, Modals */
---radius-full: 9999px;        /* Pillen, Avatare */
-```
-
-## Schatten
-
-Weiche, warme Schatten statt harte:
-
-```css
---shadow-sm: 0 2px 8px -2px rgba(120, 80, 60, 0.08);
---shadow-md: 0 4px 16px -4px rgba(120, 80, 60, 0.12);
---shadow-lg: 0 8px 32px -8px rgba(120, 80, 60, 0.16);
-```
-
-## Typographie
+## Typografie
 
 ### Font Stack
 
 ```css
---font-sans: 'Inter', system-ui, sans-serif;
+--font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+--font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
 ```
 
-Inter ist freundlich, gut lesbar, kostenlos.
+- **DM Sans**: Freundlich, modern, gut lesbar — für Body und UI-Elemente
+- **Playfair Display**: Elegant, für Headings und Akzente
 
 ### Größen
 
@@ -83,17 +78,41 @@ Inter ist freundlich, gut lesbar, kostenlos.
 | Body | 1rem | 400 |
 | Small | 0.875rem | 400 |
 
-## Komponenten-Anpassungen
+## Border Radius
+
+```css
+--radius: 0.75rem;    /* 12px - Default */
+```
+
+Tailwind-Klassen: `rounded-xl` für Cards, `rounded-full` für Buttons (Pill-Form).
+
+## Schatten
+
+Weiche, warme Schatten:
+
+```css
+--shadow-sm: 0 2px 8px -2px rgba(120, 80, 60, 0.08);
+--shadow-md: 0 4px 16px -4px rgba(120, 80, 60, 0.12);
+--shadow-lg: 0 8px 32px -8px rgba(120, 80, 60, 0.16);
+```
+
+## Komponenten
 
 ### Buttons
 
+**Primär (CTA)**: Pill-Form, gefüllt
+
 ```tsx
-// Primär: Gefüllt, rund, warm
-<Button className="bg-primary hover:bg-primary/90 rounded-full px-6">
+<Button className="rounded-full px-6">
   Wunsch hinzufügen
 </Button>
+```
 
-// Sekundär: Outline, weich
+**Referenz-Inspiration (pomegranate.health)**: Pill-Buttons mit `::before` Pseudo-Element als Hover-Shadow-Layer. Uppercase, bold, erhöhtes Letter-Spacing. Zu prüfen: Kann der "Wunsch hinzufügen"-Button einen ähnlichen Hover-Effekt bekommen (dunkler Layer der sich beim Hover zeigt)?
+
+**Sekundär**: Outline, Pill-Form
+
+```tsx
 <Button variant="outline" className="rounded-full border-2">
   Abbrechen
 </Button>
@@ -115,7 +134,7 @@ Inter ist freundlich, gut lesbar, kostenlos.
 <Input className="rounded-xl border-2 border-muted focus:border-primary" />
 ```
 
-## Iconographie
+## Iconografie
 
 **Lucide Icons** (kommt mit shadcn/ui)
 
@@ -133,96 +152,95 @@ Großzügige Abstände für luftiges Design:
 | lg | 2rem | Section Spacing |
 | xl | 3rem | Page Sections |
 
-## Beispiel: Produktkarte
-
-```
-┌─────────────────────────────┐
-│  ┌───────────────────────┐  │
-│  │                       │  │
-│  │      Produktbild      │  │
-│  │                       │  │
-│  └───────────────────────┘  │
-│                             │
-│  Produkttitel               │
-│  Shop-Name                  │
-│                             │
-│  29,99 €                    │
-│                             │
-│  ┌─────────────────────┐    │
-│  │   🎁 Reservieren    │    │
-│  └─────────────────────┘    │
-└─────────────────────────────┘
-
-- Radius: 24px
-- Schatten: shadow-md
-- Padding: 16px
-- Button: rounded-full, Koralle
-```
-
 ## Anlass-Themes
 
-Jede Wunschliste kann ein eigenes Theme haben - passend zum Anlass.
+Jede Wunschliste kann ein eigenes Theme haben — passend zum Anlass. Themes werden als `data-theme` Attribut gesetzt und in der DB pro Wunschliste gespeichert.
 
 ### Standard (Default)
-Warmes Koralle - für den Alltag
+
+Warmes Creme + Tiefes Blau + Tangerine
+
 ```css
---primary: 15 90% 60%;
---secondary: 160 40% 90%;
---background: 30 20% 98%;
+--background: #FEF1D0;
+--foreground: #0042AF;
+--primary: #0042AF;
+--accent: #FF8C42;
 ```
 
-### Geburtstag
-Verspielt, bunt, Konfetti-Vibes
+### Geburtstag (`birthday`)
+
+Verspielt, bunt — mit Konfetti-Animation (8s)
+
 ```css
---primary: 280 80% 60%;       /* Lila */
---secondary: 330 80% 70%;     /* Pink */
---background: 280 30% 98%;    /* Leicht lila-getönt */
---accent: 45 95% 60%;         /* Gold/Gelb für Konfetti */
+--background: #FFF0F5;   /* Rosa-Weiß */
+--foreground: #6B21A8;   /* Dunkles Lila */
+--primary: #9333EA;      /* Lila */
+--accent: #F472B6;       /* Pink */
 ```
 
-### Weihnachten
-Klassisch festlich
+### Weihnachten (`christmas`)
+
+Klassisch festlich — mit Schneeflocken-Animation (12s)
+
 ```css
---primary: 150 60% 35%;       /* Tannengrün */
---secondary: 0 70% 50%;       /* Weihnachtsrot */
---background: 40 30% 97%;     /* Warmes Creme */
---accent: 45 90% 55%;         /* Gold */
+--background: #FDF8F0;   /* Warm-Weiß */
+--foreground: #14532D;   /* Dunkelgrün */
+--primary: #166534;      /* Tannengrün */
+--secondary: #FEE2E2;   /* Zartes Rot */
+--accent: #DC2626;       /* Weihnachtsrot */
 ```
 
-### Hochzeit
-Elegant, dezent, romantisch
+### Hochzeit (`wedding`)
+
+Elegant, dezent — mit Shimmer/Sparkle-Animation (6s/10s)
+
 ```css
---primary: 350 30% 65%;       /* Rosé */
---secondary: 40 40% 90%;      /* Champagner */
---background: 30 20% 99%;     /* Fast Weiß */
---accent: 45 70% 70%;         /* Soft Gold */
+--background: #FFF9F5;   /* Elfenbein */
+--foreground: #44403C;   /* Warmes Grau */
+--primary: #B08D82;      /* Rosé-Taupe */
+--accent: #D4A894;       /* Roségold */
 ```
 
-### Baby
-Sanft, pastellig
+### Baby (`baby`)
+
+Sanft, pastellig — mit schwebenden Wolken (20s/25s)
+
 ```css
---primary: 200 60% 70%;       /* Babyblau */
---secondary: 340 50% 80%;     /* Zartrosa */
---background: 200 30% 98%;
+--background: #F0F7FF;   /* Eisblau */
+--foreground: #1E3A5F;   /* Dunkelblau */
+--primary: #60A5FA;      /* Hellblau */
+--accent: #F9A8D4;       /* Zartrosa */
 ```
 
-### Theme-Auswahl UI
+### Immersive Animationen
 
-Beim Erstellen einer Wunschliste:
-```
-┌─────────────────────────────────────────┐
-│  Wähle ein Theme für deine Liste:       │
-│                                         │
-│  ○ 🎨 Standard                          │
-│  ○ 🎂 Geburtstag                        │
-│  ○ 🎄 Weihnachten                       │
-│  ○ 💒 Hochzeit                          │
-│  ○ 👶 Baby                              │
-│                                         │
-└─────────────────────────────────────────┘
-```
+Jedes Theme hat eine eigene CSS-Animation, die die Atmosphäre verstärkt. Alle Animationen respektieren `prefers-reduced-motion: reduce`.
 
-Das Theme wird in der Datenbank pro Wunschliste gespeichert und beim Anzeigen angewendet.
+| Theme | Animation | Effekt |
+|-------|-----------|--------|
+| Standard | — | Keine |
+| Geburtstag | Konfetti-Fall | Bunte Partikel fallen herab |
+| Weihnachten | Schneeflocken | Weiße Flocken rieseln |
+| Hochzeit | Shimmer + Sparkle | Sanftes Glitzern |
+| Baby | Schwebende Wolken | Wolken ziehen langsam vorbei |
+
+Preview-Versionen existieren für die Theme-Auswahl-Cards (`.theme-preview`).
+
+### Grafische Elemente (geplant)
+
+Theme-spezifische Illustrationen via recraft.ai:
+- Weihnachten: Geschenke, Tannenbäume, Sterne
+- Geburtstag: Luftballons, Kuchen, Partyhüte
+- Hochzeit: Ringe, Blumen, Herzen
+- Baby: Schnuller, Rasseln, Sterne
+
+Diese könnten als Hintergrund-Dekoration oder in leeren Zuständen eingesetzt werden.
+
+### Theme-Hintergrund-Intensität
+
+Aktuell: Theme-Farben sind dezent im Hintergrund. Der "Wunsch hinzufügen"-Button trägt die stärkste Theme-Farbe.
+
+**Verbesserung gewünscht**: Theme-Hintergründe sollen präsenter werden — mehr Farbsättigung, evtl. Gradient-Verläufe oder stärkere Akzentflächen, damit das Theme-Feeling sofort spürbar ist.
 
 ## Dark Mode
 
