@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { ProductImage } from "@/components/product-image";
 import { Gift, Check, ShoppingBag } from "lucide-react";
 import { Link } from "@/i18n/routing";
+import Image from "next/image";
 
 interface Product {
   id: string;
@@ -36,8 +37,6 @@ const themeEmojis: Record<string, string> = {
   standard: "🎁",
   birthday: "🎂",
   christmas: "🎄",
-  wedding: "💒",
-  baby: "👶",
 };
 
 export default function SharePage({ params }: { params: Promise<{ token: string }> }) {
@@ -246,7 +245,8 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
           </p>
           <p className="mt-2">
             Erstellt mit{" "}
-            <Link href="/" className="font-medium text-primary hover:underline">
+            <Link href="/" className="inline-flex items-center gap-1 font-medium text-primary hover:underline">
+              <Image src="/wunschkiste-logo.svg" alt="" width={16} height={16} className="size-4" />
               Wunschkiste
             </Link>
           </p>

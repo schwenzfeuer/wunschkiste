@@ -544,6 +544,17 @@
   display: none;
 }
 
+/* Logo star float animation */
+@keyframes logo-star-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-50px); }
+}
+
+.logo-star-float {
+  transform-box: fill-box;
+  animation: logo-star-float 2s ease-in-out infinite;
+}
+
 /* Accessibility: Disable animations for reduced motion */
 @media (prefers-reduced-motion: reduce) {
   [data-theme="christmas"]::before,
@@ -553,7 +564,8 @@
   [data-theme="baby"]::before,
   [data-theme="baby"]::after,
   .theme-preview-animation,
-  .theme-preview-animation::after {
+  .theme-preview-animation::after,
+  .logo-star-float {
     animation: none;
   }
 }

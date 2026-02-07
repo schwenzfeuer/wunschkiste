@@ -157,14 +157,14 @@ async function extractProductData(url: string) {
 
 **Env Variables:**
 ```
-BETTER_AUTH_URL=https://your-domain.com
+BETTER_AUTH_URL=https://wunschkiste.xyz
 GOOGLE_CLIENT_ID=xxx
 GOOGLE_CLIENT_SECRET=xxx
 ```
 
 **Redirect URLs (Google Cloud Console):**
 - Local: `http://localhost:3000/api/auth/callback/google`
-- Prod: `https://domain.com/api/auth/callback/google`
+- Prod: `https://wunschkiste.xyz/api/auth/callback/google`
 
 ### Facebook OAuth
 
@@ -176,7 +176,7 @@ FACEBOOK_CLIENT_SECRET=xxx
 
 **Redirect URLs (Facebook Developer Portal):**
 - Local: `http://localhost:3000/api/auth/callback/facebook`
-- Prod: `https://domain.com/api/auth/callback/facebook`
+- Prod: `https://wunschkiste.xyz/api/auth/callback/facebook`
 
 ### Konfiguration
 
@@ -374,3 +374,22 @@ Amazon ist NICHT bei AWIN (eigenes PartnerNet).
 - 5€ Deposit (wird zurückgezahlt)
 - Kein laufender Kostenpunkt für Publisher
 - Bei jedem Advertiser einzeln bewerben
+
+---
+
+## SVG Animationen
+
+**Recherche-Datum:** 07.02.2026
+
+### transform-box: fill-box
+
+CSS `transform` (z.B. `translateY`) funktioniert auf SVG `<g>` Elementen standardmäßig nicht, weil der Browser die viewport-Box als Referenz nimmt. Lösung:
+
+```css
+.logo-star-float {
+  transform-box: fill-box;
+  animation: logo-star-float 2s ease-in-out infinite;
+}
+```
+
+`transform-box: fill-box` sagt dem Browser, die Bounding Box der SVG-Gruppe als Referenz für Transforms zu nutzen. Ohne das wird `translateY` auf `<g>`-Elementen ignoriert.

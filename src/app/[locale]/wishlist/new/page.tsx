@@ -13,8 +13,6 @@ const themes = [
   { value: "standard", label: "Standard", emoji: "🎁", description: "Für jeden Anlass" },
   { value: "birthday", label: "Geburtstag", emoji: "🎂", description: "Party-Vibes!" },
   { value: "christmas", label: "Weihnachten", emoji: "🎄", description: "Festlich & gemütlich" },
-  { value: "wedding", label: "Hochzeit", emoji: "💒", description: "Elegant & romantisch" },
-  { value: "baby", label: "Baby", emoji: "👶", description: "Sanft & süß" },
 ];
 
 export default function NewWishlistPage() {
@@ -91,7 +89,7 @@ export default function NewWishlistPage() {
           {/* Theme Selection */}
           <div className="space-y-3">
             <Label>Wähle ein Theme</Label>
-            <div className="grid grid-cols-5 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               {themes.map((t) => (
                 <button
                   key={t.value}

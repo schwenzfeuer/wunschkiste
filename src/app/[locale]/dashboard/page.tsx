@@ -5,6 +5,8 @@ import { useRouter, Link } from "@/i18n/routing";
 import { useSession, signOut } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Plus, Gift, Share2, LogOut, Trash2, Pencil } from "lucide-react";
+import Image from "next/image";
+import { WunschkisteLogo } from "@/components/wunschkiste-logo";
 
 interface Wishlist {
   id: string;
@@ -20,8 +22,6 @@ const themeEmojis: Record<string, string> = {
   standard: "",
   birthday: "🎂",
   christmas: "🎄",
-  wedding: "💒",
-  baby: "👶",
 };
 
 export default function DashboardPage() {
@@ -82,8 +82,9 @@ export default function DashboardPage() {
       {/* Header */}
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-          <Link href="/" className="font-serif text-xl font-bold">
-            Wunschkiste
+          <Link href="/" className="flex items-center gap-3">
+            <WunschkisteLogo className="size-20" />
+            <Image src="/wunschkiste-wordmark.svg" alt="Wunschkiste" width={200} height={40} className="h-10 w-auto" />
           </Link>
           <div className="flex items-center gap-4">
             <span className="text-sm text-foreground/50">
@@ -134,10 +135,8 @@ export default function DashboardPage() {
             {wishlists.map((wishlist) => (
               <div
                 key={wishlist.id}
-                data-theme={wishlist.theme !== "standard" ? wishlist.theme : undefined}
-                className="theme-preview group relative flex items-center justify-between overflow-hidden rounded-xl border-2 border-border bg-background px-6 py-5 transition-colors hover:border-primary/20"
+                className="group relative flex items-center justify-between rounded-xl border-2 border-border bg-background px-6 py-5 transition-colors hover:border-primary/20"
               >
-                <div className="theme-preview-animation" />
                 <Link href={`/wishlist/${wishlist.id}`} className="relative z-10 flex-1">
                   <div className="flex items-center gap-3">
                     {themeEmojis[wishlist.theme] && (

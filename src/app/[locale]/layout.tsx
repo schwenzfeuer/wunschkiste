@@ -33,6 +33,15 @@ export async function generateMetadata({
       locale === "de"
         ? "Erstelle und teile Wunschlisten mit deinen Liebsten"
         : "Create and share wishlists with your loved ones",
+    icons: {
+      icon: [
+        { url: "/favicon.ico", sizes: "any" },
+        { url: "/favicon.svg", type: "image/svg+xml" },
+        { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+      ],
+      apple: "/apple-touch-icon.png",
+    },
+    manifest: "/site.webmanifest",
     alternates: {
       canonical: `${baseUrl}${path}`,
       languages: {

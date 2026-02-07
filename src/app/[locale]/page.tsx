@@ -24,8 +24,6 @@ function HomeContent() {
   const occasions = [
     { emoji: "🎂", label: t("wishlist.themes.birthday"), theme: "birthday" },
     { emoji: "🎄", label: t("wishlist.themes.christmas"), theme: "christmas" },
-    { emoji: "💒", label: t("wishlist.themes.wedding"), theme: "wedding" },
-    { emoji: "👶", label: t("wishlist.themes.baby"), theme: "baby" },
   ];
 
   return (

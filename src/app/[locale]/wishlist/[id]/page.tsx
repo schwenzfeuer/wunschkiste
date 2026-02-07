@@ -9,14 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ProductImage } from "@/components/product-image";
 import { ThemeCard } from "@/components/theme-card";
-import { ArrowLeft, Plus, Trash2, ExternalLink, Share2, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, ExternalLink, Share2, Loader2, Pencil } from "lucide-react";
 
 const themes = [
   { value: "standard", label: "Standard" },
   { value: "birthday", label: "Geburtstag" },
   { value: "christmas", label: "Weihnachten" },
-  { value: "wedding", label: "Hochzeit" },
-  { value: "baby", label: "Baby" },
 ];
 
 interface Product {
@@ -59,6 +57,10 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
   const [scrapedData, setScrapedData] = useState<ProductData | null>(null);
   const [productTitle, setProductTitle] = useState("");
   const [adding, setAdding] = useState(false);
+  const [editProduct, setEditProduct] = useState<Product | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editPrice, setEditPrice] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -159,6 +161,33 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
     if (response.ok) {
       setWishlist({ ...wishlist, theme: newTheme });
     }
+  }
+
+  function openEditDialog(product: Product) {
+    setEditProduct(product);
+    setEditTitle(product.title);
+    setEditPrice(product.price || "");
+  }
+
+  async function handleEditProduct() {
+    if (!editProduct || !editTitle) return;
+    setSaving(true);
+
+    const response = await fetch(`/api/wishlists/${id}/products/${editProduct.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: editTitle,
+        price: editPrice || null,
+      }),
+    });
+
+    if (response.ok) {
+      const updated = await response.json();
+      setProducts(products.map((p) => (p.id === updated.id ? updated : p)));
+      setEditProduct(null);
+    }
+    setSaving(false);
   }
 
   function handleShare() {
@@ -339,6 +368,9 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                   </div>
                 </div>
                 <div className="flex items-center gap-1 shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
+                  <Button variant="ghost" size="icon-sm" onClick={() => openEditDialog(product)}>
+                    <Pencil className="size-4" />
+                  </Button>
                   <a
                     href={product.affiliateUrl || product.originalUrl}
                     target="_blank"
@@ -361,6 +393,44 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
             ))}
           </div>
         )}
+        {/* Edit Dialog */}
+        <Dialog open={!!editProduct} onOpenChange={(open) => !open && setEditProduct(null)}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="font-serif text-xl">Wunsch bearbeiten</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-title">Titel *</Label>
+                <Input
+                  id="edit-title"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  required
+                  className="h-11 rounded-lg border-2 bg-card"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-price">Preis</Label>
+                <Input
+                  id="edit-price"
+                  value={editPrice}
+                  onChange={(e) => setEditPrice(e.target.value)}
+                  placeholder="z.B. 29.99"
+                  className="h-11 rounded-lg border-2 bg-card"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setEditProduct(null)}>
+                Abbrechen
+              </Button>
+              <Button onClick={handleEditProduct} disabled={!editTitle || saving}>
+                {saving ? "Speichern..." : "Speichern"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </main>
   );

@@ -1,6 +1,6 @@
 # Current State
 
-> Letzte Aktualisierung: 07.02.2026
+> Letzte Aktualisierung: 07.02.2026 (Abend)
 
 ## Status
 
@@ -31,7 +31,7 @@
 - [x] **Scroll-Animationen**: useInView Hook + AnimateOnScroll Komponente
 - [x] **Landing Page**: Storytelling-Flow (Problem → Lösung → Features → CTA)
 - [x] **Alle Seiten redesigned**: Auth, Dashboard, Editor, Share-View
-- [x] **Themes**: Birthday, Christmas, Wedding, Baby (Hex-Farben, data-theme)
+- [x] **Themes**: Birthday, Christmas (aktiv), Wedding, Baby (ausgeblendet) (Hex-Farben, data-theme)
 - [x] **Legal Pages**: Impressum & Datenschutz (mit TODO-Platzhaltern für persönliche Daten)
 - [x] **Deployment**: Dockerfile (multi-stage, standalone), docker-compose, Drizzle Migrations, Health Check
 - [x] **Google Auth Button**: Login + Register Seiten mit Google OAuth Button
@@ -48,6 +48,13 @@
 - [x] **Affiliate SEO**: `rel="sponsored nofollow"` auf Affiliate-Links
 - [x] **Locale-aware Navigation**: next-intl `Link`/`useRouter` in allen Seiten (kein Locale-Verlust mehr)
 - [x] **Locale Detection aus**: `localeDetection: false` – kein Browser-basierter Redirect auf `/en` (SEO: Googlebot indexiert DE-Version)
+- [x] **Logo & Branding**: WunschkisteLogo-Komponente (inline SVG) + Wordmark in allen Headern
+- [x] **Schwebender Stern**: CSS-Animation `logo-star-float` (2s, -50px), `transform-box: fill-box`
+- [x] **Brand-Farben im Logo**: Geschenkbox `#0042AF`, Stern/Strahlen `#112334`, Wordmark `#0042AF`
+- [x] **Favicon**: Stern-SVG als Favicon (alle Größen: ico, svg, png, apple-touch, webmanifest)
+- [x] **Themes reduziert**: Wedding & Baby aus UI entfernt (nur Standard, Geburtstag, Weihnachten)
+- [x] **Produkt-Edit**: Edit-Dialog im Wishlist-Editor (Titel + Preis bearbeitbar via PATCH API)
+- [x] **Dashboard Fix**: Theme-Animationen von Dashboard-Cards entfernt
 
 ## Tech-Stack (installiert)
 
@@ -89,6 +96,7 @@ src/
 │   ├── animate-on-scroll.tsx          # Scroll-Animation Wrapper
 │   ├── product-image.tsx              # Bild mit Broken-Image-Fallback
 │   ├── theme-card.tsx                 # Theme-Vorschaukarte mit Mini-Animation
+│   ├── wunschkiste-logo.tsx           # Inline SVG Logo mit schwebendem Stern
 │   ├── providers/
 │   │   └── query-provider.tsx         # TanStack Query Provider
 │   └── ui/                            # shadcn Components
@@ -165,14 +173,24 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Offene Punkte
 
-- [ ] Finaler Projektname (Arbeitstitel: Wunschkiste)
+- [x] Finaler Projektname: Wunschkiste (Domain: wunschkiste.xyz)
 - [x] Amazon Associates Account (Tag: `wunschkiste-21`, in .env.local gesetzt)
 - [ ] AWIN Publisher Account (beantragt, warte auf Freischaltung)
-- [ ] Google OAuth Credentials
+- [x] Google OAuth Credentials
 - [ ] Facebook App Credentials
 - [x] PostgreSQL für lokale Entwicklung
 
 ## Letzte Sessions
+
+### 07.02.2026 - Branding, Logo & Produkt-Edit
+- Logo eingebaut: WunschkisteLogo-Komponente (inline SVG) + Wordmark-SVG in allen Headern
+- Schwebender Stern: CSS-Animation `logo-star-float` (2s, -50px, `transform-box: fill-box`)
+- Brand-Farben: Geschenkbox `#0042AF`, Stern/Strahlen dunkel `#112334`, Wordmark blau
+- Stern-Favicon: Separate SVG erstellt, alle Favicon-Größen über RealFaviconGenerator generiert
+- Themes reduziert: Wedding & Baby aus UI entfernt (DB/CSS bleibt für Rückwärtskompatibilität)
+- Dashboard-Fix: Theme-Animationen (Konfetti etc.) von Dashboard-Cards entfernt
+- Produkt-Edit: Edit-Dialog mit Titel + Preis im Wishlist-Editor (nutzt bestehende PATCH API)
+- Projektname final: Wunschkiste (Domain: wunschkiste.xyz), Google OAuth als erledigt markiert
 
 ### 07.02.2026 - Locale Detection Fix
 - `localeDetection: false` in next-intl routing (Browser-Sprache führte zu ungewolltem `/en` Redirect)
@@ -224,13 +242,6 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - Drizzle Migrations generiert + migrate.mjs Script
 - Health Check Endpoint (/api/health)
 - start.sh: Migrationen vor App-Start
-
-### 05.02.2026 - MVP Implementation
-- PostgreSQL via Docker aufgesetzt (Port 5433 wegen Konflikt)
-- DB-Schema gepusht, Auth-Bug gefixt (UUID + password-Feld in accounts)
-- Komplettes Backend: Wishlists, Products, Scraper, Share, Reservations API
-- Komplettes Frontend: Login, Register, Dashboard, Wishlist-Editor, Share-View
-- Design verbessert: Catchy Landing Page, visuelle Theme-Picker, echte CSS-Themes
 
 ## Notizen für nächste Session
 
