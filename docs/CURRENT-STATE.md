@@ -1,6 +1,6 @@
 # Current State
 
-> Letzte Aktualisierung: 06.02.2026 (Abend-Session)
+> Letzte Aktualisierung: 07.02.2026
 
 ## Status
 
@@ -47,6 +47,7 @@
 - [x] **Amazon Affiliate**: ASIN-Extraktion, clean URLs, Tag `wunschkiste-21`
 - [x] **Affiliate SEO**: `rel="sponsored nofollow"` auf Affiliate-Links
 - [x] **Locale-aware Navigation**: next-intl `Link`/`useRouter` in allen Seiten (kein Locale-Verlust mehr)
+- [x] **Locale Detection aus**: `localeDetection: false` – kein Browser-basierter Redirect auf `/en` (SEO: Googlebot indexiert DE-Version)
 
 ## Tech-Stack (installiert)
 
@@ -172,6 +173,10 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - [x] PostgreSQL für lokale Entwicklung
 
 ## Letzte Sessions
+
+### 07.02.2026 - Locale Detection Fix
+- `localeDetection: false` in next-intl routing (Browser-Sprache führte zu ungewolltem `/en` Redirect)
+- Besser für SEO: Googlebot crawlt mit `en-US`, würde sonst DE-Seiten nicht indexieren
 
 ### 06.02.2026 - Polling, Themes, Affiliate, i18n-Fix
 - TanStack Query 5.90: Share-Page pollt alle 10s + refetchOnWindowFocus
