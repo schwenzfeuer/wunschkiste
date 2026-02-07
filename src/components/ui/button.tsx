@@ -10,9 +10,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground rounded-full hover:translate-y-[-2px] active:translate-y-0 before:absolute before:inset-0 before:rounded-full before:bg-foreground/10 before:translate-y-[3px] before:-z-10 before:transition-transform hover:before:translate-y-[4px] active:before:translate-y-0",
+          "bg-primary text-primary-foreground rounded-full border-2 border-black shadow-[0_4px_0_0_black] hover:shadow-[0_7px_0_0_black] hover:translate-y-[-3px] active:translate-y-[1px] active:shadow-[0_2px_0_0_black] transition-all",
         accent:
-          "bg-accent text-accent-foreground rounded-full hover:translate-y-[-2px] active:translate-y-0 before:absolute before:inset-0 before:rounded-full before:bg-foreground/10 before:translate-y-[3px] before:-z-10 before:transition-transform hover:before:translate-y-[4px] active:before:translate-y-0",
+          "bg-accent text-accent-foreground rounded-full border-2 border-black shadow-[0_4px_0_0_black] hover:shadow-[0_7px_0_0_black] hover:translate-y-[-3px] active:translate-y-[1px] active:shadow-[0_2px_0_0_black] transition-all",
         destructive:
           "bg-destructive text-white rounded-full hover:bg-destructive/90 focus-visible:ring-destructive/20",
         outline:
