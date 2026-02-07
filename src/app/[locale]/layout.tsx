@@ -17,10 +17,32 @@ const playfair = Playfair_Display({
   variable: "--font-serif-value",
 });
 
-export const metadata: Metadata = {
-  title: "Wunschkiste",
-  description: "Erstelle und teile Wunschlisten mit deinen Liebsten",
-};
+const baseUrl = process.env.BETTER_AUTH_URL || "http://localhost:3000";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const path = locale === routing.defaultLocale ? "" : `/${locale}`;
+
+  return {
+    title: "Wunschkiste",
+    description:
+      locale === "de"
+        ? "Erstelle und teile Wunschlisten mit deinen Liebsten"
+        : "Create and share wishlists with your loved ones",
+    alternates: {
+      canonical: `${baseUrl}${path}`,
+      languages: {
+        de: `${baseUrl}/`,
+        en: `${baseUrl}/en`,
+        "x-default": `${baseUrl}/`,
+      },
+    },
+  };
+}
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
