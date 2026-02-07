@@ -10,6 +10,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { ProductImage } from "@/components/product-image";
 import { ThemeCard } from "@/components/theme-card";
 import { ArrowLeft, Plus, Trash2, ExternalLink, Share2, Loader2, Pencil } from "lucide-react";
+import { ChristmasDecorations } from "@/components/themes/christmas-decorations";
+import { MainNav } from "@/components/main-nav";
 
 const themes = [
   { value: "standard", label: "Standard" },
@@ -214,21 +216,16 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
       className="min-h-screen bg-background transition-colors"
       data-theme={wishlist.theme !== "standard" ? wishlist.theme : undefined}
     >
-      <div className="mx-auto max-w-3xl px-6 py-8">
-        <Link
-          href="/dashboard"
-          className="mb-8 inline-flex items-center text-sm text-foreground/50 hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="mr-2 size-4" />
-          Zurück zum Dashboard
-        </Link>
-
+      <MainNav />
+      {wishlist.theme === "christmas" && <ChristmasDecorations />}
+      <div className="mx-auto max-w-3xl px-6 pt-28 pb-8">
         <div className="mb-10 flex items-start justify-between">
           <div>
             <h1 className="font-serif text-3xl md:text-4xl">{wishlist.title}</h1>
             {wishlist.description && (
               <p className="mt-2 text-foreground/50">{wishlist.description}</p>
             )}
+            {/* TODO: Theme-Auswahl für Post-MVP reaktivieren
             <div className="mt-3 flex gap-2">
               {themes.map((t) => (
                 <ThemeCard
@@ -240,6 +237,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                 />
               ))}
             </div>
+            */}
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={handleShare}>

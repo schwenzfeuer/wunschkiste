@@ -154,7 +154,7 @@ Großzügige Abstände für luftiges Design:
 
 ## Anlass-Themes
 
-Jede Wunschliste kann ein eigenes Theme haben — passend zum Anlass. Themes werden als `data-theme` Attribut gesetzt und in der DB pro Wunschliste gespeichert.
+Jede Wunschkiste kann ein eigenes Theme haben — passend zum Anlass. Themes werden als `data-theme` Attribut gesetzt und in der DB pro Wunschkiste gespeichert.
 
 ### Standard (Default)
 
@@ -226,15 +226,20 @@ Jedes Theme hat eine eigene CSS-Animation, die die Atmosphäre verstärkt. Alle 
 
 Preview-Versionen existieren für die Theme-Auswahl-Cards (`.theme-preview`).
 
-### Grafische Elemente (geplant)
+### Grafische Elemente
 
-Theme-spezifische Illustrationen via recraft.ai:
-- Weihnachten: Geschenke, Tannenbäume, Sterne
+**Weihnachten (implementiert):**
+- SVG-Illustrationen als React-Komponenten: Schneeflocken (6-zackig), Sterne (5-zackig), stilisierte Tannen (gestapelte Dreiecke)
+- Geschenk-Illustration (`public/wunschkiste-geschenk.svg`, AI-generiert via recraft.ai) als Empty-State und Deko
+- Animationen: `float-gentle` (Schweben), `twinkle` (Funkeln), `sway` (Wiegen)
+- Komponente: `ChristmasDecorations` in `src/components/themes/christmas-decorations.tsx`
+
+**Weitere Themes (geplant):**
 - Geburtstag: Luftballons, Kuchen, Partyhüte
 - Hochzeit: Ringe, Blumen, Herzen
 - Baby: Schnuller, Rasseln, Sterne
 
-Diese könnten als Hintergrund-Dekoration oder in leeren Zuständen eingesetzt werden.
+Komplexe Illustrationen via recraft.ai, einfache geometrische Formen als Inline-SVG-Komponenten.
 
 ### Theme-Hintergrund-Intensität
 

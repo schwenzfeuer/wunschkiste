@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, Link } from "@/i18n/routing";
-import { useSession, signOut } from "@/lib/auth/client";
+import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
-import { Plus, Gift, Share2, LogOut, Trash2, Pencil } from "lucide-react";
-import Image from "next/image";
-import { WunschkisteLogo } from "@/components/wunschkiste-logo";
+import { Plus, Gift, Share2, Trash2, Pencil } from "lucide-react";
+import { MainNav } from "@/components/main-nav";
 
 interface Wishlist {
   id: string;
@@ -60,11 +59,6 @@ export default function DashboardPage() {
     }
   }
 
-  async function handleLogout() {
-    await signOut();
-    router.push("/");
-  }
-
   if (isPending || loading) {
     return (
       <main className="flex min-h-screen items-center justify-center">
@@ -79,26 +73,9 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen">
-      {/* Header */}
-      <header className="border-b border-border">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-center gap-3">
-            <WunschkisteLogo className="size-20" />
-            <Image src="/wunschkiste-wordmark.svg" alt="Wunschkiste" width={200} height={40} className="h-10 w-auto" />
-          </Link>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-foreground/50">
-              {session.user.name || session.user.email}
-            </span>
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              <LogOut className="size-4" />
-              Abmelden
-            </Button>
-          </div>
-        </div>
-      </header>
+      <MainNav />
 
-      <div className="mx-auto max-w-3xl px-6 py-12">
+      <div className="mx-auto max-w-3xl px-6 pt-28 pb-12">
         <div className="mb-10 flex items-end justify-between">
           <div>
             <h1 className="font-serif text-3xl md:text-4xl">Meine Wunschkisten</h1>

@@ -11,6 +11,8 @@ import { ProductImage } from "@/components/product-image";
 import { Gift, Check, ShoppingBag } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import Image from "next/image";
+import { ChristmasDecorations, ChristmasHeaderStar, ChristmasEmptyState } from "@/components/themes/christmas-decorations";
+import { MainNav } from "@/components/main-nav";
 
 interface Product {
   id: string;
@@ -108,9 +110,12 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
       className="min-h-screen bg-background transition-colors"
       data-theme={wishlist.theme !== "standard" ? wishlist.theme : undefined}
     >
-      <div className="mx-auto max-w-2xl px-6 py-12">
+      <MainNav />
+      {wishlist.theme === "christmas" && <ChristmasDecorations />}
+      <div className="mx-auto max-w-2xl px-6 pt-28 pb-12">
         {/* Header */}
         <div className="mb-12 text-center">
+          {wishlist.theme === "christmas" ? <ChristmasHeaderStar /> : null}
           <span className="text-5xl">{themeEmojis[wishlist.theme]}</span>
           <h1 className="mt-4 font-serif text-4xl md:text-5xl">{wishlist.title}</h1>
           {wishlist.ownerName && (
@@ -126,7 +131,11 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
         {/* Products */}
         {wishlist.products.length === 0 ? (
           <div className="py-20 text-center">
-            <Gift className="mx-auto size-12 text-foreground/20" />
+            {wishlist.theme === "christmas" ? (
+              <ChristmasEmptyState />
+            ) : (
+              <Gift className="mx-auto size-12 text-foreground/20" />
+            )}
             <p className="mt-4 text-foreground/40">
               Diese Wunschkiste ist noch leer.
             </p>

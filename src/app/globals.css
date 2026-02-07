@@ -128,23 +128,23 @@
   --muted-foreground: #9B7AAF;
 }
 
-/* Theme: Christmas - Klassisch festlich */
+/* Theme: Christmas - Immersiv, dunkles Tannengrün */
 [data-theme="christmas"] {
-  --background: #FDF8F0;
-  --foreground: #14532D;
-  --card: #FFFBF5;
-  --card-foreground: #14532D;
-  --primary: #166534;
-  --primary-foreground: #FFFFFF;
-  --secondary: #FEE2E2;
-  --secondary-foreground: #991B1B;
-  --accent: #DC2626;
-  --accent-foreground: #FFFFFF;
-  --border: #E8E0D0;
-  --input: #E8E0D0;
-  --ring: #166534;
-  --muted: #F0EAE0;
-  --muted-foreground: #6B8A7A;
+  --background: #14532D;
+  --foreground: #D4A84B;
+  --card: #802429;
+  --card-foreground: #D4A84B;
+  --primary: #D4A84B;
+  --primary-foreground: #14532D;
+  --secondary: #802429;
+  --secondary-foreground: #D4A84B;
+  --accent: #D4A84B;
+  --accent-foreground: #14532D;
+  --border: #D4A84B;
+  --input: #2D7A4A;
+  --ring: #D4A84B;
+  --muted: #1A6B3A;
+  --muted-foreground: #A8C4A0;
 }
 
 /* Theme: Wedding - Elegant, dezent */
@@ -191,6 +191,13 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  [data-theme] {
+    color: var(--foreground);
+    background-color: var(--background);
+  }
+  .bg-card {
+    color: var(--card-foreground);
   }
 }
 
@@ -267,6 +274,76 @@
     340px 600px;
   animation: snowfall 12s linear infinite;
   will-change: background-position;
+}
+
+/* Christmas SVG Decorations */
+.christmas-decorations {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+@keyframes christmas-float-gentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes christmas-twinkle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes christmas-sway {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(2deg);
+  }
+  75% {
+    transform: rotate(-2deg);
+  }
+}
+
+.christmas-float-gentle {
+  animation: christmas-float-gentle 6s ease-in-out infinite;
+  will-change: transform;
+}
+
+.christmas-float-gentle-delayed {
+  animation: christmas-float-gentle 8s ease-in-out 2s infinite;
+  will-change: transform;
+}
+
+.christmas-twinkle {
+  animation: christmas-twinkle 4s ease-in-out infinite;
+  will-change: opacity;
+}
+
+.christmas-twinkle-delayed {
+  animation: christmas-twinkle 5s ease-in-out 1.5s infinite;
+  will-change: opacity;
+}
+
+.christmas-sway {
+  transform-origin: bottom center;
+  animation: christmas-sway 7s ease-in-out infinite;
+  will-change: transform;
+}
+
+.christmas-sway-delayed {
+  transform-origin: bottom center;
+  animation: christmas-sway 9s ease-in-out 3s infinite;
+  will-change: transform;
 }
 
 /* Birthday: Confetti */
@@ -565,7 +642,13 @@
   [data-theme="baby"]::after,
   .theme-preview-animation,
   .theme-preview-animation::after,
-  .logo-star-float {
+  .logo-star-float,
+  .christmas-float-gentle,
+  .christmas-float-gentle-delayed,
+  .christmas-twinkle,
+  .christmas-twinkle-delayed,
+  .christmas-sway,
+  .christmas-sway-delayed {
     animation: none;
   }
 }

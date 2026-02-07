@@ -1,6 +1,6 @@
 # Current State
 
-> Letzte Aktualisierung: 07.02.2026 (Abend)
+> Letzte Aktualisierung: 07.02.2026 (Nacht)
 
 ## Status
 
@@ -55,6 +55,12 @@
 - [x] **Themes reduziert**: Wedding & Baby aus UI entfernt (nur Standard, Geburtstag, Weihnachten)
 - [x] **Produkt-Edit**: Edit-Dialog im Wishlist-Editor (Titel + Preis bearbeitbar via PATCH API)
 - [x] **Dashboard Fix**: Theme-Animationen von Dashboard-Cards entfernt
+- [x] **Christmas SVG-Dekorationen**: ChristmasDecorations-Komponente (Schneeflocken, Sterne, Tannen als Inline-SVGs)
+- [x] **Immersives Dark Christmas-Theme**: Dunkelgrün (#14532D) + Dunkelrot (#802429) Cards + Gold (#D4A84B) Schrift
+- [x] **Geschenk-SVG Integration**: wunschkiste-geschenk.svg als Deko-Element (groß, angeschnitten unten rechts)
+- [x] **Einheitlicher Header**: MainNav auf allen Seiten (Dashboard, Wishlist, Share) mit border-b
+- [x] **Dashboard Header dedupliziert**: Eigener Header durch MainNav ersetzt
+- [x] **Theme-Auswahl MVP-deaktiviert**: ThemeCards auskommentiert, Code bleibt erhalten
 
 ## Tech-Stack (installiert)
 
@@ -97,6 +103,8 @@ src/
 │   ├── product-image.tsx              # Bild mit Broken-Image-Fallback
 │   ├── theme-card.tsx                 # Theme-Vorschaukarte mit Mini-Animation
 │   ├── wunschkiste-logo.tsx           # Inline SVG Logo mit schwebendem Stern
+│   ├── themes/
+│   │   └── christmas-decorations.tsx  # SVG-Dekorationen (Schneeflocken, Sterne, Tannen, Geschenk)
 │   ├── providers/
 │   │   └── query-provider.tsx         # TanStack Query Provider
 │   └── ui/                            # shadcn Components
@@ -182,6 +190,19 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 07.02.2026 - Christmas SVG-Deko, Dark Theme & einheitlicher Header
+- ChristmasDecorations-Komponente: Inline-SVGs (6-zackige Schneeflocken, 5-zackige Sterne, stilisierte Tannen)
+- CSS-Animationen: float-gentle, twinkle, sway + prefers-reduced-motion Support
+- Christmas-Farbpalette komplett überarbeitet: dunkles Tannengrün + Dunkelrot Cards + Gold Schrift
+- Geschenk-SVG (wunschkiste-geschenk.svg) als großes Deko-Element unten rechts (angeschnitten)
+- `[data-theme]` CSS-Fix: color/background-color explizit setzen (CSS-Variable-Vererbung)
+- `.bg-card` CSS-Fix: automatisch `color: var(--card-foreground)` setzen
+- MainNav auf alle Seiten eingebaut (Dashboard, Wishlist, Share) — einheitlicher Header mit border-b
+- Dashboard eigenen Header durch MainNav ersetzt (Code-Deduplizierung)
+- Theme-Auswahl für MVP auskommentiert (Code bleibt erhalten)
+- DESIGN.md aktualisiert: SVG-Doku, "Wunschliste" → "Wunschkiste"
+- Build OK, alle 35 Tests grün
+
 ### 07.02.2026 - Branding, Logo & Produkt-Edit
 - Logo eingebaut: WunschkisteLogo-Komponente (inline SVG) + Wordmark-SVG in allen Headern
 - Schwebender Stern: CSS-Animation `logo-star-float` (2s, -50px, `transform-box: fill-box`)
@@ -234,15 +255,6 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - i18n Messages erweitert (nav, landing Sections)
 - Build erfolgreich, keine Fehler
 
-### 05.02.2026 - Legal Pages & Deployment
-- Impressum & Datenschutz Seiten erstellt (DE + EN, i18n-fähig)
-- DSGVO-konforme Datenschutzerklärung (Cookies, Account, Wunschlisten, Scraping, Affiliate, Hosting, Rechte)
-- Dockerfile (multi-stage, standalone output, 251MB Image)
-- docker-compose.production.yml (App + PostgreSQL)
-- Drizzle Migrations generiert + migrate.mjs Script
-- Health Check Endpoint (/api/health)
-- start.sh: Migrationen vor App-Start
-
 ## Notizen für nächste Session
 
 - `drizzle-kit push` braucht explizite `DATABASE_URL` env var (wird nicht aus .env.local gelesen)
@@ -255,3 +267,5 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - better-auth API braucht `origin` Header für CSRF-Schutz → in Playwright global setzen
 - Playwright: `locale: "de-DE"` in Config setzen damit next-intl die richtige Sprache erkennt
 - Playwright: Für Cross-User-Tests separate `request.newContext()` nutzen (Cookie-Jar ist shared)
+- CSS Custom Properties: `body { color: var(--foreground) }` berechnet den Wert auf body-Level. Kinder erben den *berechneten* Wert, nicht die Variable. Lösung: `[data-theme] { color: var(--foreground) }` explizit setzen.
+- Theme-Code (CSS, Komponenten, API) bleibt erhalten — nur UI-Auswahl auskommentiert für MVP
