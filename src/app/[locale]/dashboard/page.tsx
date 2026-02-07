@@ -52,7 +52,7 @@ export default function DashboardPage() {
   }, [session]);
 
   async function handleDelete(id: string) {
-    if (!confirm("Wunschliste wirklich löschen?")) return;
+    if (!confirm("Wunschkiste wirklich löschen?")) return;
 
     const response = await fetch(`/api/wishlists/${id}`, { method: "DELETE" });
     if (response.ok) {
@@ -101,15 +101,15 @@ export default function DashboardPage() {
       <div className="mx-auto max-w-3xl px-6 py-12">
         <div className="mb-10 flex items-end justify-between">
           <div>
-            <h1 className="font-serif text-3xl md:text-4xl">Meine Wunschlisten</h1>
+            <h1 className="font-serif text-3xl md:text-4xl">Meine Wunschkisten</h1>
             <p className="mt-2 text-foreground/50">
-              Verwalte deine Wunschlisten und teile sie mit anderen
+              Verwalte deine Wunschkisten und teile sie mit anderen
             </p>
           </div>
           <Link href="/wishlist/new">
             <Button>
               <Plus className="size-4" />
-              Neue Liste
+              Neue Kiste
             </Button>
           </Link>
         </div>
@@ -118,15 +118,15 @@ export default function DashboardPage() {
           <div className="py-20 text-center">
             <Gift className="mx-auto size-12 text-foreground/20" />
             <h3 className="mt-6 font-serif text-xl">
-              Noch keine Wunschlisten
+              Noch keine Wunschkisten
             </h3>
             <p className="mt-2 text-foreground/50">
-              Erstelle deine erste Wunschliste und teile sie mit Freunden und Familie.
+              Erstelle deine erste Wunschkiste und teile sie mit Freunden und Familie.
             </p>
             <Link href="/wishlist/new">
               <Button variant="accent" className="mt-6">
                 <Plus className="size-4" />
-                Erste Wunschliste erstellen
+                Erste Wunschkiste erstellen
               </Button>
             </Link>
           </div>

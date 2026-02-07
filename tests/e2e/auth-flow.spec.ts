@@ -14,7 +14,7 @@ test.describe("Auth Flow", () => {
     await page.getByRole("button", { name: "Registrieren" }).click();
 
     await page.waitForURL("**/dashboard");
-    await expect(page.locator("h1")).toContainText("Meine Wunschlisten");
+    await expect(page.locator("h1")).toContainText("Meine Wunschkisten");
   });
 
   test("login with valid credentials", async ({ page, request }) => {

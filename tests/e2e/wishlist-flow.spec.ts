@@ -18,7 +18,7 @@ test.describe("Wishlist Flow", () => {
   test("create a new wishlist", async ({ page }) => {
     await registerAndLoginUI(page);
 
-    await page.getByRole("link", { name: /Neue Liste/i }).click();
+    await page.getByRole("link", { name: /Neue Kiste/i }).click();
     await page.waitForURL("**/wishlist/new");
 
     await page.fill('input[id="title"]', "Mein 30. Geburtstag");
@@ -36,8 +36,8 @@ test.describe("Wishlist Flow", () => {
   test("empty dashboard shows create prompt", async ({ page }) => {
     await registerAndLoginUI(page);
 
-    await expect(page.getByText("Noch keine Wunschlisten")).toBeVisible();
-    await expect(page.getByRole("link", { name: /Erste Wunschliste erstellen/i })).toBeVisible();
+    await expect(page.getByText("Noch keine Wunschkisten")).toBeVisible();
+    await expect(page.getByRole("link", { name: /Erste Wunschkiste erstellen/i })).toBeVisible();
   });
 
   test("dashboard shows created wishlist", async ({ page, request }) => {

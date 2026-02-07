@@ -24,15 +24,15 @@
     "occasions": "Occasions",
     "login": "Login",
     "getStarted": "Get Started",
-    "myWishlists": "My Wishlists",
+    "myWishlists": "My Wishboxes",
     "logout": "Logout"
   },
   "landing": {
     "hero": {
       "title": "Share wishes,",
       "titleAccent": "give joy.",
-      "subtitle": "Create wishlists for any occasion and share them with your loved ones. Free, simple, beautiful.",
-      "cta": "Create a wishlist",
+      "subtitle": "Create wishboxes for any occasion and share them with your loved ones. Free, simple, beautiful.",
+      "cta": "Create a wishbox",
       "ctaSecondary": "How it works"
     },
     "problem": {
@@ -43,7 +43,7 @@
     "solution": {
       "label": "The solution",
       "title": "One link for everyone.",
-      "text": "Create a wishlist, share the link — done. Everyone sees what you wish for and can reserve gifts. No more duplicates."
+      "text": "Create a wishbox, share the link — done. Everyone sees what you wish for and can reserve gifts. No more duplicates."
     },
     "features": {
       "scraper": {
@@ -59,22 +59,22 @@
       "themes": {
         "label": "Occasions",
         "title": "The right design for every occasion.",
-        "text": "Birthday, Christmas, wedding or baby — choose a theme and make your wishlist special."
+        "text": "Birthday, Christmas, wedding or baby — choose a theme and make your wishbox special."
       }
     },
     "cta": {
-      "title": "Ready for your first wishlist?",
+      "title": "Ready for your first wishbox?",
       "text": "Free. No ads. Forever.",
       "button": "Get started"
     }
   },
   "wishlist": {
-    "title": "Wishlist",
-    "create": "Create wishlist",
-    "myLists": "My wishlists",
+    "title": "Wishbox",
+    "create": "Create wishbox",
+    "myLists": "My wishboxes",
     "share": "Share",
     "addProduct": "Add wish",
-    "emptyList": "This wishlist is empty",
+    "emptyList": "This wishbox is empty",
     "themes": {
       "standard": "Standard",
       "birthday": "Birthday",
@@ -127,8 +127,8 @@
       "cookiesText": "Our website uses technically necessary cookies. These are required for the website to function correctly (e.g., session cookies for authentication). Technically necessary cookies are stored on the basis of Art. 6 (1) (f) GDPR.",
       "accountTitle": "User Account",
       "accountText": "When you create a user account, we store your email address and encrypted password. This data is processed to provide the service (Art. 6 (1) (b) GDPR). You can delete your account at any time.",
-      "wishlistTitle": "Wishlist Data",
-      "wishlistText": "When you create wishlists, we store the data you enter (title, description, product links, product data). When wishes are reserved, the name of the person reserving is stored. Shared wishlists are publicly accessible via a randomly generated link.",
+      "wishlistTitle": "Wishbox Data",
+      "wishlistText": "When you create wishboxes, we store the data you enter (title, description, product links, product data). When wishes are reserved, the name of the person reserving is stored. Shared wishboxes are publicly accessible via a randomly generated link.",
       "scrapingTitle": "URL Scraping",
       "scrapingText": "When you add a product URL, our servers fetch the page to extract product data (title, image, price). No personal data is transmitted to the retrieved shops.",
       "affiliateTitle": "Affiliate Links",

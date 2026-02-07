@@ -42,7 +42,7 @@ export default function NewWishlistPage() {
     });
 
     if (!response.ok) {
-      setError("Fehler beim Erstellen der Wunschliste");
+      setError("Fehler beim Erstellen der Wunschkiste");
       setLoading(false);
       return;
     }
@@ -74,9 +74,9 @@ export default function NewWishlistPage() {
           Zurück zum Dashboard
         </Link>
 
-        <h1 className="font-serif text-3xl md:text-4xl">Neue Wunschliste</h1>
+        <h1 className="font-serif text-3xl md:text-4xl">Neue Wunschkiste</h1>
         <p className="mt-2 text-foreground/50">
-          Erstelle eine Wunschliste für deinen besonderen Anlass
+          Erstelle eine Wunschkiste für deinen besonderen Anlass
         </p>
 
         <form onSubmit={handleSubmit} className="mt-10 space-y-8">
@@ -147,7 +147,7 @@ export default function NewWishlistPage() {
               type="submit"
               disabled={loading || !title}
             >
-              {loading ? "Erstellen..." : "Wunschliste erstellen"}
+              {loading ? "Erstellen..." : "Wunschkiste erstellen"}
             </Button>
           </div>
         </form>

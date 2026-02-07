@@ -31,8 +31,8 @@ export async function generateMetadata({
     title: "Wunschkiste",
     description:
       locale === "de"
-        ? "Erstelle und teile Wunschlisten mit deinen Liebsten"
-        : "Create and share wishlists with your loved ones",
+        ? "Erstelle und teile Wunschkisten mit deinen Liebsten"
+        : "Create and share wishboxes with your loved ones",
     icons: {
       icon: [
         { url: "/favicon.ico", sizes: "any" },

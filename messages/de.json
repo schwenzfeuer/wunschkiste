@@ -24,15 +24,15 @@
     "occasions": "Anlässe",
     "login": "Anmelden",
     "getStarted": "Loslegen",
-    "myWishlists": "Meine Wunschlisten",
+    "myWishlists": "Meine Wunschkisten",
     "logout": "Abmelden"
   },
   "landing": {
     "hero": {
       "title": "Wünsche teilen,",
       "titleAccent": "Freude schenken.",
-      "subtitle": "Erstelle Wunschlisten für jeden Anlass und teile sie mit deinen Liebsten. Kostenlos, einfach, schön.",
-      "cta": "Wunschliste erstellen",
+      "subtitle": "Erstelle Wunschkisten für jeden Anlass und teile sie mit deinen Liebsten. Kostenlos, einfach, schön.",
+      "cta": "Wunschkiste erstellen",
       "ctaSecondary": "So funktioniert's"
     },
     "problem": {
@@ -43,7 +43,7 @@
     "solution": {
       "label": "Die Lösung",
       "title": "Ein Link für alle.",
-      "text": "Erstell eine Wunschliste, teil den Link — fertig. Jeder sieht, was du dir wünschst, und kann Geschenke reservieren. Keine doppelten Geschenke mehr."
+      "text": "Erstell eine Wunschkiste, teil den Link — fertig. Jeder sieht, was du dir wünschst, und kann Geschenke reservieren. Keine doppelten Geschenke mehr."
     },
     "features": {
       "scraper": {
@@ -59,22 +59,22 @@
       "themes": {
         "label": "Anlässe",
         "title": "Für jeden Anlass das passende Design.",
-        "text": "Geburtstag, Weihnachten, Hochzeit oder Baby — wähle ein Theme und mach deine Wunschliste besonders."
+        "text": "Geburtstag, Weihnachten, Hochzeit oder Baby — wähle ein Theme und mach deine Wunschkiste besonders."
       }
     },
     "cta": {
-      "title": "Bereit für deine erste Wunschliste?",
+      "title": "Bereit für deine erste Wunschkiste?",
       "text": "Kostenlos. Keine Werbung. Für immer.",
       "button": "Jetzt loslegen"
     }
   },
   "wishlist": {
-    "title": "Wunschliste",
-    "create": "Wunschliste erstellen",
-    "myLists": "Meine Wunschlisten",
+    "title": "Wunschkiste",
+    "create": "Wunschkiste erstellen",
+    "myLists": "Meine Wunschkisten",
     "share": "Teilen",
     "addProduct": "Wunsch hinzufügen",
-    "emptyList": "Diese Wunschliste ist noch leer",
+    "emptyList": "Diese Wunschkiste ist noch leer",
     "themes": {
       "standard": "Standard",
       "birthday": "Geburtstag",
@@ -127,8 +127,8 @@
       "cookiesText": "Unsere Website verwendet technisch notwendige Cookies. Diese sind erforderlich, damit die Website korrekt funktioniert (z.B. Session-Cookies für die Anmeldung). Technisch notwendige Cookies werden auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO gespeichert.",
       "accountTitle": "Benutzerkonto",
       "accountText": "Wenn Sie ein Benutzerkonto anlegen, speichern wir Ihre E-Mail-Adresse und Ihr verschlüsseltes Passwort. Diese Daten werden zur Bereitstellung des Dienstes verarbeitet (Art. 6 Abs. 1 lit. b DSGVO). Sie können Ihr Konto jederzeit löschen.",
-      "wishlistTitle": "Wunschlisten-Daten",
-      "wishlistText": "Wenn Sie Wunschlisten erstellen, speichern wir die von Ihnen eingegebenen Daten (Titel, Beschreibung, Produkt-Links, Produktdaten). Bei der Reservierung von Wünschen wird der Name des Reservierenden gespeichert. Geteilte Wunschlisten sind über einen zufällig generierten Link öffentlich zugänglich.",
+      "wishlistTitle": "Wunschkisten-Daten",
+      "wishlistText": "Wenn Sie Wunschkisten erstellen, speichern wir die von Ihnen eingegebenen Daten (Titel, Beschreibung, Produkt-Links, Produktdaten). Bei der Reservierung von Wünschen wird der Name des Reservierenden gespeichert. Geteilte Wunschkisten sind über einen zufällig generierten Link öffentlich zugänglich.",
       "scrapingTitle": "URL-Scraping",
       "scrapingText": "Wenn Sie eine Produkt-URL hinzufügen, rufen unsere Server die Seite ab, um Produktdaten (Titel, Bild, Preis) zu extrahieren. Es werden keine personenbezogenen Daten an die abgerufenen Shops übermittelt.",
       "affiliateTitle": "Affiliate-Links",

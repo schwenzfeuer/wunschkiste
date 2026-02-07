@@ -44,7 +44,7 @@ export default function LoginPage() {
 
         <h1 className="font-serif text-3xl">Anmelden</h1>
         <p className="mt-2 text-sm text-foreground/60">
-          Melde dich an um deine Wunschlisten zu verwalten
+          Melde dich an um deine Wunschkisten zu verwalten
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-5">

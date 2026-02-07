@@ -4,7 +4,7 @@ test.describe("Landing Page", () => {
   test("shows hero section with CTA", async ({ page }) => {
     await page.goto("/de");
     await expect(page.locator("h1")).toContainText("Wünsche teilen");
-    await expect(page.getByRole("link", { name: /Wunschliste erstellen/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Wunschkiste erstellen/i })).toBeVisible();
   });
 
   test("navigation shows login and register links", async ({ page }) => {

@@ -95,9 +95,9 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-4 px-6">
         <Gift className="size-16 text-foreground/20" />
-        <h1 className="font-serif text-2xl">Wunschliste nicht gefunden</h1>
+        <h1 className="font-serif text-2xl">Wunschkiste nicht gefunden</h1>
         <p className="text-foreground/50">
-          Diese Wunschliste existiert nicht oder ist nicht mehr öffentlich.
+          Diese Wunschkiste existiert nicht oder ist nicht mehr öffentlich.
         </p>
       </main>
     );
@@ -128,7 +128,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
           <div className="py-20 text-center">
             <Gift className="mx-auto size-12 text-foreground/20" />
             <p className="mt-4 text-foreground/40">
-              Diese Wunschliste ist noch leer.
+              Diese Wunschkiste ist noch leer.
             </p>
           </div>
         ) : (
