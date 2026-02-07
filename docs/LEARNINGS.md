@@ -377,6 +377,102 @@ Amazon ist NICHT bei AWIN (eigenes PartnerNet).
 
 ---
 
+## @arcjet/next Rate-Limiting
+
+**Recherche-Datum:** 07.02.2026
+
+### protect() Signatur
+
+`tokenBucket` Rules erfordern `{ requested: number }` als zweiten Parameter:
+```typescript
+const decision = await aj.protect(request, { requested: 1 });
+```
+Ohne den zweiten Parameter: TypeScript-Fehler "Expected 2 arguments, but got 1."
+
+### DRY_RUN vs LIVE
+
+In Development/Tests `DRY_RUN` verwenden, sonst werden parallele Playwright-Tests durch Rate-Limiting blockiert:
+```typescript
+const mode = process.env.NODE_ENV === "production" ? "LIVE" : "DRY_RUN";
+```
+
+---
+
+## better-auth Client-Methoden
+
+**Recherche-Datum:** 07.02.2026
+
+### Password Reset Methoden
+
+Die Client-Methode heißt `requestPasswordReset`, NICHT `forgetPassword`:
+```typescript
+export const { requestPasswordReset, resetPassword } = authClient;
+```
+`forgetPassword` existiert nur im email-otp Plugin. Die Core-Routes werden aus `/request-password-reset` → `requestPasswordReset` abgeleitet.
+
+Trick zum Prüfen der verfügbaren Methoden:
+```bash
+node -e "/* TypeScript programmatisch auslesen, siehe Session-Log */"
+```
+
+---
+
+## Resend Email SDK
+
+**Recherche-Datum:** 07.02.2026
+
+### Lazy Init erforderlich
+
+`new Resend()` ohne API Key wirft sofort einen Error — auch beim Next.js Build (Static Page Collection). Lösung: Lazy init:
+```typescript
+function getResend() {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) throw new Error("RESEND_API_KEY is not set");
+  return new Resend(key);
+}
+```
+
+---
+
+## Next.js useSearchParams + Suspense
+
+**Recherche-Datum:** 07.02.2026
+
+### Build-Fehler bei Static Generation
+
+`useSearchParams()` in einer Page-Komponente verursacht Build-Fehler:
+> useSearchParams() should be wrapped in a suspense boundary
+
+Lösung: Innere Komponente extrahieren und in `<Suspense>` wrappen:
+```tsx
+export default function LoginPage() {
+  return <Suspense><LoginForm /></Suspense>;
+}
+function LoginForm() {
+  const searchParams = useSearchParams();
+  // ...
+}
+```
+
+---
+
+## Cloudflare R2
+
+**Recherche-Datum:** 07.02.2026
+
+### API Token Typen
+
+- **User API Token**: Wird inaktiv wenn User die Organisation verlässt → für Development
+- **Account API Token**: Bleibt immer aktiv → für Production
+
+### Bucket Setup
+
+1. Bucket erstellen (Standard Storage Class, Automatic Location)
+2. Public access aktivieren (r2.dev subdomain) für öffentliche Avatar-URLs
+3. S3-Endpunkt: `https://<ACCOUNT_ID>.r2.cloudflarestorage.com`
+
+---
+
 ## SVG Animationen
 
 **Recherche-Datum:** 07.02.2026

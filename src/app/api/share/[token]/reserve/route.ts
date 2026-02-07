@@ -3,10 +3,12 @@ import { z } from "zod";
 import { eq, and } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db, wishlists, products, reservations } from "@/lib/db";
+import { reservationStatusEnum } from "@/lib/db/schema";
+import { ajReserve } from "@/lib/security/arcjet";
 
 const reserveSchema = z.object({
   productId: z.string().uuid(),
-  reservedByName: z.string().min(1).max(100).optional(),
+  status: z.enum(reservationStatusEnum.enumValues).default("reserved"),
   message: z.string().max(500).optional(),
 });
 
@@ -17,9 +19,21 @@ export async function POST(
   { params }: RouteParams
 ): Promise<NextResponse> {
   const { token } = await params;
+
+  if (ajReserve) {
+    const decision = await ajReserve.protect(request, { requested: 1 });
+    if (decision.isDenied()) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+  }
+
   const session = await auth.api.getSession({
     headers: request.headers,
   });
+
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const body = await request.json();
   const parsed = reserveSchema.safeParse(body);
@@ -31,7 +45,6 @@ export async function POST(
     );
   }
 
-  // Verify wishlist exists and is public
   const [wishlist] = await db
     .select({ id: wishlists.id, userId: wishlists.userId })
     .from(wishlists)
@@ -41,7 +54,13 @@ export async function POST(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  // Verify product belongs to this wishlist
+  if (wishlist.userId === session.user.id) {
+    return NextResponse.json(
+      { error: "Cannot reserve on your own wishlist" },
+      { status: 403 }
+    );
+  }
+
   const [product] = await db
     .select({ id: products.id })
     .from(products)
@@ -56,7 +75,6 @@ export async function POST(
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
   }
 
-  // Check if already reserved
   const [existingReservation] = await db
     .select({ id: reservations.id })
     .from(reservations)
@@ -69,13 +87,13 @@ export async function POST(
     );
   }
 
-  // Create reservation
   const [reservation] = await db
     .insert(reservations)
     .values({
       productId: parsed.data.productId,
-      reservedByUserId: session?.user?.id ?? null,
-      reservedByName: parsed.data.reservedByName ?? session?.user?.name ?? "Anonym",
+      userId: session.user.id,
+      userName: session.user.name || "Anonym",
+      status: parsed.data.status,
       message: parsed.data.message,
     })
     .returning();
@@ -92,6 +110,10 @@ export async function DELETE(
     headers: request.headers,
   });
 
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const productId = searchParams.get("productId");
 
@@ -102,9 +124,8 @@ export async function DELETE(
     );
   }
 
-  // Verify wishlist exists
   const [wishlist] = await db
-    .select({ id: wishlists.id, userId: wishlists.userId })
+    .select({ id: wishlists.id })
     .from(wishlists)
     .where(eq(wishlists.shareToken, token));
 
@@ -112,7 +133,6 @@ export async function DELETE(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  // Get the reservation
   const [reservation] = await db
     .select()
     .from(reservations)
@@ -122,15 +142,72 @@ export async function DELETE(
     return NextResponse.json({ error: "No reservation found" }, { status: 404 });
   }
 
-  // Only allow deletion by the person who reserved or the wishlist owner
-  const isOwner = session?.user?.id === wishlist.userId;
-  const isReserver = session?.user?.id === reservation.reservedByUserId;
-
-  if (!isOwner && !isReserver) {
+  if (reservation.userId !== session.user.id) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   await db.delete(reservations).where(eq(reservations.id, reservation.id));
 
   return new NextResponse(null, { status: 204 });
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: RouteParams
+): Promise<NextResponse> {
+  const { token } = await params;
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
+
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await request.json();
+  const productId = body.productId;
+
+  if (!productId) {
+    return NextResponse.json(
+      { error: "productId is required" },
+      { status: 400 }
+    );
+  }
+
+  const [wishlist] = await db
+    .select({ id: wishlists.id })
+    .from(wishlists)
+    .where(eq(wishlists.shareToken, token));
+
+  if (!wishlist) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const [reservation] = await db
+    .select()
+    .from(reservations)
+    .where(eq(reservations.productId, productId));
+
+  if (!reservation) {
+    return NextResponse.json({ error: "No reservation found" }, { status: 404 });
+  }
+
+  if (reservation.userId !== session.user.id) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  if (reservation.status !== "reserved") {
+    return NextResponse.json(
+      { error: "Can only upgrade from reserved to bought" },
+      { status: 400 }
+    );
+  }
+
+  const [updated] = await db
+    .update(reservations)
+    .set({ status: "bought" })
+    .where(eq(reservations.id, reservation.id))
+    .returning();
+
+  return NextResponse.json(updated);
 }

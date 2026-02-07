@@ -6,6 +6,7 @@ import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Plus, Gift, Share2, Trash2, Pencil } from "lucide-react";
 import { MainNav } from "@/components/main-nav";
+import { toast } from "sonner";
 
 interface Wishlist {
   id: string;
@@ -127,7 +128,7 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 </Link>
-                <div className="relative z-10 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="relative z-10 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 max-sm:opacity-100">
                   <Link href={`/wishlist/${wishlist.id}`}>
                     <Button variant="ghost" size="icon-sm">
                       <Pencil className="size-4" />
@@ -140,7 +141,7 @@ export default function DashboardPage() {
                       navigator.clipboard.writeText(
                         `${window.location.origin}/share/${wishlist.shareToken}`
                       );
-                      alert("Link kopiert!");
+                      toast.success("Link kopiert!");
                     }}
                   >
                     <Share2 className="size-4" />

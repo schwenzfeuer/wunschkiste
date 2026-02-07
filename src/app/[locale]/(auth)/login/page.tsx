@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, Link } from "@/i18n/routing";
+import { useSearchParams } from "next/navigation";
 import { signIn } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,17 @@ import Image from "next/image";
 import { WunschkisteLogo } from "@/components/wunschkiste-logo";
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +40,7 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push(callbackUrl);
   }
 
   return (
@@ -68,7 +79,15 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Passwort</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Passwort</Label>
+              <Link
+                href="/forgot-password"
+                className="text-xs text-foreground/50 hover:text-primary transition-colors"
+              >
+                Passwort vergessen?
+              </Link>
+            </div>
             <Input
               id="password"
               type="password"
@@ -98,7 +117,7 @@ export default function LoginPage() {
             size="lg"
             className="w-full"
             onClick={() =>
-              signIn.social({ provider: "google", callbackURL: "/dashboard" })
+              signIn.social({ provider: "google", callbackURL: callbackUrl })
             }
           >
             <svg className="mr-2 size-5" viewBox="0 0 24 24">
@@ -124,7 +143,10 @@ export default function LoginPage() {
 
           <p className="text-center text-sm text-foreground/60">
             Noch kein Konto?{" "}
-            <Link href="/register" className="font-medium text-primary hover:underline">
+            <Link
+              href={`/register${callbackUrl !== "/dashboard" ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
+              className="font-medium text-primary hover:underline"
+            >
               Registrieren
             </Link>
           </p>

@@ -3,13 +3,15 @@ import { z } from "zod";
 import { nanoid } from "nanoid";
 import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
-import { db, wishlists, wishlistThemeEnum } from "@/lib/db";
+import { db, wishlists, wishlistThemeEnum, ownerVisibilityEnum } from "@/lib/db";
 
 const createWishlistSchema = z.object({
   title: z.string().min(1).max(100),
   description: z.string().max(500).optional(),
   theme: z.enum(wishlistThemeEnum.enumValues).default("standard"),
   isPublic: z.boolean().default(true),
+  eventDate: z.string().datetime().optional().nullable(),
+  ownerVisibility: z.enum(ownerVisibilityEnum.enumValues).default("partial"),
 });
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -56,6 +58,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       description: parsed.data.description,
       theme: parsed.data.theme,
       isPublic: parsed.data.isPublic,
+      eventDate: parsed.data.eventDate ? new Date(parsed.data.eventDate) : null,
+      ownerVisibility: parsed.data.ownerVisibility,
       shareToken: nanoid(12),
     })
     .returning();

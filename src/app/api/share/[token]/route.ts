@@ -1,14 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { eq, inArray } from "drizzle-orm";
+import { auth } from "@/lib/auth";
 import { db, wishlists, products, reservations, users } from "@/lib/db";
 
 type RouteParams = { params: Promise<{ token: string }> };
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: RouteParams
 ): Promise<NextResponse> {
   const { token } = await params;
+
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  }).catch(() => null);
 
   const [wishlist] = await db
     .select({
@@ -18,6 +23,9 @@ export async function GET(
       theme: wishlists.theme,
       isPublic: wishlists.isPublic,
       ownerName: users.name,
+      ownerId: wishlists.userId,
+      eventDate: wishlists.eventDate,
+      ownerVisibility: wishlists.ownerVisibility,
     })
     .from(wishlists)
     .innerJoin(users, eq(users.id, wishlists.userId))
@@ -26,6 +34,10 @@ export async function GET(
   if (!wishlist || !wishlist.isPublic) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+
+  const isOwner = session?.user?.id === wishlist.ownerId;
+  const isLoggedIn = !!session?.user;
+  const currentUserId = session?.user?.id;
 
   const wishlistProducts = await db
     .select({
@@ -48,20 +60,73 @@ export async function GET(
       ? await db
           .select({
             productId: reservations.productId,
-            reservedByName: reservations.reservedByName,
-            reservedAt: reservations.reservedAt,
+            userId: reservations.userId,
+            userName: reservations.userName,
+            status: reservations.status,
           })
           .from(reservations)
           .where(inArray(reservations.productId, productIds))
       : [];
 
-  const productsWithReservation = wishlistProducts.map((product) => ({
-    ...product,
-    isReserved: productReservations.some((r) => r.productId === product.id),
-  }));
+  if (isOwner && wishlist.ownerVisibility === "surprise") {
+    const claimedCount = productReservations.length;
+    const productsPlain = wishlistProducts.map((product) => ({
+      ...product,
+      status: "available" as const,
+      claimedByMe: false,
+      claimedByName: null,
+    }));
+
+    return NextResponse.json({
+      id: wishlist.id,
+      title: wishlist.title,
+      description: wishlist.description,
+      theme: wishlist.theme,
+      ownerName: wishlist.ownerName,
+      eventDate: wishlist.eventDate,
+      ownerVisibility: wishlist.ownerVisibility,
+      isOwner,
+      isLoggedIn,
+      claimedCount,
+      totalCount: wishlistProducts.length,
+      products: productsPlain,
+    });
+  }
+
+  const productsWithReservation = wishlistProducts.map((product) => {
+    const reservation = productReservations.find((r) => r.productId === product.id);
+
+    let status: "available" | "reserved" | "bought" = "available";
+    let claimedByMe = false;
+    let claimedByName: string | null = null;
+
+    if (reservation) {
+      status = reservation.status;
+      claimedByMe = currentUserId === reservation.userId;
+
+      if (!isOwner || wishlist.ownerVisibility === "full") {
+        claimedByName = reservation.userName;
+      }
+    }
+
+    return {
+      ...product,
+      status,
+      claimedByMe,
+      claimedByName,
+    };
+  });
 
   return NextResponse.json({
-    ...wishlist,
+    id: wishlist.id,
+    title: wishlist.title,
+    description: wishlist.description,
+    theme: wishlist.theme,
+    ownerName: wishlist.ownerName,
+    eventDate: wishlist.eventDate,
+    ownerVisibility: wishlist.ownerVisibility,
+    isOwner,
+    isLoggedIn,
     products: productsWithReservation,
   });
 }

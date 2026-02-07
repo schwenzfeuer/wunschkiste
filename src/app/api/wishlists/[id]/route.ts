@@ -2,13 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
 import { auth } from "@/lib/auth";
-import { db, wishlists, wishlistThemeEnum } from "@/lib/db";
+import { db, wishlists, wishlistThemeEnum, ownerVisibilityEnum } from "@/lib/db";
 
 const updateWishlistSchema = z.object({
   title: z.string().min(1).max(100).optional(),
   description: z.string().max(500).optional().nullable(),
   theme: z.enum(wishlistThemeEnum.enumValues).optional(),
   isPublic: z.boolean().optional(),
+  eventDate: z.string().datetime().optional().nullable(),
+  ownerVisibility: z.enum(ownerVisibilityEnum.enumValues).optional(),
 });
 
 type RouteParams = { params: Promise<{ id: string }> };
@@ -61,12 +63,18 @@ export async function PATCH(
     );
   }
 
+  const { eventDate, ...rest } = parsed.data;
+  const updateData: Record<string, unknown> = {
+    ...rest,
+    updatedAt: new Date(),
+  };
+  if (eventDate !== undefined) {
+    updateData.eventDate = eventDate ? new Date(eventDate) : null;
+  }
+
   const [wishlist] = await db
     .update(wishlists)
-    .set({
-      ...parsed.data,
-      updatedAt: new Date(),
-    })
+    .set(updateData)
     .where(and(eq(wishlists.id, id), eq(wishlists.userId, session.user.id)))
     .returning();
 

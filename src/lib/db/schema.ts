@@ -8,6 +8,17 @@ export const wishlistThemeEnum = pgEnum("wishlist_theme", [
   "baby",
 ]);
 
+export const ownerVisibilityEnum = pgEnum("owner_visibility", [
+  "full",
+  "partial",
+  "surprise",
+]);
+
+export const reservationStatusEnum = pgEnum("reservation_status", [
+  "reserved",
+  "bought",
+]);
+
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull().unique(),
@@ -68,6 +79,8 @@ export const wishlists = pgTable("wishlists", {
   theme: wishlistThemeEnum("theme").notNull().default("standard"),
   shareToken: text("share_token").notNull().unique(),
   isPublic: boolean("is_public").notNull().default(true),
+  eventDate: timestamp("event_date", { withTimezone: true }),
+  ownerVisibility: ownerVisibilityEnum("owner_visibility").notNull().default("partial"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -94,12 +107,13 @@ export const reservations = pgTable("reservations", {
   productId: uuid("product_id")
     .notNull()
     .references(() => products.id, { onDelete: "cascade" }),
-  reservedByUserId: uuid("reserved_by_user_id").references(() => users.id, {
-    onDelete: "set null",
-  }),
-  reservedByName: text("reserved_by_name"),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  userName: text("user_name").notNull(),
+  status: reservationStatusEnum("status").notNull().default("reserved"),
   message: text("message"),
-  reservedAt: timestamp("reserved_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export type User = typeof users.$inferSelect;
@@ -113,3 +127,5 @@ export type NewProduct = typeof products.$inferInsert;
 export type Reservation = typeof reservations.$inferSelect;
 export type NewReservation = typeof reservations.$inferInsert;
 export type WishlistTheme = (typeof wishlistThemeEnum.enumValues)[number];
+export type OwnerVisibility = (typeof ownerVisibilityEnum.enumValues)[number];
+export type ReservationStatus = (typeof reservationStatusEnum.enumValues)[number];

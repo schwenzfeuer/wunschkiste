@@ -5,6 +5,7 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { Toaster } from "@/components/ui/sonner";
 import "../globals.css";
 
 const dmSans = DM_Sans({
@@ -80,6 +81,7 @@ export default async function LocaleLayout({
       <body className={`${dmSans.variable} ${playfair.variable} font-sans antialiased`}>
         <NextIntlClientProvider messages={messages}>
           <QueryProvider>{children}</QueryProvider>
+          <Toaster />
         </NextIntlClientProvider>
       </body>
     </html>

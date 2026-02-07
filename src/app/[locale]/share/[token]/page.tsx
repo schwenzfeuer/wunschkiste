@@ -2,13 +2,14 @@
 
 import { useState, use } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ProductImage } from "@/components/product-image";
-import { Gift, Check, ShoppingBag } from "lucide-react";
+import { Gift, Check, ShoppingBag, Calendar, LogIn, Undo2 } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import Image from "next/image";
 import { ChristmasDecorations, ChristmasHeaderStar, ChristmasEmptyState } from "@/components/themes/christmas-decorations";
@@ -23,7 +24,9 @@ interface Product {
   price: string | null;
   currency: string;
   shopName: string | null;
-  isReserved: boolean;
+  status: "available" | "reserved" | "bought";
+  claimedByMe: boolean;
+  claimedByName: string | null;
 }
 
 interface SharedWishlist {
@@ -32,6 +35,12 @@ interface SharedWishlist {
   description: string | null;
   theme: string;
   ownerName: string | null;
+  eventDate: string | null;
+  ownerVisibility: "full" | "partial" | "surprise";
+  isOwner: boolean;
+  isLoggedIn: boolean;
+  claimedCount?: number;
+  totalCount?: number;
   products: Product[];
 }
 
@@ -41,14 +50,30 @@ const themeEmojis: Record<string, string> = {
   christmas: "🎄",
 };
 
+function formatEventDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("de-DE", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function isEventPast(dateStr: string): boolean {
+  const date = new Date(dateStr);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return date < today;
+}
+
 export default function SharePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = use(params);
   const queryClient = useQueryClient();
-  const [reserveDialogOpen, setReserveDialogOpen] = useState(false);
+  const { data: session } = useSession();
+  const [claimDialogOpen, setClaimDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [reserveName, setReserveName] = useState("");
-  const [reserveMessage, setReserveMessage] = useState("");
-  const [reserving, setReserving] = useState(false);
+  const [claimMessage, setClaimMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const { data: wishlist, isLoading, isError } = useQuery<SharedWishlist>({
     queryKey: ["share", token],
@@ -61,28 +86,63 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
     refetchOnWindowFocus: true,
   });
 
-  async function handleReserve() {
-    if (!selectedProduct || !reserveName) return;
-    setReserving(true);
+  function openClaimDialog(product: Product) {
+    setSelectedProduct(product);
+    setClaimMessage("");
+    setClaimDialogOpen(true);
+  }
+
+  async function handleClaim(status: "reserved" | "bought") {
+    if (!selectedProduct) return;
+    setSubmitting(true);
 
     const response = await fetch(`/api/share/${token}/reserve`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         productId: selectedProduct.id,
-        reservedByName: reserveName,
-        message: reserveMessage || undefined,
+        status,
+        message: claimMessage || undefined,
       }),
     });
 
     if (response.ok) {
       await queryClient.invalidateQueries({ queryKey: ["share", token] });
-      setReserveDialogOpen(false);
+      setClaimDialogOpen(false);
       setSelectedProduct(null);
-      setReserveName("");
-      setReserveMessage("");
+      setClaimMessage("");
+
+      if (status === "bought") {
+        const shopUrl = selectedProduct.affiliateUrl || selectedProduct.originalUrl;
+        window.open(shopUrl, "_blank", "noopener");
+      }
     }
-    setReserving(false);
+    setSubmitting(false);
+  }
+
+  async function handleUnclaim(productId: string) {
+    const response = await fetch(
+      `/api/share/${token}/reserve?productId=${productId}`,
+      { method: "DELETE" }
+    );
+
+    if (response.ok) {
+      await queryClient.invalidateQueries({ queryKey: ["share", token] });
+    }
+  }
+
+  async function handleUpgradeToBought(product: Product) {
+    const response = await fetch(`/api/share/${token}/reserve`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId: product.id }),
+    });
+
+    if (response.ok) {
+      await queryClient.invalidateQueries({ queryKey: ["share", token] });
+      const shopUrl = product.affiliateUrl || product.originalUrl;
+      window.open(shopUrl, "_blank", "noopener");
+    }
   }
 
   if (isLoading) {
@@ -105,6 +165,9 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
     );
   }
 
+  const isOwner = wishlist.isOwner;
+  const isLoggedIn = wishlist.isLoggedIn;
+
   return (
     <main
       className="min-h-screen bg-background transition-colors"
@@ -126,7 +189,44 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
           {wishlist.description && (
             <p className="mt-4 text-lg text-foreground/60">{wishlist.description}</p>
           )}
+          {wishlist.eventDate && (
+            <p className="mt-3 inline-flex items-center gap-2 text-sm text-foreground/50">
+              <Calendar className="size-4" />
+              {formatEventDate(wishlist.eventDate)}
+              {isEventPast(wishlist.eventDate) && (
+                <Badge variant="secondary">Anlass vorbei</Badge>
+              )}
+            </p>
+          )}
         </div>
+
+        {/* Not logged in hint */}
+        {!isLoggedIn && !isOwner && (
+          <div className="mb-8 rounded-xl border-2 border-primary/20 bg-primary/5 p-4 text-center">
+            <LogIn className="mx-auto mb-2 size-5 text-primary" />
+            <p className="text-sm text-foreground/70">
+              <Link
+                href={`/login?callbackUrl=/share/${token}`}
+                className="font-medium text-primary hover:underline"
+              >
+                Anmelden
+              </Link>
+              {" "}um Geschenke zu reservieren oder als gekauft zu markieren.
+            </p>
+          </div>
+        )}
+
+        {/* Owner surprise mode banner */}
+        {isOwner && wishlist.ownerVisibility === "surprise" && wishlist.claimedCount !== undefined && (
+          <div className="mb-8 rounded-xl border-2 border-border bg-card p-4 text-center">
+            <p className="text-lg font-medium">
+              {wishlist.claimedCount} von {wishlist.totalCount} Wünschen sind vergeben
+            </p>
+            <p className="mt-1 text-sm text-foreground/50">
+              Du hast den Überraschungs-Modus aktiviert — du siehst nicht, wer was besorgt.
+            </p>
+          </div>
+        )}
 
         {/* Products */}
         {wishlist.products.length === 0 ? (
@@ -143,109 +243,84 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
         ) : (
           <div className="space-y-3">
             {wishlist.products.map((product) => (
-              <div
+              <ProductCard
                 key={product.id}
-                className={`flex items-center gap-4 rounded-xl border-2 border-border bg-card p-4 transition-all ${
-                  product.isReserved ? "opacity-50" : ""
-                }`}
-              >
-                <ProductImage
-                  src={product.imageUrl}
-                  alt={product.title}
-                  className="size-20 shrink-0 rounded-lg object-contain"
-                />
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium leading-snug line-clamp-2">{product.title}</h3>
-                  <div className="mt-1 flex items-center gap-3 text-sm text-foreground/50">
-                    {product.price && (
-                      <span className="font-semibold text-foreground">
-                        {product.price} {product.currency}
-                      </span>
-                    )}
-                    {product.shopName && <span>{product.shopName}</span>}
-                  </div>
-                  {product.isReserved && (
-                    <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-success/10 px-3 py-1 text-xs font-medium text-success">
-                      <Check className="size-3" />
-                      Reserviert
-                    </span>
-                  )}
-                </div>
-                <div className="flex shrink-0 flex-col gap-2">
-                  <a
-                    href={product.affiliateUrl || product.originalUrl}
-                    target="_blank"
-                    rel={`noopener${product.affiliateUrl ? " sponsored nofollow" : ""}`}
-                  >
-                    <Button variant="outline" size="sm">
-                      <ShoppingBag className="size-4" />
-                      Kaufen
-                    </Button>
-                  </a>
-                  {!product.isReserved && (
-                    <Dialog
-                      open={reserveDialogOpen && selectedProduct?.id === product.id}
-                      onOpenChange={(open) => {
-                        setReserveDialogOpen(open);
-                        if (open) setSelectedProduct(product);
-                      }}
-                    >
-                      <DialogTrigger asChild>
-                        <Button size="sm">Reservieren</Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle className="font-serif text-xl">Wunsch reservieren</DialogTitle>
-                          <DialogDescription>
-                            Reserviere diesen Wunsch, damit niemand anderes das gleiche Geschenk kauft.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="name">Dein Name *</Label>
-                            <Input
-                              id="name"
-                              placeholder="z.B. Oma Helga"
-                              value={reserveName}
-                              onChange={(e) => setReserveName(e.target.value)}
-                              required
-                              className="h-11 rounded-lg border-2 bg-card"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="message">Nachricht (optional)</Label>
-                            <Textarea
-                              id="message"
-                              placeholder="Eine Nachricht für den Beschenkten..."
-                              value={reserveMessage}
-                              onChange={(e) => setReserveMessage(e.target.value)}
-                              rows={3}
-                              className="rounded-lg border-2 bg-card"
-                            />
-                          </div>
-                        </div>
-                        <DialogFooter>
-                          <Button
-                            variant="ghost"
-                            onClick={() => setReserveDialogOpen(false)}
-                          >
-                            Abbrechen
-                          </Button>
-                          <Button
-                            onClick={handleReserve}
-                            disabled={!reserveName || reserving}
-                          >
-                            {reserving ? "Reservieren..." : "Reservieren"}
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-                  )}
-                </div>
-              </div>
+                product={product}
+                isOwner={isOwner}
+                isLoggedIn={isLoggedIn}
+                ownerVisibility={wishlist.ownerVisibility}
+                token={token}
+                onClaim={() => openClaimDialog(product)}
+                onUnclaim={() => handleUnclaim(product.id)}
+                onUpgrade={() => handleUpgradeToBought(product)}
+              />
             ))}
           </div>
         )}
+
+        {/* Claim Dialog */}
+        <Dialog open={claimDialogOpen} onOpenChange={setClaimDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="font-serif text-xl">Wunsch beanspruchen</DialogTitle>
+              <DialogDescription>
+                {selectedProduct?.title}
+              </DialogDescription>
+            </DialogHeader>
+            {selectedProduct && (
+              <>
+                {selectedProduct.imageUrl && (
+                  <div className="flex justify-center">
+                    <ProductImage
+                      src={selectedProduct.imageUrl}
+                      alt={selectedProduct.title}
+                      className="h-24 w-24 rounded-lg object-contain"
+                    />
+                  </div>
+                )}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="claim-message">Nachricht (optional)</Label>
+                    <Textarea
+                      id="claim-message"
+                      placeholder="Eine Nachricht für den Beschenkten..."
+                      value={claimMessage}
+                      onChange={(e) => setClaimMessage(e.target.value)}
+                      rows={3}
+                      maxLength={500}
+                      className="rounded-lg border-2 bg-card"
+                    />
+                  </div>
+                </div>
+                <DialogFooter className="flex-col gap-2 sm:flex-col">
+                  <Button
+                    onClick={() => handleClaim("bought")}
+                    disabled={submitting}
+                    className="w-full"
+                  >
+                    <ShoppingBag className="size-4" />
+                    {submitting ? "..." : "Zum Shop & als gekauft markieren"}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => handleClaim("reserved")}
+                    disabled={submitting}
+                    className="w-full"
+                  >
+                    {submitting ? "..." : "Erst mal reservieren"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setClaimDialogOpen(false)}
+                    className="w-full"
+                  >
+                    Abbrechen
+                  </Button>
+                </DialogFooter>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* Footer */}
         <footer className="mt-16 border-t border-border pt-8 text-center text-xs text-foreground/40">
@@ -262,5 +337,132 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
         </footer>
       </div>
     </main>
+  );
+}
+
+function ProductCard({
+  product,
+  isOwner,
+  isLoggedIn,
+  ownerVisibility,
+  token,
+  onClaim,
+  onUnclaim,
+  onUpgrade,
+}: {
+  product: Product;
+  isOwner: boolean;
+  isLoggedIn: boolean;
+  ownerVisibility: string;
+  token: string;
+  onClaim: () => void;
+  onUnclaim: () => void;
+  onUpgrade: () => void;
+}) {
+  const isClaimed = product.status !== "available";
+  const isMine = product.claimedByMe;
+
+  return (
+    <div
+      className={`flex items-center gap-4 rounded-xl border-2 border-border bg-card p-4 transition-all ${
+        isClaimed && !isMine ? "opacity-60" : ""
+      }`}
+    >
+      <ProductImage
+        src={product.imageUrl}
+        alt={product.title}
+        className="size-20 shrink-0 rounded-lg object-contain"
+      />
+      <div className="flex-1 min-w-0">
+        <h3 className="font-medium leading-snug line-clamp-2">{product.title}</h3>
+        <div className="mt-1 flex items-center gap-3 text-sm text-foreground/50">
+          {product.price && (
+            <span className="font-semibold text-foreground">
+              {product.price} {product.currency}
+            </span>
+          )}
+          {product.shopName && <span>{product.shopName}</span>}
+        </div>
+
+        {/* Status badges */}
+        {isClaimed && (
+          <div className="mt-2">
+            {product.status === "bought" ? (
+              <Badge variant="default" className="bg-green-600">
+                <Check className="mr-1 size-3" />
+                Gekauft
+                {product.claimedByName && !isOwner && ` von ${product.claimedByName}`}
+                {isOwner && ownerVisibility === "full" && product.claimedByName && ` von ${product.claimedByName}`}
+              </Badge>
+            ) : (
+              <Badge variant="secondary">
+                Reserviert
+                {product.claimedByName && !isOwner && ` von ${product.claimedByName}`}
+                {isOwner && ownerVisibility === "full" && product.claimedByName && ` von ${product.claimedByName}`}
+              </Badge>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex shrink-0 flex-col gap-2">
+        {!isOwner && isLoggedIn && (
+          <>
+            {product.status === "available" && (
+              <Button size="sm" onClick={onClaim}>
+                <ShoppingBag className="size-4" />
+                Kaufen
+              </Button>
+            )}
+
+            {isMine && product.status === "reserved" && (
+              <>
+                <Button size="sm" onClick={onUpgrade}>
+                  <ShoppingBag className="size-4" />
+                  Jetzt kaufen
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onUnclaim}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Undo2 className="size-3" />
+                  Aufheben
+                </Button>
+              </>
+            )}
+
+            {isMine && product.status === "bought" && (
+              <>
+                <Button size="sm" variant="outline" disabled>
+                  <Check className="size-4" />
+                  Gekauft
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onUnclaim}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Undo2 className="size-3" />
+                  Rückgängig
+                </Button>
+              </>
+            )}
+          </>
+        )}
+
+        {!isOwner && !isLoggedIn && product.status === "available" && (
+          <Link href={`/login?callbackUrl=/share/${token}`}>
+            <Button size="sm" variant="outline">
+              <LogIn className="size-4" />
+              Anmelden
+            </Button>
+          </Link>
+        )}
+      </div>
+    </div>
   );
 }

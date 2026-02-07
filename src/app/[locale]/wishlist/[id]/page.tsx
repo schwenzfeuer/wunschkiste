@@ -7,17 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ProductImage } from "@/components/product-image";
-import { ThemeCard } from "@/components/theme-card";
-import { ArrowLeft, Plus, Trash2, ExternalLink, Share2, Loader2, Pencil } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, ExternalLink, Share2, Loader2, Pencil, Calendar as CalendarIcon, X } from "lucide-react";
 import { ChristmasDecorations } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
-
-const themes = [
-  { value: "standard", label: "Standard" },
-  { value: "birthday", label: "Geburtstag" },
-  { value: "christmas", label: "Weihnachten" },
-];
+import { de } from "date-fns/locale";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import type { OwnerVisibility } from "@/lib/db/schema";
 
 interface Product {
   id: string;
@@ -36,6 +36,8 @@ interface Wishlist {
   description: string | null;
   theme: string;
   shareToken: string;
+  eventDate: string | null;
+  ownerVisibility: OwnerVisibility;
 }
 
 interface ProductData {
@@ -45,6 +47,12 @@ interface ProductData {
   currency: string | null;
   shopName: string | null;
 }
+
+const visibilityOptions: { value: OwnerVisibility; label: string; description: string }[] = [
+  { value: "full", label: "Alles sehen", description: "Welche Geschenke vergeben sind und von wem" },
+  { value: "partial", label: "Teilweise", description: "Was vergeben ist, aber nicht von wem" },
+  { value: "surprise", label: "Überraschung!", description: "Nur die Anzahl vergebener Geschenke" },
+];
 
 export default function WishlistPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -63,6 +71,8 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
   const [editTitle, setEditTitle] = useState("");
   const [editPrice, setEditPrice] = useState("");
   const [saving, setSaving] = useState(false);
+  const [eventDate, setEventDate] = useState<Date | undefined>();
+  const [ownerVisibility, setOwnerVisibility] = useState<OwnerVisibility>("partial");
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -82,7 +92,10 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
         return;
       }
 
-      setWishlist(await wishlistRes.json());
+      const wl = await wishlistRes.json();
+      setWishlist(wl);
+      setEventDate(wl.eventDate ? new Date(wl.eventDate) : undefined);
+      setOwnerVisibility(wl.ownerVisibility || "partial");
       setProducts(await productsRes.json());
       setLoading(false);
     }
@@ -151,20 +164,6 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
     }
   }
 
-  async function handleThemeChange(newTheme: string) {
-    if (!wishlist || newTheme === wishlist.theme) return;
-
-    const response = await fetch(`/api/wishlists/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ theme: newTheme }),
-    });
-
-    if (response.ok) {
-      setWishlist({ ...wishlist, theme: newTheme });
-    }
-  }
-
   function openEditDialog(product: Product) {
     setEditProduct(product);
     setEditTitle(product.title);
@@ -196,7 +195,25 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
     if (!wishlist) return;
     const shareUrl = `${window.location.origin}/share/${wishlist.shareToken}`;
     navigator.clipboard.writeText(shareUrl);
-    alert("Link kopiert!");
+    toast.success("Link kopiert!");
+  }
+
+  async function handleEventDateChange(date: Date | undefined) {
+    setEventDate(date);
+    await fetch(`/api/wishlists/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ eventDate: date?.toISOString() ?? null }),
+    });
+  }
+
+  async function handleVisibilityChange(visibility: OwnerVisibility) {
+    setOwnerVisibility(visibility);
+    await fetch(`/api/wishlists/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ownerVisibility: visibility }),
+    });
   }
 
   if (isPending || loading) {
@@ -225,19 +242,6 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
             {wishlist.description && (
               <p className="mt-2 text-foreground/50">{wishlist.description}</p>
             )}
-            {/* TODO: Theme-Auswahl für Post-MVP reaktivieren
-            <div className="mt-3 flex gap-2">
-              {themes.map((t) => (
-                <ThemeCard
-                  key={t.value}
-                  value={t.value}
-                  label={t.label}
-                  active={wishlist.theme === t.value}
-                  onClick={() => handleThemeChange(t.value)}
-                />
-              ))}
-            </div>
-            */}
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={handleShare}>
@@ -336,6 +340,67 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
           </div>
         </div>
 
+        {/* Settings: Event Date + Visibility */}
+        <div className="mb-8 space-y-4 rounded-xl border-2 border-border bg-card/50 p-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <Label className="text-xs text-foreground/50">Anlass-Datum</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "justify-start text-left font-normal",
+                      !eventDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 size-3.5" />
+                    {eventDate ? format(eventDate, "PPP", { locale: de }) : "Kein Datum"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={eventDate}
+                    onSelect={handleEventDateChange}
+                    locale={de}
+                  />
+                </PopoverContent>
+              </Popover>
+              {eventDate && (
+                <button
+                  type="button"
+                  onClick={() => handleEventDateChange(undefined)}
+                  className="inline-flex items-center gap-1 text-xs text-foreground/50 hover:text-foreground"
+                >
+                  <X className="size-3" />
+                  Entfernen
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs text-foreground/50">Sichtbarkeit für dich</Label>
+              <div className="flex gap-1">
+                {visibilityOptions.map((option) => (
+                  <Button
+                    key={option.value}
+                    type="button"
+                    variant={ownerVisibility === option.value ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleVisibilityChange(option.value)}
+                    title={option.description}
+                  >
+                    {option.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {products.length === 0 ? (
           <div className="py-20 text-center">
             <p className="text-foreground/40">
@@ -365,7 +430,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                     {product.shopName && <span>{product.shopName}</span>}
                   </div>
                 </div>
-                <div className="flex items-center gap-1 shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="flex items-center gap-1 shrink-0 opacity-0 transition-opacity group-hover:opacity-100 max-sm:opacity-100">
                   <Button variant="ghost" size="icon-sm" onClick={() => openEditDialog(product)}>
                     <Pencil className="size-4" />
                   </Button>

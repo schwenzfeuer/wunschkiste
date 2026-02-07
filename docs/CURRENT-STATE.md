@@ -1,10 +1,10 @@
 # Current State
 
-> Letzte Aktualisierung: 07.02.2026 (Nacht)
+> Letzte Aktualisierung: 07.02.2026 (Abend)
 
 ## Status
 
-**Phase:** MVP komplett + Polishing (Themes, Affiliate, i18n). Deployment-ready.
+**Phase:** v1.0 Feature-complete. Alle AP 1-9 implementiert. Build grün, 51 Tests grün.
 
 ## Was existiert
 
@@ -37,7 +37,7 @@
 - [x] **Google Auth Button**: Login + Register Seiten mit Google OAuth Button
 - [x] **MainNav Komponente**: Auth-State-Aware Nav (Login/Register vs. Meine Wunschlisten/Logout)
 - [x] **HeroCta Komponente**: Dynamischer CTA basierend auf Auth-State
-- [x] **Playwright Tests**: 22 API-Tests + 13 E2E-Tests (Auth, Wishlists, Products, Share, Reservations, Landing, Wishlist-Flow)
+- [x] **Playwright Tests**: 38 API-Tests + 13 E2E-Tests (Auth, Wishlists, Products, Share, Reserve/Buy, Visibility, Landing, Wishlist-Flow)
 - [x] **TanStack Query**: QueryClientProvider + Share-Page Polling (10s refetch + refetchOnWindowFocus)
 - [x] **ProductImage**: Wiederverwendbare Komponente mit onError Fallback (Gift-Icon)
 - [x] **Immersive Themes**: CSS-Animationen (Schneeflocken, Konfetti, Shimmer, Wolken) + prefers-reduced-motion
@@ -61,6 +61,15 @@
 - [x] **Einheitlicher Header**: MainNav auf allen Seiten (Dashboard, Wishlist, Share) mit border-b
 - [x] **Dashboard Header dedupliziert**: Eigener Header durch MainNav ersetzt
 - [x] **Theme-Auswahl MVP-deaktiviert**: ThemeCards auskommentiert, Code bleibt erhalten
+- [x] **v1.0 Schema-Upgrade**: ownerVisibility + reservationStatus Enums, eventDate, reservations mit Auth
+- [x] **Reserve/Buy System**: Auth-Pflicht, Owner-Block, status reserved/bought, DELETE/PATCH
+- [x] **Share-Seite v2**: Kaufen-Dialog, Auth-Status, Button-Logik, Owner-Visibility (full/partial/surprise)
+- [x] **Calendar/Datepicker**: Event-Datum + Visibility in Wishlist-Editor und New-Page
+- [x] **Avatar-Upload**: R2 Storage Client, Upload-API, UserAvatar mit Initialen-Fallback
+- [x] **Passwort vergessen**: Resend Email-Service, Forgot/Reset-Password Seiten
+- [x] **Toasts**: Sonner/Toaster, QueryProvider mit globalem onError, Error/404 Pages
+- [x] **Rate-Limiting**: ArcJet auf /api/scrape und /api/share/[token]/reserve (DRY_RUN in dev)
+- [x] **51 Tests grün**: 38 API (inkl. 20 neue Share-Tests) + 13 E2E
 
 ## Tech-Stack (installiert)
 
@@ -74,6 +83,11 @@
 - TanStack Query 5.90.20
 - Cheerio 1.2.0, nanoid 5.1.6, zod 4.3.6
 - Lucide Icons
+- @aws-sdk/client-s3 (Cloudflare R2)
+- resend (Email)
+- sonner (Toasts via shadcn)
+- @arcjet/next (Rate-Limiting + Bot-Protection)
+- react-day-picker + date-fns (Calendar/Datepicker)
 
 ## Projektstruktur
 
@@ -85,7 +99,9 @@ src/
 │   │   ├── page.tsx                   # Landing Page (Hero + Features + CTA)
 │   │   ├── (auth)/
 │   │   │   ├── login/page.tsx
-│   │   │   └── register/page.tsx
+│   │   │   ├── register/page.tsx
+│   │   │   ├── forgot-password/page.tsx
+│   │   │   └── reset-password/page.tsx
 │   │   ├── dashboard/page.tsx         # Wishlist-Übersicht
 │   │   ├── wishlist/
 │   │   │   ├── new/page.tsx           # Erstellen mit Theme-Picker
@@ -97,7 +113,8 @@ src/
 │       │   └── [id]/products/         # Products CRUD
 │       ├── share/[token]/             # Public share API
 │       │   └── reserve/               # Reservations
-│       └── scrape/                    # URL Scraping
+│       ├── scrape/                    # URL Scraping
+│       └── profile/avatar/            # Avatar Upload/Delete (R2)
 ├── components/
 │   ├── animate-on-scroll.tsx          # Scroll-Animation Wrapper
 │   ├── product-image.tsx              # Bild mit Broken-Image-Fallback
@@ -114,7 +131,10 @@ src/
 │   ├── auth/                          # better-auth Config (UUID-Mode)
 │   ├── db/                            # Drizzle Schema & Connection
 │   ├── affiliate/                     # Amazon Tag Integration
-│   └── scraper/                       # Cheerio + OpenGraph + JSON-LD
+│   ├── scraper/                       # Cheerio + OpenGraph + JSON-LD
+│   ├── email/                         # Resend Email-Service
+│   ├── storage/                       # Cloudflare R2 Client
+│   └── security/                      # ArcJet Rate-Limiting
 ├── i18n/                              # next-intl Config
 └── middleware.ts                      # Locale Routing
 messages/
@@ -132,7 +152,8 @@ messages/
 ### Tests
 - [x] Playwright E2E Setup + User-Flow Tests (Register, Login, Wishlist CRUD, Share, Reservierung)
 - [x] API-Tests für alle Routes (Wishlists, Products, Scraper, Share, Auth)
-- 35 Tests gesamt: 22 API + 13 E2E, alle grün
+- [x] Share-Tests erweitert: Reserve Auth, DELETE, PATCH, Owner-Visibility, EventDate CRUD
+- 51 Tests gesamt: 38 API + 13 E2E, alle grün
 
 ### Mobile-Testing & Live-Updates (Plan: `~/.claude/plans/serene-greeting-moon.md`)
 - [x] TanStack Query installieren + QueryClientProvider einrichten
@@ -190,6 +211,16 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 07.02.2026 - AP 9: Tests, Build-Fixes, .env.example
+- **Build-Fixes**: ArcJet `protect()` braucht `{ requested: 1 }`, `forgetPassword` → `requestPasswordReset`, Resend lazy init, Suspense-Boundaries für `useSearchParams()`
+- **Share-Tests komplett neu**: 20 Tests (Reserve Auth 401/403, Buy, DELETE eigene/fremde, PATCH upgrade, Owner-Visibility full/partial/surprise, EventDate CRUD)
+- **ArcJet DRY_RUN**: In Development `DRY_RUN` statt `LIVE` (verhindert Rate-Limiting in Tests)
+- **.env.example**: RESEND_API_KEY, ARCJET_KEY, R2_* ergänzt
+- **Cloudflare R2 Bucket**: `wunschkiste-avatars` eingerichtet (User API Token für Dev)
+- **DB-Migration**: `0001_v1_schema_upgrade.sql` manuell ausgeführt (drizzle-kit push war interaktiv)
+- **Playwright Timeout**: 30s → 60s (Multi-User-Tests brauchen mehr Zeit bei paralleler Ausführung)
+- 51 Tests grün (38 API + 13 E2E), Build grün
+
 ### 07.02.2026 - Christmas SVG-Deko, Dark Theme & einheitlicher Header
 - ChristmasDecorations-Komponente: Inline-SVGs (6-zackige Schneeflocken, 5-zackige Sterne, stilisierte Tannen)
 - CSS-Animationen: float-gentle, twinkle, sway + prefers-reduced-motion Support
@@ -240,32 +271,10 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - 13 E2E-Tests: Landing Page, Auth Flow (Register, Login, Google Button, Navigation), Wishlist Flow (Erstellen, Dashboard, Theme)
 - Turbopack Cache Bug: `.next` Verzeichnis löschen wenn SST-Dateien korrupt
 
-### 06.02.2026 - Design Redesign (ADR-005)
-- Komplettes Redesign aller Frontend-Seiten nach ADR-005
-- Neue Farbpalette: Warmes Creme (#FEF1D0) + Tiefes Blau (#0042AF) + Soft Tangerine (#FF8C42)
-- Font-Pairing: Playfair Display (Serif-Headlines) + DM Sans (Body)
-- Custom Button mit :before-Layer-Trick für Tiefe ohne Schatten
-- useInView Hook + AnimateOnScroll Komponente für Scroll-Animationen
-- Landing Page: Storytelling-Flow (Problem → Lösung → 3 Features → CTA)
-- Auth-Seiten: Minimalistisch ohne Card-Wrapper
-- Dashboard: Listenansicht statt Card-Grid, hover-Actions
-- Wishlist-Editor: Schmaler Container, Listenansicht für Produkte
-- Share-View: Zentrierter editorial Stil
-- Anlass-Themes aktualisiert (Hex-Farben statt OKLCH)
-- i18n Messages erweitert (nav, landing Sections)
-- Build erfolgreich, keine Fehler
 
 ## Notizen für nächste Session
 
-- `drizzle-kit push` braucht explizite `DATABASE_URL` env var (wird nicht aus .env.local gelesen)
-- better-auth braucht `advanced.database.generateId: "uuid"` wenn Schema UUID-Spalten hat
-- better-auth `accounts`-Tabelle braucht `password`-Feld für Email/Password Auth
-- Port 5432 war schon belegt → Docker auf 5433
-- Amazon blockiert Scraper für Preis/Bild, aber Titel geht. Otto funktioniert komplett.
-- `<img>` Warnings im Lint sind OK - externe Shop-Bilder können nicht über `next/image` laufen
-- Turbopack Cache kann korrupt werden → `.next` löschen und neu starten
-- better-auth API braucht `origin` Header für CSRF-Schutz → in Playwright global setzen
-- Playwright: `locale: "de-DE"` in Config setzen damit next-intl die richtige Sprache erkennt
-- Playwright: Für Cross-User-Tests separate `request.newContext()` nutzen (Cookie-Jar ist shared)
-- CSS Custom Properties: `body { color: var(--foreground) }` berechnet den Wert auf body-Level. Kinder erben den *berechneten* Wert, nicht die Variable. Lösung: `[data-theme] { color: var(--foreground) }` explizit setzen.
+- v1.0 Feature-complete — nächster Schritt: Manuelles Testing, dann Deployment
+- Cloudflare R2: User API Token für Dev aktiv, Account API Token für Production noch erstellen
+- PROGRESS.md ist veraltet / überflüssig — kann gelöscht werden (alles in CURRENT-STATE.md)
 - Theme-Code (CSS, Komponenten, API) bleibt erhalten — nur UI-Auswahl auskommentiert für MVP

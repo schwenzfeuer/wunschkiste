@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, Link } from "@/i18n/routing";
+import { useSearchParams } from "next/navigation";
 import { signIn, signUp } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,17 @@ import Image from "next/image";
 import { WunschkisteLogo } from "@/components/wunschkiste-logo";
 
 export default function RegisterPage() {
+  return (
+    <Suspense>
+      <RegisterForm />
+    </Suspense>
+  );
+}
+
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -40,7 +51,7 @@ export default function RegisterPage() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push(callbackUrl);
   }
 
   return (
@@ -124,7 +135,7 @@ export default function RegisterPage() {
             size="lg"
             className="w-full"
             onClick={() =>
-              signIn.social({ provider: "google", callbackURL: "/dashboard" })
+              signIn.social({ provider: "google", callbackURL: callbackUrl })
             }
           >
             <svg className="mr-2 size-5" viewBox="0 0 24 24">
@@ -150,7 +161,10 @@ export default function RegisterPage() {
 
           <p className="text-center text-sm text-foreground/60">
             Bereits ein Konto?{" "}
-            <Link href="/login" className="font-medium text-primary hover:underline">
+            <Link
+              href={`/login${callbackUrl !== "/dashboard" ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
+              className="font-medium text-primary hover:underline"
+            >
               Anmelden
             </Link>
           </p>

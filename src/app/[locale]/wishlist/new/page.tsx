@@ -7,12 +7,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ArrowLeft, Calendar as CalendarIcon, X } from "lucide-react";
+import { de } from "date-fns/locale";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import type { OwnerVisibility } from "@/lib/db/schema";
 
 const themes = [
   { value: "standard", label: "Standard", emoji: "🎁", description: "Für jeden Anlass" },
   { value: "birthday", label: "Geburtstag", emoji: "🎂", description: "Party-Vibes!" },
   { value: "christmas", label: "Weihnachten", emoji: "🎄", description: "Festlich & gemütlich" },
+];
+
+const visibilityOptions: { value: OwnerVisibility; label: string; description: string }[] = [
+  { value: "full", label: "Alles sehen", description: "Du siehst welche Geschenke vergeben sind und von wem" },
+  { value: "partial", label: "Teilweise", description: "Du siehst was vergeben ist, aber nicht von wem" },
+  { value: "surprise", label: "Überraschung!", description: "Du siehst nur die Anzahl vergebener Geschenke" },
 ];
 
 export default function NewWishlistPage() {
@@ -21,6 +33,8 @@ export default function NewWishlistPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [theme, setTheme] = useState("standard");
+  const [eventDate, setEventDate] = useState<Date | undefined>();
+  const [ownerVisibility, setOwnerVisibility] = useState<OwnerVisibility>("partial");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -38,7 +52,13 @@ export default function NewWishlistPage() {
     const response = await fetch("/api/wishlists", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, description: description || undefined, theme }),
+      body: JSON.stringify({
+        title,
+        description: description || undefined,
+        theme,
+        eventDate: eventDate?.toISOString() ?? null,
+        ownerVisibility,
+      }),
     });
 
     if (!response.ok) {
@@ -135,6 +155,66 @@ export default function NewWishlistPage() {
               rows={3}
               className="rounded-lg border-2 bg-card"
             />
+          </div>
+
+          {/* Event Date */}
+          <div className="space-y-2">
+            <Label>Anlass-Datum (optional)</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className={cn(
+                    "w-full h-11 justify-start text-left font-normal rounded-lg border-2 bg-card",
+                    !eventDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 size-4" />
+                  {eventDate ? format(eventDate, "PPP", { locale: de }) : "Datum wählen"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={eventDate}
+                  onSelect={setEventDate}
+                  locale={de}
+                />
+              </PopoverContent>
+            </Popover>
+            {eventDate && (
+              <button
+                type="button"
+                onClick={() => setEventDate(undefined)}
+                className="inline-flex items-center gap-1 text-xs text-foreground/50 hover:text-foreground"
+              >
+                <X className="size-3" />
+                Datum entfernen
+              </button>
+            )}
+          </div>
+
+          {/* Owner Visibility */}
+          <div className="space-y-3">
+            <Label>Was möchtest du sehen?</Label>
+            <div className="space-y-2">
+              {visibilityOptions.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setOwnerVisibility(option.value)}
+                  className={`w-full rounded-xl border-2 p-3 text-left transition-all ${
+                    ownerVisibility === option.value
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/30"
+                  }`}
+                >
+                  <span className="text-sm font-medium">{option.label}</span>
+                  <p className="mt-0.5 text-xs text-foreground/50">{option.description}</p>
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
