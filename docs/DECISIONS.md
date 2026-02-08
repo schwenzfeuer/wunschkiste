@@ -220,4 +220,57 @@ Firecrawl verworfen. Cheerio-Scraper bleibt, manuelle Eingabe als Fallback.
 ### Konsequenzen
 
 **Positiv:** Keine zusätzlichen Kosten, keine neue Dependency, einfache Architektur
-**Negativ:** Amazon-Produkte brauchen manuelle Bild/Preis-Eingabe (akzeptabel fürs MVP)
+**Negativ:** Amazon-Produkte brauchen manuelle Bild/Preis-Eingabe (akzeptabel fuers MVP)
+
+---
+
+## ADR-007: Hosting - Cloudflare Pages + Neon statt Hetzner + Dokploy
+
+**Datum:** 08.02.2026
+**Status:** Accepted
+
+### Kontext
+
+Urspruenglich war Hetzner VPS + Dokploy geplant (ADR-001). Mit wachsenden Anforderungen (automatische Skalierung, Cron-Jobs fuer Email-Erinnerungen, globale Performance) muss die Hosting-Strategie ueberdacht werden. Domain und R2-Storage laufen bereits bei Cloudflare.
+
+### Entscheidung
+
+Cloudflare Pages fuer die App, Neon fuer die PostgreSQL-Datenbank.
+
+- **App:** Cloudflare Pages mit `@opennextjs/cloudflare` Adapter
+- **Datenbank:** Neon Serverless PostgreSQL (Drizzle kompatibel)
+- **Storage:** Cloudflare R2 (bereits eingerichtet)
+- **Cron:** Cloudflare Cron Triggers (fuer Email-Erinnerungen)
+- **Email:** Resend (bleibt)
+
+### Alternativen
+
+| Option | Vorteile | Nachteile |
+|--------|----------|-----------|
+| **Gewaehlt: Cloudflare Pages + Neon** | Auto-Skalierung, Edge-basiert, Cron Triggers, bereits im CF-Oekosystem, guenstiger Free Tier | Neuer Adapter noetig, externe DB statt self-hosted |
+| Hetzner VPS + Dokploy | Volle Kontrolle, EU-Hosting, 5 EUR/Monat | Manuelle Skalierung, Single Point of Failure, Ops-Aufwand |
+| Vercel | Nativer Next.js Host, zero Config | Teuer bei Traffic-Spikes, kein EU-Hosting |
+| Coolify auf Hetzner | Open Source, gute UI | Gleiche Skalierungs-Probleme wie Dokploy |
+
+### Kosten
+
+| Service | Free Tier | Paid |
+|---------|-----------|------|
+| Cloudflare Pages | 100k Requests/Tag, unlimited Bandwidth | Ab 5 USD/Monat (10 Mio Requests inkl.) |
+| Neon | 0.5 GB Storage, 190 Compute Hours | Ab 19 USD/Monat |
+| Cloudflare R2 | 10 GB Storage, 10 Mio Reads | 0.015 USD/GB danach |
+| Resend | 3000 Emails/Monat | Ab 20 USD/Monat |
+
+### Konsequenzen
+
+**Positiv:**
+- Automatische Skalierung bei Traffic-Spikes
+- Globale Edge-Performance
+- Alles im Cloudflare-Oekosystem (Domain, DNS, R2, Pages, Cron)
+- Grosszuegiger Free Tier fuer den Start
+- Kein Server-Management
+
+**Negativ:**
+- `@opennextjs/cloudflare` Adapter noetig (nicht offiziell von Next.js)
+- PostgreSQL nicht self-hosted (Abhaengigkeit von Neon)
+- ADR-001 Deployment-Entscheidung wird ersetzt

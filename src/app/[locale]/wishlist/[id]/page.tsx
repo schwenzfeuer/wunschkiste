@@ -10,9 +10,11 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ProductImage } from "@/components/product-image";
-import { Plus, Trash2, ExternalLink, Share2, Loader2, Pencil, Calendar as CalendarIcon, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Trash2, ExternalLink, Share2, Loader2, Pencil, Calendar as CalendarIcon, X, Check, ShoppingCart, Users } from "lucide-react";
 import { ChristmasDecorations } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
+import { UserAvatar } from "@/components/user-avatar";
 import { ConfirmationDialog } from "@/components/confirmation-dialog";
 import { de } from "date-fns/locale";
 import { format } from "date-fns";
@@ -30,6 +32,8 @@ interface Product {
   price: string | null;
   currency: string;
   shopName: string | null;
+  reservationStatus: "reserved" | "bought" | null;
+  reservedByName: string | null;
 }
 
 interface Wishlist {
@@ -50,6 +54,12 @@ interface ProductData {
   shopName: string | null;
 }
 
+interface Participant {
+  id: string;
+  name: string | null;
+  image: string | null;
+}
+
 const visibilityOptions: { value: OwnerVisibility; label: string; description: string }[] = [
   { value: "full", label: "Alles sehen", description: "Welche Geschenke vergeben sind und von wem" },
   { value: "partial", label: "Teilweise", description: "Was vergeben ist, aber nicht von wem" },
@@ -63,6 +73,8 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
   const [wishlist, setWishlist] = useState<Wishlist | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [participantsOpen, setParticipantsOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [newUrl, setNewUrl] = useState("");
   const [scraping, setScraping] = useState(false);
@@ -74,6 +86,8 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
   const [editPrice, setEditPrice] = useState("");
   const [saving, setSaving] = useState(false);
   const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
+  const [pendingVisibility, setPendingVisibility] = useState<OwnerVisibility | null>(null);
+  const [surpriseSpoiled, setSurpriseSpoiled] = useState(false);
   const [eventDate, setEventDate] = useState<Date | undefined>();
   const [ownerVisibility, setOwnerVisibility] = useState<OwnerVisibility>("partial");
 
@@ -85,9 +99,10 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
 
   useEffect(() => {
     async function fetchData() {
-      const [wishlistRes, productsRes] = await Promise.all([
+      const [wishlistRes, productsRes, participantsRes] = await Promise.all([
         fetch(`/api/wishlists/${id}`),
         fetch(`/api/wishlists/${id}/products`),
+        fetch(`/api/wishlists/${id}/participants`),
       ]);
 
       if (!wishlistRes.ok) {
@@ -100,6 +115,9 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
       setEventDate(wl.eventDate ? new Date(wl.eventDate) : undefined);
       setOwnerVisibility(wl.ownerVisibility || "partial");
       setProducts(await productsRes.json());
+      if (participantsRes.ok) {
+        setParticipants(await participantsRes.json());
+      }
       setLoading(false);
     }
 
@@ -217,6 +235,10 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ownerVisibility: visibility }),
     });
+    const productsRes = await fetch(`/api/wishlists/${id}/products`);
+    if (productsRes.ok) {
+      setProducts(await productsRes.json());
+    }
   }
 
   if (isPending || loading) {
@@ -387,13 +409,19 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
             <div className="space-y-1">
               <Label className="text-xs text-foreground/50">Sichtbarkeit für dich</Label>
               <div className="flex gap-1">
-                {visibilityOptions.map((option) => (
+                {visibilityOptions.filter((option) => option.value !== "surprise" || (!surpriseSpoiled && ownerVisibility === "surprise")).map((option) => (
                   <Button
                     key={option.value}
                     type="button"
                     variant={ownerVisibility === option.value ? "default" : "outline"}
                     size="sm"
-                    onClick={() => handleVisibilityChange(option.value)}
+                    onClick={() => {
+                      if (ownerVisibility === "surprise" && option.value !== "surprise") {
+                        setPendingVisibility(option.value);
+                      } else {
+                        handleVisibilityChange(option.value);
+                      }
+                    }}
                     title={option.description}
                   >
                     {option.label}
@@ -403,6 +431,34 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
             </div>
           </div>
         </div>
+
+        {participants.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setParticipantsOpen(true)}
+            className="mb-8 flex items-center gap-2 transition-opacity hover:opacity-80"
+          >
+            <div className="flex -space-x-2">
+              {participants.slice(0, 5).map((p) => (
+                <UserAvatar
+                  key={p.id}
+                  name={p.name}
+                  imageUrl={p.image}
+                  size="sm"
+                  className="ring-2 ring-background"
+                />
+              ))}
+              {participants.length > 5 && (
+                <div className="flex size-8 items-center justify-center rounded-full bg-muted text-xs font-medium ring-2 ring-background">
+                  +{participants.length - 5}
+                </div>
+              )}
+            </div>
+            <span className="text-sm text-foreground/50">
+              {participants.length} {participants.length === 1 ? "Teilnehmer" : "Teilnehmer"}
+            </span>
+          </button>
+        )}
 
         {products.length === 0 ? (
           <div className="py-20 text-center">
@@ -432,6 +488,23 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                     )}
                     {product.shopName && <span>{product.shopName}</span>}
                   </div>
+                  {product.reservationStatus && (
+                    <div className="mt-1.5 flex items-center gap-2">
+                      <Badge
+                        variant={product.reservationStatus === "bought" ? "default" : "secondary"}
+                        className={product.reservationStatus === "bought" ? "bg-green-600" : ""}
+                      >
+                        {product.reservationStatus === "bought" ? (
+                          <><Check className="mr-1 size-3" />Gekauft</>
+                        ) : (
+                          <><ShoppingCart className="mr-1 size-3" />Reserviert</>
+                        )}
+                      </Badge>
+                      {product.reservedByName && (
+                        <span className="text-xs text-foreground/50">von {product.reservedByName}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center gap-1 shrink-0 opacity-0 transition-opacity group-hover:opacity-100 max-sm:opacity-100">
                   <Button variant="ghost" size="icon-sm" onClick={() => openEditDialog(product)}>
@@ -510,6 +583,38 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
         variant="destructive"
         onConfirm={handleDeleteProduct}
       />
+
+      <ConfirmationDialog
+        open={pendingVisibility !== null}
+        onOpenChange={(open) => { if (!open) setPendingVisibility(null); }}
+        title="Überraschung verderben?"
+        description="Wenn du die Sichtbarkeit änderst, siehst du welche Wünsche bereits vergeben wurden. Das lässt sich nicht rückgängig machen."
+        confirmLabel="Ja, zeig mir alles"
+        cancelLabel="Lieber nicht"
+        onConfirm={() => {
+          if (pendingVisibility) {
+            handleVisibilityChange(pendingVisibility);
+            setSurpriseSpoiled(true);
+          }
+          setPendingVisibility(null);
+        }}
+      />
+
+      <Dialog open={participantsOpen} onOpenChange={setParticipantsOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-xl">Teilnehmer</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            {participants.map((p) => (
+              <div key={p.id} className="flex items-center gap-3">
+                <UserAvatar name={p.name} imageUrl={p.image} size="sm" />
+                <span className="text-sm font-medium">{p.name || "Unbekannt"}</span>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

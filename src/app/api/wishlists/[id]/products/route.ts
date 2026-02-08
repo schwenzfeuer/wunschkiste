@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { auth } from "@/lib/auth";
-import { db, products, wishlists } from "@/lib/db";
+import { db, products, wishlists, reservations } from "@/lib/db";
 import { createAffiliateUrl } from "@/lib/affiliate";
 
 const createProductSchema = z.object({
@@ -44,12 +44,46 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  const [wishlistData] = await db
+    .select({ ownerVisibility: wishlists.ownerVisibility })
+    .from(wishlists)
+    .where(eq(wishlists.id, id));
+
   const wishlistProducts = await db
     .select()
     .from(products)
     .where(eq(products.wishlistId, id));
 
-  return NextResponse.json(wishlistProducts);
+  const productIds = wishlistProducts.map((p) => p.id);
+  const productReservations =
+    productIds.length > 0
+      ? await db
+          .select({
+            productId: reservations.productId,
+            userName: reservations.userName,
+            status: reservations.status,
+          })
+          .from(reservations)
+          .where(inArray(reservations.productId, productIds))
+      : [];
+
+  const visibility = wishlistData?.ownerVisibility ?? "partial";
+
+  const productsWithReservations = wishlistProducts.map((product) => {
+    const reservation = productReservations.find((r) => r.productId === product.id);
+
+    if (!reservation || visibility === "surprise") {
+      return { ...product, reservationStatus: null, reservedByName: null };
+    }
+
+    return {
+      ...product,
+      reservationStatus: reservation.status,
+      reservedByName: visibility === "full" ? reservation.userName : null,
+    };
+  });
+
+  return NextResponse.json(productsWithReservations);
 }
 
 export async function POST(

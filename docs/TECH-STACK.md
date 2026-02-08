@@ -40,12 +40,14 @@
 |---------|-------|
 | Cheerio | HTML Parsing für Meta-Tags/OpenGraph |
 
-## Deployment
+## Deployment (ADR-007)
 
 | Service | Zweck |
 |---------|-------|
-| Hetzner | Hosting |
-| Dokploy | Deployment & Management |
+| Cloudflare Pages | App Hosting (Edge, auto-skalierend) |
+| Neon | Serverless PostgreSQL |
+| Cloudflare R2 | Avatar Storage (bereits eingerichtet) |
+| Cloudflare Cron Triggers | Geplante Jobs (Email-Erinnerungen) |
 
 ## Explizit NICHT verwendet
 

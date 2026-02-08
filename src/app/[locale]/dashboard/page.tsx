@@ -18,6 +18,9 @@ interface Wishlist {
   shareToken: string;
   isPublic: boolean;
   createdAt: string;
+  ownerVisibility: string;
+  totalCount: number;
+  claimedCount: number;
 }
 
 interface SharedWishlist {
@@ -150,7 +153,7 @@ export default function DashboardPage() {
               <Link
                 key={wishlist.id}
                 href={{ pathname: "/wishlist/[id]", params: { id: wishlist.id } }}
-                className="group relative flex items-center justify-between rounded-xl border-2 border-border bg-background px-6 py-5 transition-colors hover:border-primary"
+                className="group relative flex items-center justify-between rounded-xl border-2 border-border bg-card px-6 py-5 transition-colors hover:border-primary/20"
               >
                 <div className="flex items-center gap-3">
                   {themeEmojis[wishlist.theme] && (
@@ -158,8 +161,16 @@ export default function DashboardPage() {
                   )}
                   <div>
                     <h3 className="font-medium">{wishlist.title}</h3>
-                    {wishlist.description && (
-                      <p className="mt-0.5 text-sm text-foreground/50">{wishlist.description}</p>
+                    {(wishlist.claimedCount > 0 || wishlist.description) && (
+                      <p className="mt-0.5 text-sm text-foreground/50">
+                        {wishlist.claimedCount > 0 && wishlist.ownerVisibility === "surprise"
+                          ? "Es wurden Wünsche vergeben"
+                          : wishlist.claimedCount > 0
+                            ? `${wishlist.claimedCount} von ${wishlist.totalCount} vergeben`
+                            : ""}
+                        {wishlist.claimedCount > 0 && wishlist.description ? " · " : ""}
+                        {wishlist.description ?? ""}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -204,7 +215,7 @@ export default function DashboardPage() {
                 <Link
                   key={sw.id}
                   href={{ pathname: "/share/[token]", params: { token: sw.shareToken } }}
-                  className="group flex items-center justify-between rounded-xl border-2 border-border bg-background px-6 py-5 transition-colors hover:border-primary"
+                  className="group flex items-center justify-between rounded-xl border-2 border-border bg-card px-6 py-5 transition-colors hover:border-primary/20"
                 >
                   <div>
                     <h3 className="font-medium">{sw.title}</h3>
