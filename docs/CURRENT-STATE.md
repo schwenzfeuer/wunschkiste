@@ -80,6 +80,14 @@
 - [x] **Button destructive**: 3D-Effekt wie primary/accent, in Rot
 - [x] **Auto-Save geteilter Wunschkisten**: Neue `saved_wishlists`-Tabelle, Share-Besuch speichert Wishlist automatisch im Dashboard
 - [x] **Shared-Endpoint umgebaut**: Query basiert auf `saved_wishlists` statt `reservations` — Wishlists ohne Reservierungen erscheinen mit 0/0 Counts
+- [x] **Owner Visibility im Editor**: Products-API liefert Reservierungsdaten basierend auf ownerVisibility (full/partial/surprise)
+- [x] **Dashboard Reservierungs-Counts**: Wishlists-API liefert totalCount + claimedCount, Anzeige respektiert Visibility
+- [x] **Surprise-Modus**: Keine Anzahlen, nur "Es wurden Wuensche vergeben", Confirmation Dialog beim Wechsel
+- [x] **Visibility Live-Update**: Products werden nach Modus-Wechsel sofort neu geladen
+- [x] **Teilnehmer-Feature**: /api/wishlists/[id]/participants, ueberlappende Avatare + Modal im Editor
+- [x] **Dashboard Cards**: bg-card + sanfterer Hover (hover:border-primary/20)
+- [x] **CLAUDE.md**: Projekt-spezifische Verhaltensregeln (keine Emojis, keine Annahmen, Arbeitsweise)
+- [x] **ADR-007**: Hosting-Entscheidung Cloudflare Pages + Neon statt Hetzner + Dokploy
 
 ## Tech-Stack (installiert)
 
@@ -223,6 +231,17 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - [x] PostgreSQL für lokale Entwicklung
 
 ## Letzte Sessions
+
+### 08.02.2026 - Owner Visibility, Teilnehmer & Hosting-Entscheidung
+- **Visibility-Bug gefixt**: Products-API liefert jetzt Reservierungsdaten basierend auf ownerVisibility
+- **Surprise-Modus**: Zeigt keine Anzahlen, nur "Es wurden Wuensche vergeben", Confirmation Dialog beim Verlassen
+- **Visibility Live-Update**: Products werden nach Modus-Wechsel sofort neu geladen (kein Reload noetig)
+- **Dashboard Counts**: Wishlists-API liefert totalCount + claimedCount, respektiert Surprise-Modus
+- **Teilnehmer-Feature**: Neue /api/wishlists/[id]/participants Route, ueberlappende Avatare + Modal im Editor
+- **Dashboard Cards**: bg-card + sanfterer Hover (konsistent mit Wunsch-Items)
+- **CLAUDE.md**: Projekt-spezifische Verhaltensregeln erstellt
+- **ADR-007**: Hosting-Entscheidung Cloudflare Pages + Neon (statt Hetzner + Dokploy)
+- Build gruen, 44 API-Tests gruen
 
 ### 08.02.2026 - Auto-Save geteilter Wunschkisten
 - **Neue Tabelle `saved_wishlists`**: user_id + wishlist_id mit UNIQUE-Constraint, CASCADE-Delete
