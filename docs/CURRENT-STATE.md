@@ -1,10 +1,10 @@
 # Current State
 
-> Letzte Aktualisierung: 08.02.2026
+> Letzte Aktualisierung: 08.02.2026 (Abend)
 
 ## Status
 
-**Phase:** v1.0 Feature-complete. Alle AP 1-9 implementiert. Build grün, 57 Tests grün.
+**Phase:** v1.0 Feature-complete + Email-Reminders. Build gruen, 67 Tests gruen.
 
 ## Was existiert
 
@@ -88,6 +88,12 @@
 - [x] **Dashboard Cards**: bg-card + sanfterer Hover (hover:border-primary/20)
 - [x] **CLAUDE.md**: Projekt-spezifische Verhaltensregeln (keine Emojis, keine Annahmen, Arbeitsweise)
 - [x] **ADR-007**: Hosting-Entscheidung Cloudflare Pages + Neon statt Hetzner + Dokploy
+- [x] **Email-Reminders**: Cron-Endpoint `/api/reminders/send` mit CRON_API_KEY Bearer-Auth
+- [x] **sent_reminders Tabelle**: Duplikat-Schutz via UNIQUE(userId, wishlistId, reminderType)
+- [x] **Reminder-Logik**: 7-Tage + 3-Tage Erinnerungen, Owner/Kaeufer-Skip, 24h-Cooldown fuer frische Teilnehmer
+- [x] **Gebrandetes Email-Template**: Logo + Wortmarke Header, Creme-Hintergrund, 3D-Button, Google Fonts (DM Sans + Playfair Display)
+- [x] **Password-Reset-Email redesigned**: Gleiches Template-Layout wie Reminder-Emails
+- [x] **67 Tests gruen**: 54 API (inkl. 5 neue Reminder-Tests) + 13 E2E
 
 ## Tech-Stack (installiert)
 
@@ -131,6 +137,7 @@ src/
 │       │   └── [id]/products/         # Products CRUD
 │       ├── share/[token]/             # Public share API
 │       │   └── reserve/               # Reservations
+│       ├── reminders/send/            # Cron: Email-Erinnerungen
 │       ├── scrape/                    # URL Scraping
 │       └── profile/avatar/            # Avatar Upload/Delete (R2)
 ├── components/
@@ -174,7 +181,7 @@ messages/
 - [x] Playwright E2E Setup + User-Flow Tests (Register, Login, Wishlist CRUD, Share, Reservierung)
 - [x] API-Tests für alle Routes (Wishlists, Products, Scraper, Share, Auth)
 - [x] Share-Tests erweitert: Reserve Auth, DELETE, PATCH, Owner-Visibility, EventDate CRUD
-- 57 Tests gesamt: 44 API + 13 E2E, alle grün
+- 67 Tests gesamt: 54 API + 13 E2E, alle gruen
 
 ### Mobile-Testing & Live-Updates (Plan: `~/.claude/plans/serene-greeting-moon.md`)
 - [x] TanStack Query installieren + QueryClientProvider einrichten
@@ -232,6 +239,16 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 08.02.2026 - Email-Erinnerungen fuer Teilnehmer
+- **sent_reminders Tabelle**: reminderTypeEnum ("7_days", "3_days") + UNIQUE-Constraint (userId, wishlistId, reminderType)
+- **sendReminderEmail()**: Gebrandetes Template mit Logo + Wortmarke, Creme-Hintergrund, 3D-Button (orange), Google Fonts
+- **Password-Reset-Email**: Auf gleiches Layout umgestellt (emailLayout + ctaButton Helpers)
+- **POST /api/reminders/send**: CRON_API_KEY Bearer-Auth, 7/3-Tage-Fenster mit 12h Toleranz
+- **Teilnehmer-Filter**: Owner ausgeschlossen, Kaeufer (status "bought") uebersprungen, 24h-Cooldown fuer frische Teilnehmer
+- **Idempotenz**: INSERT ON CONFLICT DO NOTHING auf sent_reminders, erst DB-Record dann Email
+- **5 neue Tests**: Auth (401 ohne/falscher Key, 200 mit Key), Fresh-Participant-Skip, Buyer/Owner-Skip
+- Build gruen, 67 Tests gruen (54 API + 13 E2E)
+
 ### 08.02.2026 - Owner Visibility, Teilnehmer & Hosting-Entscheidung
 - **Visibility-Bug gefixt**: Products-API liefert jetzt Reservierungsdaten basierend auf ownerVisibility
 - **Surprise-Modus**: Zeigt keine Anzahlen, nur "Es wurden Wuensche vergeben", Confirmation Dialog beim Verlassen
@@ -286,26 +303,13 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - DESIGN.md aktualisiert: SVG-Doku, "Wunschliste" → "Wunschkiste"
 - Build OK, alle 35 Tests grün
 
-### 07.02.2026 - Branding, Logo & Produkt-Edit
-- Logo eingebaut: WunschkisteLogo-Komponente (inline SVG) + Wordmark-SVG in allen Headern
-- Schwebender Stern: CSS-Animation `logo-star-float` (2s, -50px, `transform-box: fill-box`)
-- Brand-Farben: Geschenkbox `#0042AF`, Stern/Strahlen dunkel `#112334`, Wordmark blau
-- Stern-Favicon: Separate SVG erstellt, alle Favicon-Größen über RealFaviconGenerator generiert
-- Themes reduziert: Wedding & Baby aus UI entfernt (DB/CSS bleibt für Rückwärtskompatibilität)
-- Dashboard-Fix: Theme-Animationen (Konfetti etc.) von Dashboard-Cards entfernt
-- Produkt-Edit: Edit-Dialog mit Titel + Preis im Wishlist-Editor (nutzt bestehende PATCH API)
-- Projektname final: Wunschkiste (Domain: wunschkiste.xyz), Google OAuth als erledigt markiert
 
-### 07.02.2026 - Locale Detection Fix
-- `localeDetection: false` in next-intl routing (Browser-Sprache führte zu ungewolltem `/en` Redirect)
-- Besser für SEO: Googlebot crawlt mit `en-US`, würde sonst DE-Seiten nicht indexieren
+## Notizen fuer naechste Session
 
-
-## Notizen für nächste Session
-
-- v1.0 Feature-complete + UI/UX Polish — nächster Schritt: Manuelles Testing, dann Deployment
-- Auto-Save aktiv: Share-Besuch speichert Wishlist automatisch → Dashboard zeigt sie sofort (auch ohne Reservierung)
+- v1.0 Feature-complete + Email-Reminders -- naechster Schritt: Manuelles Testing, dann Deployment
+- Email-Reminders: Endpoint bereit fuer Cron-Trigger (`curl -X POST -H "Authorization: Bearer $CRON_API_KEY"`)
+- Resend Domain `wunschkiste.app` nicht verifiziert -- `wunschkiste.xyz` muss bei Resend verifiziert werden
+- Logo-URLs in Emails zeigen auf `wunschkiste.xyz` -- funktioniert erst nach Deployment
 - Drizzle Migrations: `db:generate` funktioniert nicht korrekt (fehlender 0001-Snapshot), daher Migrations manuell + `db:push`
 - Lokalisierte Routen aktiv: DE-URLs ohne Prefix, EN unter `/en/...`
-- Cloudflare R2: User API Token für Dev aktiv, Account API Token für Production noch erstellen
-- Theme-Code (CSS, Komponenten, API) bleibt erhalten — nur UI-Auswahl auskommentiert für MVP
+- Cloudflare R2: User API Token fuer Dev aktiv, Account API Token fuer Production noch erstellen

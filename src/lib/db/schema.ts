@@ -19,6 +19,11 @@ export const reservationStatusEnum = pgEnum("reservation_status", [
   "bought",
 ]);
 
+export const reminderTypeEnum = pgEnum("reminder_type", [
+  "7_days",
+  "3_days",
+]);
+
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull().unique(),
@@ -139,7 +144,23 @@ export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;
 export type Reservation = typeof reservations.$inferSelect;
 export type NewReservation = typeof reservations.$inferInsert;
+export const sentReminders = pgTable("sent_reminders", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  wishlistId: uuid("wishlist_id")
+    .notNull()
+    .references(() => wishlists.id, { onDelete: "cascade" }),
+  reminderType: reminderTypeEnum("reminder_type").notNull(),
+  sentAt: timestamp("sent_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  unique().on(t.userId, t.wishlistId, t.reminderType),
+]);
+
 export type SavedWishlist = typeof savedWishlists.$inferSelect;
 export type WishlistTheme = (typeof wishlistThemeEnum.enumValues)[number];
 export type OwnerVisibility = (typeof ownerVisibilityEnum.enumValues)[number];
 export type ReservationStatus = (typeof reservationStatusEnum.enumValues)[number];
+export type ReminderType = (typeof reminderTypeEnum.enumValues)[number];
+export type SentReminder = typeof sentReminders.$inferSelect;

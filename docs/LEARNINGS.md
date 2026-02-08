@@ -432,6 +432,22 @@ function getResend() {
 }
 ```
 
+### Domain-Verifizierung (08.02.2026)
+
+Resend verweigert den Versand mit `from: "...@wunschkiste.app"` wenn die Domain nicht verifiziert ist:
+```
+403: "The wunschkiste.app domain is not verified"
+```
+Zum Testen `onboarding@resend.dev` als Absender verwenden. Fuer Production muss die Domain bei Resend verifiziert werden (DNS TXT Records).
+
+### Google Fonts in Emails (08.02.2026)
+
+Email-Clients laden Web-Fonts nicht automatisch. Ein `<link>` Tag im `<head>` funktioniert in Gmail und Apple Mail:
+```html
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+```
+Outlook ignoriert es und faellt auf die Fallback-Fonts zurueck (`Georgia`, `sans-serif`).
+
 ---
 
 ## Next.js useSearchParams + Suspense
