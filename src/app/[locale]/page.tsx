@@ -8,6 +8,8 @@ import { HeroCta } from "@/components/hero-cta";
 import { Link2, Users, ArrowDown } from "lucide-react";
 import { WunschkisteLogo } from "@/components/wunschkiste-logo";
 
+const baseUrl = process.env.BETTER_AUTH_URL || "http://localhost:3000";
+
 interface HomePageProps {
   params: Promise<{ locale: string }>;
 }
@@ -16,7 +18,33 @@ export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  return <HomeContent />;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        name: "Wunschkiste",
+        url: baseUrl,
+        description: "Wunschlisten erstellen und teilen",
+      },
+      {
+        "@type": "Organization",
+        name: "Wunschkiste",
+        url: baseUrl,
+        logo: `${baseUrl}/favicon.svg`,
+      },
+    ],
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <HomeContent />
+    </>
+  );
 }
 
 function HomeContent() {

@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { ArrowLeft } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Impressum",
+  robots: { index: true, follow: true },
+};
 
 interface ImprintPageProps {
   params: Promise<{ locale: string }>;

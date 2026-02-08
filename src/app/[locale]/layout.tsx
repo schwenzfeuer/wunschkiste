@@ -29,13 +29,18 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const path = locale === routing.defaultLocale ? "" : `/${locale}`;
+  const description =
+    locale === "de"
+      ? "Erstelle und teile Wunschlisten mit deinen Liebsten. Einfach Produkte hinzufuegen, Link teilen, Doppelkauf vermeiden."
+      : "Create and share wishlists with your loved ones. Add products, share the link, avoid duplicate gifts.";
 
   return {
-    title: "Wunschkiste",
-    description:
-      locale === "de"
-        ? "Erstelle und teile Wunschkisten mit deinen Liebsten"
-        : "Create and share wishboxes with your loved ones",
+    metadataBase: new URL(baseUrl),
+    title: {
+      default: "Wunschkiste -- Wunschlisten erstellen und teilen",
+      template: "%s - Wunschkiste",
+    },
+    description,
     icons: {
       icon: [
         { url: "/favicon.ico", sizes: "any" },
@@ -45,6 +50,19 @@ export async function generateMetadata({
       apple: "/apple-touch-icon.png",
     },
     manifest: "/site.webmanifest",
+    openGraph: {
+      type: "website",
+      siteName: "Wunschkiste",
+      locale: locale === "de" ? "de_DE" : "en_US",
+      title: "Wunschkiste -- Wunschlisten erstellen und teilen",
+      description,
+      url: `${baseUrl}${path}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Wunschkiste -- Wunschlisten erstellen und teilen",
+      description,
+    },
     alternates: {
       canonical: `${baseUrl}${path}`,
       languages: {

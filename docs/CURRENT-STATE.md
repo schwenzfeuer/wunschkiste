@@ -1,10 +1,10 @@
 # Current State
 
-> Letzte Aktualisierung: 08.02.2026 (Abend)
+> Letzte Aktualisierung: 08.02.2026 (Nacht)
 
 ## Status
 
-**Phase:** v1.0 Feature-complete, UI-Polish und Mobile-Optimierung. 67 Tests gruen, Build gruen.
+**Phase:** v1.0 Feature-complete, SEO-ready, Share-Seite SSR. 67 Tests gruen, Build gruen.
 
 ## Was existiert
 
@@ -120,6 +120,17 @@
 - [x] **Landing: Theme-Section entfernt**: Schlankere Startseite
 - [x] **AuthDialog**: "Willkommen" als Titel statt Login/Registrieren
 - [x] **Kalender**: Vergangene Daten disabled, "Datum entfernen" als dezenter Text-Link
+- [x] **robots.txt**: Crawler erlaubt, Auth/Dashboard/API blockiert, Sitemap-Verweis
+- [x] **sitemap.xml**: Statische Seiten (/, /impressum, /datenschutz)
+- [x] **OG-Tags + Twitter Cards**: Root Layout mit metadataBase, openGraph, twitter
+- [x] **Title-Template**: `%s - Wunschkiste` fuer alle Unterseiten
+- [x] **Statisches OG-Image**: 1200x630, Wunschkiste-Branding auf Creme-Hintergrund
+- [x] **Dynamisches OG-Image (Share)**: Wishlist-Titel, Owner-Name, Produktanzahl
+- [x] **Seitenspezifische Metadata**: Alle 11 Seiten mit eigenem Title + robots (noindex fuer geschuetzte Seiten)
+- [x] **JSON-LD**: WebSite + Organization Schema auf Landing Page
+- [x] **Share-Seite Server/Client-Split**: page.tsx (Server) + share-page-content.tsx (Client)
+- [x] **Share-Seite SSR**: Server fetcht volle Daten inkl. Auth, uebergibt als initialData an react-query
+- [x] **Alle Client-Pages refactored**: Auth, Dashboard, Wishlist-Editor mit Server-Wrapper fuer Metadata
 
 ## Tech-Stack (installiert)
 
@@ -148,15 +159,18 @@ src/
 │   │   ├── layout.tsx
 │   │   ├── page.tsx                   # Landing Page (Hero + Features + CTA)
 │   │   ├── (auth)/
-│   │   │   ├── login/page.tsx
-│   │   │   ├── register/page.tsx
-│   │   │   ├── forgot-password/page.tsx
-│   │   │   └── reset-password/page.tsx
-│   │   ├── dashboard/page.tsx         # Wishlist-Übersicht
+│   │   │   ├── login/page.tsx + login-form.tsx
+│   │   │   ├── register/page.tsx + register-form.tsx
+│   │   │   ├── forgot-password/page.tsx + forgot-password-form.tsx
+│   │   │   └── reset-password/page.tsx + reset-password-form.tsx
+│   │   ├── dashboard/page.tsx + dashboard-content.tsx
 │   │   ├── wishlist/
-│   │   │   ├── new/page.tsx           # Erstellen mit Theme-Picker
-│   │   │   └── [id]/page.tsx          # Editor mit Scraper-Dialog
-│   │   └── share/[token]/page.tsx     # Öffentliche Ansicht mit Reservierung
+│   │   │   ├── new/page.tsx + new-wishlist-form.tsx
+│   │   │   └── [id]/page.tsx + wishlist-editor.tsx
+│   │   └── share/[token]/
+│   │       ├── page.tsx               # Server Component (SSR + generateMetadata)
+│   │       ├── share-page-content.tsx  # Client Component (Interaktivitaet)
+│   │       └── opengraph-image.tsx     # Dynamisches OG-Image
 │   └── api/
 │       ├── auth/[...all]/             # better-auth Handler
 │       ├── wishlists/                 # Wishlists CRUD
@@ -265,6 +279,17 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 08.02.2026 - SEO-Komplett-Durchgang + Share-Seite SSR
+- **robots.txt + sitemap.xml**: Crawler-Regeln, statische Seiten
+- **Root Layout Metadata**: OG-Tags, Twitter-Card, Title-Template (`%s - Wunschkiste`), metadataBase
+- **Statisches OG-Image**: 1200x630, Wunschkiste-Branding (Creme/Blau/Tangerine)
+- **Share-Seite SSR**: Server Component mit `generateMetadata` + volle Daten-Query (Auth via Session-Cookie), `cache()` fuer Request-Deduplizierung, `initialData` an react-query
+- **Dynamisches OG-Image (Share)**: Wishlist-Titel, Owner-Name, Produktanzahl auf Creme-Hintergrund
+- **11 Seiten refactored**: Client-Pages in Server/Client-Split (page.tsx Wrapper + *-form.tsx / *-content.tsx)
+- **Seitenspezifische Titles**: "Anmelden", "Registrieren", "Meine Wunschkisten", etc. + noindex auf geschuetzten Seiten
+- **JSON-LD**: WebSite + Organization Schema auf Landing Page
+- Build gruen, 67 Tests gruen
+
 ### 08.02.2026 - UI-Polish & Mobile-Optimierung
 - **Badges differenziert**: Reserviert = Outline + Bookmark-Icon, Gekauft = Filled + Check-Icon
 - **Produkt-Sortierung**: Share-Seite zeigt verfuegbare oben, gekaufte unten
@@ -318,25 +343,16 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **5 neue Tests**: Auth (401 ohne/falscher Key, 200 mit Key), Fresh-Participant-Skip, Buyer/Owner-Skip
 - Build gruen, 67 Tests gruen (54 API + 13 E2E)
 
-### 08.02.2026 - Owner Visibility, Teilnehmer & Hosting-Entscheidung
-- **Visibility-Bug gefixt**: Products-API liefert jetzt Reservierungsdaten basierend auf ownerVisibility
-- **Surprise-Modus**: Zeigt keine Anzahlen, nur "Es wurden Wuensche vergeben", Confirmation Dialog beim Verlassen
-- **Visibility Live-Update**: Products werden nach Modus-Wechsel sofort neu geladen (kein Reload noetig)
-- **Dashboard Counts**: Wishlists-API liefert totalCount + claimedCount, respektiert Surprise-Modus
-- **Teilnehmer-Feature**: Neue /api/wishlists/[id]/participants Route, ueberlappende Avatare + Modal im Editor
-- **Dashboard Cards**: bg-card + sanfterer Hover (konsistent mit Wunsch-Items)
-- **CLAUDE.md**: Projekt-spezifische Verhaltensregeln erstellt
-- **ADR-007**: Hosting-Entscheidung Cloudflare Pages + Neon (statt Hetzner + Dokploy)
-- Build gruen, 44 API-Tests gruen
-
 ## Notizen fuer naechste Session
 
-- **i18n komplett** -- App ist bereit fuer manuelles Testing und dann Deployment
+- **SEO komplett** -- robots.txt, sitemap, OG-Tags, Titles, JSON-LD, Share SSR
+- **Share-Seite SSR**: Daten werden server-seitig via `cache()` gefetcht und als `initialData` an react-query uebergeben. Auto-Save (savedWishlists) passiert weiterhin ueber den Client-seitigen API-Refetch (10s Polling)
+- **metadataBase Warning im Build**: Kommt weil `BETTER_AUTH_URL` nicht in der Build-Umgebung gesetzt ist -- in Production kein Problem
 - Email-Reminders: Endpoint bereit fuer Cron-Trigger (`curl -X POST -H "Authorization: Bearer $CRON_API_KEY"`)
 - Resend Domain `wunschkiste.app` nicht verifiziert -- muss bei Resend verifiziert werden (DNS TXT Records)
 - Drizzle Migrations: `db:generate` funktioniert nicht korrekt (fehlender 0001-Snapshot), daher Migrations manuell + `db:push`
 - en.json: Englische Uebersetzungen sind Platzhalter (gleiche Keys wie de.json, Inhalte muessen noch uebersetzt werden)
-- Naechste Schritte: Manuelles Testing, dann Cloudflare Pages Deployment
+- Naechste Schritte: Manuelles Testing (Share-Link in WhatsApp/Signal pruefen), dann Cloudflare Pages Deployment
 - Cloudflare R2: User API Token fuer Dev aktiv, Account API Token fuer Production noch erstellen
-- **Nachrichten-Feature (reservations.message)**: DB-Spalte existiert noch, UI entfernt. Koennte spaeter wieder aktiviert werden wenn ein Use-Case entsteht
-- **AMAZON_AFFILIATE_TAG**: Muss in `.env` gesetzt sein damit Affiliate-URLs generiert werden. Ohne Tag = kein Heart-Icon auf Buttons
+- **Nachrichten-Feature (reservations.message)**: DB-Spalte existiert noch, UI entfernt
+- **AMAZON_AFFILIATE_TAG**: Muss in `.env` gesetzt sein damit Affiliate-URLs generiert werden
