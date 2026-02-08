@@ -3,6 +3,7 @@
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Heart } from "lucide-react";
 
 export function SiteFooter() {
   const t = useTranslations("footer");
@@ -10,7 +11,8 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-border px-6 py-8">
       <div className="mx-auto max-w-3xl">
-        <p className="text-center text-xs text-foreground/40">
+        <p className="text-center text-xs text-foreground/40 inline-flex items-center justify-center gap-1 w-full">
+          <Heart className="size-3 shrink-0" />
           {t("affiliateDisclosure")}
         </p>
         <div className="mt-4 flex items-center justify-center gap-6 text-xs">

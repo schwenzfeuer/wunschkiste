@@ -1,10 +1,10 @@
 # Current State
 
-> Letzte Aktualisierung: 08.02.2026 (Nachmittag)
+> Letzte Aktualisierung: 08.02.2026 (Nacht)
 
 ## Status
 
-**Phase:** v1.0 Feature-complete, i18n-Migration abgeschlossen. 67 Tests gruen, Build gruen.
+**Phase:** v1.0 Feature-complete, Affiliate-Kennzeichnung und UI-Polish. 67 Tests gruen, Build gruen.
 
 ## Was existiert
 
@@ -96,6 +96,16 @@
 - [x] **67 Tests gruen**: 54 API (inkl. 5 neue Reminder-Tests) + 13 E2E
 - [x] **i18n-Migration komplett**: Alle Seiten und Komponenten nutzen `useTranslations()` -- keine hardcoded deutschen Strings mehr
 - [x] **de.json korrigiert**: Umlaute, scharfes S, Paragraphenzeichen, Apostrophe korrekt
+- [x] **Mobile-First Responsive Fix**: Nav, Dashboard, Editor, Landing, Auth-Seiten, Share-Seite
+- [x] **Nav Mobile**: Logo-Icon hidden auf Mobile, "Meine Wunschkisten" ins Dropdown verschoben
+- [x] **Responsive Layouts**: flex-col/sm:flex-row fuer Dashboard-Header, Cards, Editor-Buttons
+- [x] **Mobile Padding**: px-4/pt-28 auf Mobile, px-6/pt-36 ab sm Breakpoint
+- [x] **Leere Wunschkiste nicht teilbar**: Teilen-Button disabled + Toast wenn 0 Produkte
+- [x] **Build-Fix**: Toter `setClaimMessage`-Code aus Share-Seite entfernt
+- [x] **Affiliate-Kennzeichnung**: Heart-Icon auf Kauf-Buttons bei Affiliate-Links (statt ShoppingBag)
+- [x] **Footer konsolidiert**: Doppelter Footer auf Share-Page entfernt, nur globaler SiteFooter mit Heart + Disclosure-Text
+- [x] **Kauf-Dialog verschlankt**: Ungenutztes Nachrichten-Feld entfernt (DB-Spalte bleibt fuer spaeter)
+- [x] **Badge-Farben**: Reserviert/Gekauft nutzen Theme-Accent-Farbe (Orange) statt hardcoded Gruen/Grau
 
 ## Tech-Stack (installiert)
 
@@ -241,6 +251,27 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 08.02.2026 - Affiliate-Kennzeichnung & UI-Polish
+- **Affiliate Heart-Icon**: Kauf-Buttons zeigen Heart statt ShoppingBag wenn `product.affiliateUrl` gesetzt
+- **Footer konsolidiert**: Lokaler Footer auf Share-Page entfernt, globaler SiteFooter mit Heart-Icon + aktualisiertem Disclosure-Text
+- **Kauf-Dialog verschlankt**: Ungenutztes Nachrichten-Feld (Label + Textarea) entfernt, State + Imports aufgeraeumt
+- **Badge-Farben Theme-konform**: "Gekauft" = `bg-accent`, "Reserviert" = `bg-accent/40` (statt hardcoded bg-green-600 / secondary)
+- **Beide Seiten aktualisiert**: Share-Page + Wishlist-Editor konsistent
+- Build gruen
+
+### 08.02.2026 - Mobile-First Responsive Fix
+- **Mobile-Analyse**: 16 Playwright-Screenshots (375x812) aller Seiten, 2 Testbenutzer mit Wunschlisten
+- **Nav komplett umgebaut**: Logo-Icon auf Mobile hidden, Wordmark-only, "Meine Wunschkisten" ins Dropdown-Menu
+- **BrandLogo erweitert**: `hideIcon` Prop + responsive `iconSizes` (size-10/size-20)
+- **Dashboard responsive**: Header flex-col auf Mobile, Cards flex-col mit Icons darunter, Shared-Cards ebenso
+- **Editor responsive**: Titel + Buttons gestackt auf Mobile statt nebeneinander (overflow fix)
+- **Landing Page**: Hero min-h-[85vh] statt min-h-screen auf Mobile, Sections py-16 statt py-24
+- **Auth-Seiten**: items-start + pt-16 auf Mobile statt vertikales Centering (weniger Leerraum)
+- **Globales Padding**: px-4/pt-28 auf Mobile, px-6/pt-36 ab sm-Breakpoint (alle Seiten)
+- **Leere Wunschkiste nicht teilbar**: Teilen-Button disabled wenn 0 Produkte + Toast-Hinweis (Editor + Dashboard)
+- **Build-Fix**: Toter `setClaimMessage`-Code aus Share-Seite entfernt (Linter-bereinigt)
+- Build gruen, 67 Tests gruen (54 API + 13 E2E)
+
 ### 08.02.2026 - i18n-Migration abgeschlossen
 - **de.json korrigiert**: Alle Umlaute (ue/ae/oe), scharfes S (ss), Paragraphenzeichen (SS/SSSS), fehlende Apostrophe repariert
 - **Translation-Files erweitert**: de.json + en.json mit allen Keys (auth, forgotPassword, resetPassword, dashboard, newWishlist, editor, visibility, share, nav)
@@ -278,27 +309,6 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **6 neue Tests**: Auto-Save, keine Duplikate, Owner-Besuch, Unreserve behält Wishlist
 - 57 Tests grün (44 API + 13 E2E), Build grün
 
-### 08.02.2026 - UI/UX-Fixes, Preisformatierung & lokalisierte Routen
-- **Calendar Fix**: react-day-picker v9 Nav-Pfeile oben positioniert (relative Container + absolute nav)
-- **Button-Varianten**: "Wunsch hinzufügen" & "Neue Kiste" accent-Stil, destructive mit 3D-Effekt
-- **ConfirmationDialog**: shadcn AlertDialog statt `window.confirm()` (Dashboard + Editor)
-- **Dashboard UX**: Items komplett klickbar als Link, hover border primary, "Neue Kiste" nur bei Listen
-- **DropdownMenu**: `modal={false}` verhindert Scrollbar-Layout-Shift beim Profilmenü
-- **New-Page**: MainNav Header hinzugefügt, Theme-Auswahl für MVP entfernt
-- **Preisformatierung**: `formatPrice()` → "29,99 €" statt "29.99 EUR", Komma-Eingabe im Input
-- **Lokalisierte Routen**: next-intl pathnames (`/meine-wunschkisten`, `/wunschkiste/neu`, `/anmelden`, `/registrieren`, `/teilen/[token]`, `/passwort-vergessen`)
-- **Tests angepasst**: E2E-Tests auf lokalisierte URLs umgestellt
-- Build grün, 51 Tests grün
-
-### 07.02.2026 - AP 9: Tests, Build-Fixes, .env.example
-- **Build-Fixes**: ArcJet `protect()` braucht `{ requested: 1 }`, `forgetPassword` → `requestPasswordReset`, Resend lazy init, Suspense-Boundaries für `useSearchParams()`
-- **Share-Tests komplett neu**: 20 Tests (Reserve Auth 401/403, Buy, DELETE eigene/fremde, PATCH upgrade, Owner-Visibility full/partial/surprise, EventDate CRUD)
-- **ArcJet DRY_RUN**: In Development `DRY_RUN` statt `LIVE` (verhindert Rate-Limiting in Tests)
-- **.env.example**: RESEND_API_KEY, ARCJET_KEY, R2_* ergänzt
-- **Cloudflare R2 Bucket**: `wunschkiste-avatars` eingerichtet (User API Token für Dev)
-- **DB-Migration**: `0001_v1_schema_upgrade.sql` manuell ausgeführt (drizzle-kit push war interaktiv)
-- **Playwright Timeout**: 30s → 60s (Multi-User-Tests brauchen mehr Zeit bei paralleler Ausführung)
-- 51 Tests grün (38 API + 13 E2E), Build grün
 
 ## Notizen fuer naechste Session
 
@@ -309,3 +319,5 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - en.json: Englische Uebersetzungen sind Platzhalter (gleiche Keys wie de.json, Inhalte muessen noch uebersetzt werden)
 - Naechste Schritte: Manuelles Testing, dann Cloudflare Pages Deployment
 - Cloudflare R2: User API Token fuer Dev aktiv, Account API Token fuer Production noch erstellen
+- **Nachrichten-Feature (reservations.message)**: DB-Spalte existiert noch, UI entfernt. Koennte spaeter wieder aktiviert werden wenn ein Use-Case entsteht
+- **AMAZON_AFFILIATE_TAG**: Muss in `.env` gesetzt sein damit Affiliate-URLs generiert werden. Ohne Tag = kein Heart-Icon auf Buttons
