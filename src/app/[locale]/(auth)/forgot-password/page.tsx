@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Link } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 import { requestPasswordReset } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,8 @@ import { BrandLogo } from "@/components/brand-logo";
 import { ArrowLeft, Mail } from "lucide-react";
 
 export default function ForgotPasswordPage() {
+  const t = useTranslations("forgotPassword");
+  const tAuth = useTranslations("auth");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -27,7 +30,7 @@ export default function ForgotPasswordPage() {
     });
 
     if (result.error) {
-      setError("Fehler beim Senden der E-Mail. Bitte versuche es erneut.");
+      setError(t("error"));
       setLoading(false);
       return;
     }
@@ -48,22 +51,22 @@ export default function ForgotPasswordPage() {
         {sent ? (
           <div className="text-center">
             <Mail className="mx-auto size-12 text-primary" />
-            <h1 className="mt-4 font-serif text-2xl">E-Mail gesendet</h1>
+            <h1 className="mt-4 font-serif text-2xl">{t("emailSent")}</h1>
             <p className="mt-2 text-sm text-foreground/60">
-              Falls ein Konto mit dieser E-Mail existiert, haben wir dir einen Link zum Zurücksetzen des Passworts geschickt.
+              {t("emailSentText")}
             </p>
             <Link href="/login">
               <Button variant="outline" className="mt-6">
                 <ArrowLeft className="size-4" />
-                Zurück zum Login
+                {t("backToLogin")}
               </Button>
             </Link>
           </div>
         ) : (
           <>
-            <h1 className="font-serif text-3xl">Passwort vergessen?</h1>
+            <h1 className="font-serif text-3xl">{t("title")}</h1>
             <p className="mt-2 text-sm text-foreground/60">
-              Gib deine E-Mail-Adresse ein und wir senden dir einen Link zum Zurücksetzen deines Passworts.
+              {t("subtitle")}
             </p>
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-5">
@@ -74,11 +77,11 @@ export default function ForgotPasswordPage() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email">E-Mail</Label>
+                <Label htmlFor="email">{tAuth("email")}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="name@example.com"
+                  placeholder={tAuth("emailPlaceholder")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -87,13 +90,13 @@ export default function ForgotPasswordPage() {
               </div>
 
               <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                {loading ? "Senden..." : "Link senden"}
+                {loading ? t("sending") : t("sendLink")}
               </Button>
 
               <p className="text-center text-sm text-foreground/60">
                 <Link href="/login" className="font-medium text-primary hover:underline">
                   <ArrowLeft className="mr-1 inline size-3" />
-                  Zurück zum Login
+                  {t("backToLogin")}
                 </Link>
               </p>
             </form>

@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 import { resetPassword } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,8 @@ export default function ResetPasswordPage() {
 }
 
 function ResetPasswordForm() {
+  const t = useTranslations("resetPassword");
+  const tAuth = useTranslations("auth");
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -29,7 +32,7 @@ function ResetPasswordForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(
-    errorParam === "INVALID_TOKEN" ? "Der Link ist ungültig oder abgelaufen." : null
+    errorParam === "INVALID_TOKEN" ? t("invalidToken") : null
   );
   const [success, setSuccess] = useState(false);
 
@@ -38,17 +41,17 @@ function ResetPasswordForm() {
     setError(null);
 
     if (password.length < 8) {
-      setError("Passwort muss mindestens 8 Zeichen lang sein");
+      setError(tAuth("passwordMinLength"));
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Passwörter stimmen nicht überein");
+      setError(t("passwordMismatch"));
       return;
     }
 
     if (!token) {
-      setError("Kein Token gefunden. Bitte fordere einen neuen Link an.");
+      setError(t("noToken"));
       return;
     }
 
@@ -60,7 +63,7 @@ function ResetPasswordForm() {
     });
 
     if (result.error) {
-      setError("Fehler beim Zurücksetzen. Der Link ist möglicherweise abgelaufen.");
+      setError(t("error"));
       setLoading(false);
       return;
     }
@@ -73,12 +76,12 @@ function ResetPasswordForm() {
     return (
       <main className="flex min-h-screen items-center justify-center px-6">
         <div className="w-full max-w-sm text-center">
-          <h1 className="font-serif text-2xl">Ungültiger Link</h1>
+          <h1 className="font-serif text-2xl">{t("invalidLink")}</h1>
           <p className="mt-2 text-sm text-foreground/60">
-            Bitte fordere einen neuen Link zum Zurücksetzen an.
+            {t("invalidLinkText")}
           </p>
           <Link href="/forgot-password">
-            <Button className="mt-6">Neuen Link anfordern</Button>
+            <Button className="mt-6">{t("requestNewLink")}</Button>
           </Link>
         </div>
       </main>
@@ -99,19 +102,19 @@ function ResetPasswordForm() {
             <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-green-100">
               <Check className="size-6 text-green-600" />
             </div>
-            <h1 className="mt-4 font-serif text-2xl">Passwort geändert</h1>
+            <h1 className="mt-4 font-serif text-2xl">{t("success")}</h1>
             <p className="mt-2 text-sm text-foreground/60">
-              Dein Passwort wurde erfolgreich zurückgesetzt. Du kannst dich jetzt anmelden.
+              {t("successText")}
             </p>
             <Link href="/login">
-              <Button className="mt-6">Zum Login</Button>
+              <Button className="mt-6">{t("goToLogin")}</Button>
             </Link>
           </div>
         ) : (
           <>
-            <h1 className="font-serif text-3xl">Neues Passwort</h1>
+            <h1 className="font-serif text-3xl">{t("title")}</h1>
             <p className="mt-2 text-sm text-foreground/60">
-              Vergib ein neues Passwort für dein Konto.
+              {t("subtitle")}
             </p>
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-5">
@@ -122,11 +125,11 @@ function ResetPasswordForm() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="password">Neues Passwort</Label>
+                <Label htmlFor="password">{t("newPassword")}</Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Mindestens 8 Zeichen"
+                  placeholder={tAuth("passwordPlaceholder")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -136,11 +139,11 @@ function ResetPasswordForm() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Passwort bestätigen</Label>
+                <Label htmlFor="confirmPassword">{t("confirmPassword")}</Label>
                 <Input
                   id="confirmPassword"
                   type="password"
-                  placeholder="Passwort wiederholen"
+                  placeholder={t("confirmPlaceholder")}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
@@ -150,7 +153,7 @@ function ResetPasswordForm() {
               </div>
 
               <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                {loading ? "Speichern..." : "Passwort speichern"}
+                {loading ? t("saving") : t("save")}
               </Button>
             </form>
           </>

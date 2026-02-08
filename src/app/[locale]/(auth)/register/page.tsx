@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, Link } from "@/i18n/routing";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { signIn, signUp } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,7 @@ export default function RegisterPage() {
 }
 
 function RegisterForm() {
+  const t = useTranslations("auth");
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
@@ -34,7 +36,7 @@ function RegisterForm() {
     setLoading(true);
 
     if (password.length < 8) {
-      setError("Passwort muss mindestens 8 Zeichen lang sein");
+      setError(t("passwordMinLength"));
       setLoading(false);
       return;
     }
@@ -43,9 +45,9 @@ function RegisterForm() {
 
     if (result.error) {
       if (result.error.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL") {
-        setError("Diese E-Mail wird bereits verwendet");
+        setError(t("emailInUse"));
       } else {
-        setError("Registrierung fehlgeschlagen");
+        setError(t("registrationFailed"));
       }
       setLoading(false);
       return;
@@ -63,9 +65,9 @@ function RegisterForm() {
           </Link>
         </div>
 
-        <h1 className="font-serif text-3xl">Registrieren</h1>
+        <h1 className="font-serif text-3xl">{t("registerTitle")}</h1>
         <p className="mt-2 text-sm text-foreground/60">
-          Erstelle ein kostenloses Konto
+          {t("registerSubtitle")}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
@@ -76,11 +78,11 @@ function RegisterForm() {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">{t("name")}</Label>
             <Input
               id="name"
               type="text"
-              placeholder="Max Mustermann"
+              placeholder={t("namePlaceholder")}
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -89,11 +91,11 @@ function RegisterForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">E-Mail</Label>
+            <Label htmlFor="email">{t("email")}</Label>
             <Input
               id="email"
               type="email"
-              placeholder="name@example.com"
+              placeholder={t("emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -102,11 +104,11 @@ function RegisterForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Passwort</Label>
+            <Label htmlFor="password">{t("password")}</Label>
             <Input
               id="password"
               type="password"
-              placeholder="Mindestens 8 Zeichen"
+              placeholder={t("passwordPlaceholder")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -116,7 +118,7 @@ function RegisterForm() {
           </div>
 
           <Button type="submit" className="w-full" size="lg" disabled={loading}>
-            {loading ? "Registrieren..." : "Registrieren"}
+            {loading ? t("registering") : t("register")}
           </Button>
 
           <div className="relative my-2">
@@ -124,7 +126,7 @@ function RegisterForm() {
               <span className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-foreground/40">oder</span>
+              <span className="bg-background px-2 text-foreground/40">{t("or")}</span>
             </div>
           </div>
 
@@ -155,16 +157,16 @@ function RegisterForm() {
                 fill="#EA4335"
               />
             </svg>
-            Mit Google fortfahren
+            {t("continueWithGoogle")}
           </Button>
 
           <p className="text-center text-sm text-foreground/60">
-            Bereits ein Konto?{" "}
+            {t("hasAccount")}{" "}
             <Link
               href={{ pathname: "/login", query: callbackUrl !== "/dashboard" ? { callbackUrl } : undefined }}
               className="font-medium text-primary hover:underline"
             >
-              Anmelden
+              {t("login")}
             </Link>
           </p>
         </form>

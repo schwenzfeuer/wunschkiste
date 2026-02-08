@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import { BrandLogo } from "@/components/brand-logo";
+import { useTranslations } from "next-intl";
 
 export default function LoginPage() {
   return (
@@ -19,6 +20,7 @@ export default function LoginPage() {
 }
 
 function LoginForm() {
+  const t = useTranslations("auth");
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
@@ -35,7 +37,7 @@ function LoginForm() {
     const result = await signIn.email({ email, password });
 
     if (result.error) {
-      setError("Ungültige E-Mail oder Passwort");
+      setError(t("invalidCredentials"));
       setLoading(false);
       return;
     }
@@ -52,9 +54,9 @@ function LoginForm() {
           </Link>
         </div>
 
-        <h1 className="font-serif text-3xl">Anmelden</h1>
+        <h1 className="font-serif text-3xl">{t("loginTitle")}</h1>
         <p className="mt-2 text-sm text-foreground/60">
-          Melde dich an um deine Wunschkisten zu verwalten
+          {t("loginSubtitle")}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
@@ -65,11 +67,11 @@ function LoginForm() {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="email">E-Mail</Label>
+            <Label htmlFor="email">{t("email")}</Label>
             <Input
               id="email"
               type="email"
-              placeholder="name@example.com"
+              placeholder={t("emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -79,12 +81,12 @@ function LoginForm() {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password">Passwort</Label>
+              <Label htmlFor="password">{t("password")}</Label>
               <Link
                 href="/forgot-password"
                 className="text-xs text-foreground/50 hover:text-primary transition-colors"
               >
-                Passwort vergessen?
+                {t("forgotPassword")}
               </Link>
             </div>
             <Input
@@ -98,7 +100,7 @@ function LoginForm() {
           </div>
 
           <Button type="submit" className="w-full" size="lg" disabled={loading}>
-            {loading ? "Anmelden..." : "Anmelden"}
+            {loading ? t("loggingIn") : t("login")}
           </Button>
 
           <div className="relative my-2">
@@ -106,7 +108,7 @@ function LoginForm() {
               <span className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-foreground/40">oder</span>
+              <span className="bg-background px-2 text-foreground/40">{t("or")}</span>
             </div>
           </div>
 
@@ -137,16 +139,16 @@ function LoginForm() {
                 fill="#EA4335"
               />
             </svg>
-            Mit Google fortfahren
+            {t("continueWithGoogle")}
           </Button>
 
           <p className="text-center text-sm text-foreground/60">
-            Noch kein Konto?{" "}
+            {t("noAccount")}{" "}
             <Link
               href={{ pathname: "/register", query: callbackUrl !== "/dashboard" ? { callbackUrl } : undefined }}
               className="font-medium text-primary hover:underline"
             >
-              Registrieren
+              {t("register")}
             </Link>
           </p>
         </form>

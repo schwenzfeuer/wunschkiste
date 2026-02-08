@@ -1,10 +1,10 @@
 # Current State
 
-> Letzte Aktualisierung: 08.02.2026 (Abend)
+> Letzte Aktualisierung: 08.02.2026 (Nacht)
 
 ## Status
 
-**Phase:** v1.0 Feature-complete + Email-Reminders. Build gruen, 67 Tests gruen.
+**Phase:** v1.0 Feature-complete + i18n-Migration in Arbeit. 67 Tests, Build-Status nach i18n-Migration pruefen.
 
 ## Was existiert
 
@@ -239,6 +239,12 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 08.02.2026 - i18n-Migration (WIP)
+- **Translation-Files erweitert**: de.json + en.json mit allen fehlenden Keys (auth, forgotPassword, resetPassword, dashboard, newWishlist, editor, visibility, share, nav)
+- **Auth-Seiten migriert**: Login, Register, Forgot-Password, Reset-Password nutzen jetzt `useTranslations()`
+- **Dashboard teilweise migriert**: Titel, Buttons, Loading, Toasts -- restliche Wishlist-Cards/Shared-Section noch offen
+- **Noch offen**: Dashboard (Rest), Wishlist New/Editor, Share-Page, auth-dialog, main-nav (Rest), theme-toggle
+
 ### 08.02.2026 - Email-Erinnerungen fuer Teilnehmer
 - **sent_reminders Tabelle**: reminderTypeEnum ("7_days", "3_days") + UNIQUE-Constraint (userId, wishlistId, reminderType)
 - **sendReminderEmail()**: Gebrandetes Template mit Logo + Wortmarke, Creme-Hintergrund, 3D-Button (orange), Google Fonts
@@ -306,10 +312,12 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Notizen fuer naechste Session
 
-- v1.0 Feature-complete + Email-Reminders -- naechster Schritt: Manuelles Testing, dann Deployment
+- **i18n-Migration fortsetzen**: Dashboard (restliche Strings), wishlist/new, wishlist/[id], share/[token], auth-dialog, main-nav, theme-toggle
+- Translation-Keys sind ALLE schon in de.json/en.json angelegt -- nur noch die Komponenten umstellen
+- Betroffene Dateien und was zu tun ist stehen oben im Session-Log
+- Nach Abschluss: `pnpm build` + Tests laufen lassen
+- Danach: Manuelles Testing, dann Deployment
 - Email-Reminders: Endpoint bereit fuer Cron-Trigger (`curl -X POST -H "Authorization: Bearer $CRON_API_KEY"`)
 - Resend Domain `wunschkiste.app` nicht verifiziert -- `wunschkiste.app` muss bei Resend verifiziert werden
-- Logo-URLs in Emails zeigen auf `wunschkiste.app` -- funktioniert erst nach Deployment
 - Drizzle Migrations: `db:generate` funktioniert nicht korrekt (fehlender 0001-Snapshot), daher Migrations manuell + `db:push`
-- Lokalisierte Routen aktiv: DE-URLs ohne Prefix, EN unter `/en/...`
 - Cloudflare R2: User API Token fuer Dev aktiv, Account API Token fuer Production noch erstellen

@@ -9,6 +9,7 @@ import { Plus, Gift, Share2, Trash2, Pencil, Check, Calendar } from "lucide-reac
 import { MainNav } from "@/components/main-nav";
 import { ConfirmationDialog } from "@/components/confirmation-dialog";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface Wishlist {
   id: string;
@@ -49,6 +50,8 @@ const themeEmojis: Record<string, string> = {
 };
 
 export default function DashboardPage() {
+  const t = useTranslations("dashboard");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const { data: session, isPending } = useSession();
   const [wishlists, setWishlists] = useState<Wishlist[]>([]);
@@ -76,7 +79,7 @@ export default function DashboardPage() {
           setSharedWishlists(await sharedRes.json());
         }
       } catch {
-        toast.error("Fehler beim Laden der Wunschkisten");
+        toast.error(t("loadError"));
       } finally {
         setLoading(false);
       }
@@ -92,7 +95,7 @@ export default function DashboardPage() {
     const response = await fetch(`/api/wishlists/${deleteId}`, { method: "DELETE" });
     if (response.ok) {
       setWishlists(wishlists.filter((w) => w.id !== deleteId));
-      toast.success("Wunschkiste gelöscht!");
+      toast.success(t("deleted"));
     }
     setDeleteId(null);
   }
@@ -100,7 +103,7 @@ export default function DashboardPage() {
   if (isPending || loading) {
     return (
       <main className="flex min-h-screen items-center justify-center">
-        <p className="text-foreground/40">Laden...</p>
+        <p className="text-foreground/40">{tCommon("loading")}</p>
       </main>
     );
   }
@@ -116,16 +119,16 @@ export default function DashboardPage() {
       <div className="mx-auto max-w-3xl px-6 pt-36 pb-12">
         <div className="mb-10 flex items-start justify-between">
           <div>
-            <h1 className="font-serif text-3xl md:text-4xl">Meine Wunschkisten</h1>
+            <h1 className="font-serif text-3xl md:text-4xl">{t("title")}</h1>
             <p className="mt-2 text-foreground/50">
-              Verwalte deine Wunschkisten und teile sie mit anderen
+              {t("subtitle")}
             </p>
           </div>
           {wishlists.length > 0 && (
             <Link href="/wishlist/new">
               <Button variant="accent">
                 <Plus className="size-4" />
-                Neue Kiste
+                {t("newBox")}
               </Button>
             </Link>
           )}
