@@ -12,6 +12,7 @@
     "from": "by {name}"
   },
   "auth": {
+    "welcome": "Welcome",
     "login": "Login",
     "loggingIn": "Logging in...",
     "logout": "Logout",
@@ -188,7 +189,8 @@
     "linkCopied": "Link copied!",
     "bought": "Bought",
     "reserved": "Reserved",
-    "shareEmpty": "Add wishes first before sharing the list"
+    "shareEmpty": "Add wishes first before sharing the list",
+    "openInShop": "View in shop"
   },
   "visibility": {
     "full": "See everything",

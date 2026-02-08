@@ -49,6 +49,16 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+@media (min-width: 1024px) {
+  html {
+    font-size: 125%;
+  }
+}
+
 :root {
   --radius: 0.75rem;
 

@@ -11,7 +11,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ProductImage } from "@/components/product-image";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, ExternalLink, Share2, Loader2, Pencil, Calendar as CalendarIcon, X, Check, ShoppingCart, Users } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Share2, Loader2, Pencil, Calendar as CalendarIcon, X, Check, Bookmark, Users, MoreVertical } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChristmasDecorations } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
 import { UserAvatar } from "@/components/user-avatar";
@@ -383,40 +384,42 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
               <Label className="text-xs text-foreground/50">{t("eventDate")}</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
+              <div className="flex items-center gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className={cn(
+                        "justify-start text-left font-normal",
+                        !eventDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 size-3.5" />
+                      {eventDate ? format(eventDate, "PPP", { locale: de }) : t("noDate")}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={eventDate}
+                      onSelect={handleEventDateChange}
+                      locale={de}
+                      disabled={{ before: new Date() }}
+                    />
+                  </PopoverContent>
+                </Popover>
+                {eventDate && (
+                  <button
                     type="button"
-                    variant="outline"
-                    size="sm"
-                    className={cn(
-                      "justify-start text-left font-normal",
-                      !eventDate && "text-muted-foreground"
-                    )}
+                    onClick={() => handleEventDateChange(undefined)}
+                    className="text-xs font-medium text-foreground/50 hover:text-foreground cursor-pointer"
                   >
-                    <CalendarIcon className="mr-2 size-3.5" />
-                    {eventDate ? format(eventDate, "PPP", { locale: de }) : t("noDate")}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={eventDate}
-                    onSelect={handleEventDateChange}
-                    locale={de}
-                  />
-                </PopoverContent>
-              </Popover>
-              {eventDate && (
-                <button
-                  type="button"
-                  onClick={() => handleEventDateChange(undefined)}
-                  className="inline-flex items-center gap-1 text-xs text-foreground/50 hover:text-foreground"
-                >
-                  <X className="size-3" />
-                  {t("removeDate")}
-                </button>
-              )}
+                    {t("removeDate")}
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="space-y-1">
@@ -484,7 +487,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
             {products.map((product) => (
               <div
                 key={product.id}
-                className="group flex items-center gap-4 rounded-xl border-2 border-border bg-card p-4 transition-colors hover:border-primary/20"
+                className="group flex items-center gap-3 rounded-xl border-2 border-border bg-card p-3 transition-colors hover:border-primary/20 sm:gap-4 sm:p-4"
               >
                 <ProductImage
                   src={product.imageUrl}
@@ -492,7 +495,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                   className="size-16 shrink-0 rounded-lg object-contain"
                 />
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-medium leading-snug line-clamp-2">{product.title}</h3>
+                  <h3 className="font-medium leading-snug truncate" title={product.title}>{product.title}</h3>
                   <div className="mt-1 flex items-center gap-3 text-sm text-foreground/50">
                     {product.price && (
                       <span className="font-semibold text-foreground">
@@ -504,12 +507,13 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                   {product.reservationStatus && (
                     <div className="mt-1.5 flex items-center gap-2">
                       <Badge
-                        className={product.reservationStatus === "bought" ? "bg-accent text-accent-foreground" : "bg-accent/40 text-accent-foreground"}
+                        variant={product.reservationStatus === "bought" ? "default" : "outline"}
+                        className={product.reservationStatus === "bought" ? "bg-accent text-accent-foreground" : "border-accent text-accent"}
                       >
                         {product.reservationStatus === "bought" ? (
                           <><Check className="mr-1 size-3" />{t("bought")}</>
                         ) : (
-                          <><ShoppingCart className="mr-1 size-3" />{t("reserved")}</>
+                          <><Bookmark className="mr-1 size-3" />{t("reserved")}</>
                         )}
                       </Badge>
                       {product.reservedByName && (
@@ -518,7 +522,8 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                     </div>
                   )}
                 </div>
-                <div className="flex items-center gap-1 shrink-0 opacity-0 transition-opacity group-hover:opacity-100 max-sm:opacity-100">
+                {/* Desktop: Icon-Buttons */}
+                <div className="hidden sm:flex items-center gap-1 shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
                   <Button variant="ghost" size="icon-sm" onClick={() => openEditDialog(product)}>
                     <Pencil className="size-4" />
                   </Button>
@@ -539,6 +544,40 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                   >
                     <Trash2 className="size-4" />
                   </Button>
+                </div>
+
+                {/* Mobile: Context Menu */}
+                <div className="sm:hidden shrink-0">
+                  <DropdownMenu modal={false}>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon-sm">
+                        <MoreVertical className="size-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => openEditDialog(product)}>
+                        <Pencil className="mr-2 size-4" />
+                        {tCommon("edit")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <a
+                          href={product.affiliateUrl || product.originalUrl}
+                          target="_blank"
+                          rel={`noopener${product.affiliateUrl ? " sponsored nofollow" : ""}`}
+                        >
+                          <ExternalLink className="mr-2 size-4" />
+                          {t("openInShop")}
+                        </a>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setDeleteProductId(product.id)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="mr-2 size-4" />
+                        {tCommon("delete")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             ))}

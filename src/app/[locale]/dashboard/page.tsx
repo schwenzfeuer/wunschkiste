@@ -5,11 +5,18 @@ import { useRouter, Link } from "@/i18n/routing";
 import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Gift, Share2, Trash2, Pencil, Check, Calendar } from "lucide-react";
+import { Plus, Gift, Share2, Trash2, Eye, Check, Calendar, Users } from "lucide-react";
+import { UserAvatar } from "@/components/user-avatar";
 import { MainNav } from "@/components/main-nav";
 import { ConfirmationDialog } from "@/components/confirmation-dialog";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+
+interface Participant {
+  id: string;
+  name: string | null;
+  image: string | null;
+}
 
 interface Wishlist {
   id: string;
@@ -22,6 +29,7 @@ interface Wishlist {
   ownerVisibility: string;
   totalCount: number;
   claimedCount: number;
+  participants: Participant[];
 }
 
 interface SharedWishlist {
@@ -162,8 +170,28 @@ export default function DashboardPage() {
                   {themeEmojis[wishlist.theme] && (
                     <span className="text-xl shrink-0">{themeEmojis[wishlist.theme]}</span>
                   )}
-                  <div className="min-w-0">
-                    <h3 className="font-medium truncate">{wishlist.title}</h3>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-medium truncate">{wishlist.title}</h3>
+                      {wishlist.participants.length > 0 && (
+                        <div className="flex shrink-0 -space-x-1.5">
+                          {wishlist.participants.slice(0, 3).map((p) => (
+                            <UserAvatar
+                              key={p.id}
+                              name={p.name}
+                              imageUrl={p.image}
+                              size="xs"
+                              className="ring-2 ring-card"
+                            />
+                          ))}
+                          {wishlist.participants.length > 3 && (
+                            <div className="flex size-5 items-center justify-center rounded-full bg-muted text-[10px] font-medium ring-2 ring-card">
+                              +{wishlist.participants.length - 3}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                     {(wishlist.claimedCount > 0 || wishlist.description) && (
                       <p className="mt-0.5 text-sm text-foreground/50 truncate">
                         {wishlist.claimedCount > 0 && wishlist.ownerVisibility === "surprise"
@@ -179,7 +207,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="relative z-10 flex items-center gap-1 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100">
                   <Button variant="ghost" size="icon-sm">
-                    <Pencil className="size-4" />
+                    <Eye className="size-4" />
                   </Button>
                   <Button
                     variant="ghost"

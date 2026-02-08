@@ -89,7 +89,7 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle className="font-serif text-xl">
-            {mode === "register" ? t("register") : t("login")}
+            {t("welcome")}
           </DialogTitle>
         </DialogHeader>
 

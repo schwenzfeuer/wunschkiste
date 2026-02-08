@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ProductImage } from "@/components/product-image";
 import { AuthDialog } from "@/components/auth-dialog";
-import { Gift, Check, ShoppingBag, Calendar, Undo2, Heart } from "lucide-react";
+import { Gift, Check, ShoppingBag, Calendar, Undo2, Heart, Bookmark } from "lucide-react";
 import { ChristmasDecorations, ChristmasHeaderStar, ChristmasEmptyState } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
 import { formatPrice } from "@/lib/format";
@@ -244,7 +244,10 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
           </div>
         ) : (
           <div className="space-y-3">
-            {wishlist.products.map((product) => (
+            {[...wishlist.products].sort((a, b) => {
+              const order = { available: 0, reserved: 1, bought: 2 };
+              return (order[a.status] ?? 0) - (order[b.status] ?? 0);
+            }).map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
@@ -390,17 +393,17 @@ function ProductCard({
 
   return (
     <div
-      className={`flex items-center gap-4 rounded-xl border-2 border-border bg-card p-4 transition-all ${
+      className={`flex items-center gap-3 rounded-xl border-2 border-border bg-card p-3 transition-all sm:gap-4 sm:p-4 ${
         isClaimed && !isMine ? "opacity-60" : ""
       }`}
     >
       <ProductImage
         src={product.imageUrl}
         alt={product.title}
-        className="size-20 shrink-0 rounded-lg object-contain"
+        className="size-16 shrink-0 rounded-lg object-contain"
       />
       <div className="flex-1 min-w-0">
-        <h3 className="font-medium leading-snug line-clamp-2">{product.title}</h3>
+        <h3 className="font-medium leading-snug truncate" title={product.title}>{product.title}</h3>
         <div className="mt-1 flex items-center gap-3 text-sm text-foreground/50">
           {product.price && (
             <span className="font-semibold text-foreground">
@@ -412,20 +415,23 @@ function ProductCard({
 
         {/* Status badges */}
         {isClaimed && (
-          <div className="mt-2">
+          <div className="mt-1.5 flex items-center gap-2">
             {product.status === "bought" ? (
               <Badge className="bg-accent text-accent-foreground">
                 <Check className="mr-1 size-3" />
                 {t("bought")}
-                {product.claimedByName && !isOwner && ` ${tCommon("from", { name: product.claimedByName })}`}
-                {isOwner && ownerVisibility === "full" && product.claimedByName && ` ${tCommon("from", { name: product.claimedByName })}`}
               </Badge>
             ) : (
-              <Badge className="bg-accent/40 text-accent-foreground">
+              <Badge variant="outline" className="border-accent text-accent">
+                <Bookmark className="mr-1 size-3" />
                 {t("reserved")}
-                {product.claimedByName && !isOwner && ` ${tCommon("from", { name: product.claimedByName })}`}
-                {isOwner && ownerVisibility === "full" && product.claimedByName && ` ${tCommon("from", { name: product.claimedByName })}`}
               </Badge>
+            )}
+            {product.claimedByName && !isOwner && (
+              <span className="text-xs text-foreground/50">{tCommon("from", { name: product.claimedByName })}</span>
+            )}
+            {isOwner && ownerVisibility === "full" && product.claimedByName && (
+              <span className="text-xs text-foreground/50">{tCommon("from", { name: product.claimedByName })}</span>
             )}
           </div>
         )}

@@ -44,11 +44,12 @@ function getColorForName(name: string | null | undefined): string {
 interface UserAvatarProps {
   name: string | null | undefined;
   imageUrl: string | null | undefined;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
   className?: string;
 }
 
 const sizeMap = {
+  xs: "size-5 text-[10px]",
   sm: "size-8 text-xs",
   md: "size-10 text-sm",
   lg: "size-16 text-lg",

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { nanoid } from "nanoid";
 import { eq, inArray, sql, count } from "drizzle-orm";
 import { auth } from "@/lib/auth";
-import { db, wishlists, products, reservations, wishlistThemeEnum, ownerVisibilityEnum } from "@/lib/db";
+import { db, wishlists, products, reservations, savedWishlists, users, wishlistThemeEnum, ownerVisibilityEnum } from "@/lib/db";
 
 const createWishlistSchema = z.object({
   title: z.string().min(1).max(100),
@@ -55,10 +55,27 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           .groupBy(products.wishlistId)
       : [];
 
+  const participantRows =
+    wishlistIds.length > 0
+      ? await db
+          .select({
+            wishlistId: savedWishlists.wishlistId,
+            id: users.id,
+            name: users.name,
+            image: users.image,
+          })
+          .from(savedWishlists)
+          .innerJoin(users, eq(users.id, savedWishlists.userId))
+          .where(inArray(savedWishlists.wishlistId, wishlistIds))
+      : [];
+
   const withCounts = userWishlists.map((w) => ({
     ...w,
     totalCount: productCounts.find((p) => p.wishlistId === w.id)?.totalCount ?? 0,
     claimedCount: reservationCounts.find((r) => r.wishlistId === w.id)?.claimedCount ?? 0,
+    participants: participantRows
+      .filter((p) => p.wishlistId === w.id)
+      .map(({ id, name, image }) => ({ id, name, image })),
   }));
 
   return NextResponse.json(withCounts);

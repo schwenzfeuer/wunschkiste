@@ -1,10 +1,10 @@
 # Current State
 
-> Letzte Aktualisierung: 08.02.2026 (Nacht)
+> Letzte Aktualisierung: 08.02.2026 (Abend)
 
 ## Status
 
-**Phase:** v1.0 Feature-complete, Affiliate-Kennzeichnung und UI-Polish. 67 Tests gruen, Build gruen.
+**Phase:** v1.0 Feature-complete, UI-Polish und Mobile-Optimierung. 67 Tests gruen, Build gruen.
 
 ## Was existiert
 
@@ -106,6 +106,20 @@
 - [x] **Footer konsolidiert**: Doppelter Footer auf Share-Page entfernt, nur globaler SiteFooter mit Heart + Disclosure-Text
 - [x] **Kauf-Dialog verschlankt**: Ungenutztes Nachrichten-Feld entfernt (DB-Spalte bleibt fuer spaeter)
 - [x] **Badge-Farben**: Reserviert/Gekauft nutzen Theme-Accent-Farbe (Orange) statt hardcoded Gruen/Grau
+- [x] **Badges differenziert**: Reserviert = Outline + Bookmark-Icon, Gekauft = Filled + Check-Icon, Name neben Badge
+- [x] **Produkt-Sortierung**: Share-Seite sortiert verfuegbar > reserviert > gekauft
+- [x] **Konsistente Produkt-Cards**: Editor + Share-Seite identisch (size-16, truncate, p-3/sm:p-4)
+- [x] **Mobile Context-Menu**: DropdownMenu statt Icon-Buttons im Editor auf Mobile
+- [x] **Dashboard Teilnehmer**: Wishlists-API liefert Participants, xs-Avatare neben Titel
+- [x] **Dashboard Eye-Icon**: Statt Pencil-Icon auf Wunschlisten-Cards
+- [x] **UserAvatar xs**: Neue Groesse size-5 (20px) fuer kompakte Darstellung
+- [x] **ThemeToggle Hydration-Fix**: mounted-Check verhindert Server/Client-Mismatch
+- [x] **Smooth Scrolling**: `scroll-behavior: smooth` auf html
+- [x] **Desktop 125% Zoom**: `font-size: 125%` ab lg-Breakpoint (1024px)
+- [x] **Landing: Logo auf Mobile**: WunschkisteLogo ueber Hero-Text (sm:hidden)
+- [x] **Landing: Theme-Section entfernt**: Schlankere Startseite
+- [x] **AuthDialog**: "Willkommen" als Titel statt Login/Registrieren
+- [x] **Kalender**: Vergangene Daten disabled, "Datum entfernen" als dezenter Text-Link
 
 ## Tech-Stack (installiert)
 
@@ -251,6 +265,20 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 08.02.2026 - UI-Polish & Mobile-Optimierung
+- **Badges differenziert**: Reserviert = Outline + Bookmark-Icon, Gekauft = Filled + Check-Icon
+- **Produkt-Sortierung**: Share-Seite zeigt verfuegbare oben, gekaufte unten
+- **Name neben Badge**: Konsistent mit Editor-Seite (statt im Badge)
+- **Konsistente Cards**: Editor + Share identisch (size-16, truncate+title, p-3/sm:p-4)
+- **Mobile Context-Menu**: DropdownMenu (MoreVertical) statt 3 Icon-Buttons im Editor
+- **Dashboard Teilnehmer**: Wishlists-API liefert Participants, xs-Avatare neben Titel
+- **ThemeToggle Hydration-Fix**: mounted-State verhindert Server/Client-Mismatch
+- **Smooth Scrolling + Desktop 125%**: Globale CSS-Anpassungen
+- **Landing**: Box-Icon auf Mobile ueber Hero, Theme-Section entfernt
+- **AuthDialog**: "Willkommen" als fester Titel
+- **Kalender**: Vergangene Daten disabled, dezenter "Datum entfernen" Text-Link
+- Build gruen
+
 ### 08.02.2026 - Affiliate-Kennzeichnung & UI-Polish
 - **Affiliate Heart-Icon**: Kauf-Buttons zeigen Heart statt ShoppingBag wenn `product.affiliateUrl` gesetzt
 - **Footer konsolidiert**: Lokaler Footer auf Share-Page entfernt, globaler SiteFooter mit Heart-Icon + aktualisiertem Disclosure-Text
@@ -300,15 +328,6 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **CLAUDE.md**: Projekt-spezifische Verhaltensregeln erstellt
 - **ADR-007**: Hosting-Entscheidung Cloudflare Pages + Neon (statt Hetzner + Dokploy)
 - Build gruen, 44 API-Tests gruen
-
-### 08.02.2026 - Auto-Save geteilter Wunschkisten
-- **Neue Tabelle `saved_wishlists`**: user_id + wishlist_id mit UNIQUE-Constraint, CASCADE-Delete
-- **Auto-Save in Share-Route**: Eingeloggte Nicht-Owner → INSERT ON CONFLICT DO NOTHING
-- **Shared-Endpoint umgebaut**: `saved_wishlists` als Basis statt `reservations`, LEFT JOIN für 0/0 Counts
-- **Migration**: `0002_saved_wishlists.sql` + `db:push`
-- **6 neue Tests**: Auto-Save, keine Duplikate, Owner-Besuch, Unreserve behält Wishlist
-- 57 Tests grün (44 API + 13 E2E), Build grün
-
 
 ## Notizen fuer naechste Session
 

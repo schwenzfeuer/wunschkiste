@@ -12,6 +12,7 @@
     "from": "von {name}"
   },
   "auth": {
+    "welcome": "Willkommen",
     "login": "Anmelden",
     "loggingIn": "Anmelden...",
     "logout": "Abmelden",
@@ -188,7 +189,8 @@
     "linkCopied": "Link kopiert!",
     "bought": "Gekauft",
     "reserved": "Reserviert",
-    "shareEmpty": "Füge zuerst Wünsche hinzu, bevor du die Liste teilst"
+    "shareEmpty": "Füge zuerst Wünsche hinzu, bevor du die Liste teilst",
+    "openInShop": "Im Shop ansehen"
   },
   "visibility": {
     "full": "Alles sehen",

@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { AnimateOnScroll } from "@/components/animate-on-scroll";
 import { MainNav } from "@/components/main-nav";
 import { HeroCta } from "@/components/hero-cta";
-import { Link2, Users, Palette, ArrowDown } from "lucide-react";
+import { Link2, Users, ArrowDown } from "lucide-react";
+import { WunschkisteLogo } from "@/components/wunschkiste-logo";
 
 interface HomePageProps {
   params: Promise<{ locale: string }>;
@@ -21,11 +22,6 @@ export default async function HomePage({ params }: HomePageProps) {
 function HomeContent() {
   const t = useTranslations();
 
-  const occasions = [
-    { emoji: "🎂", label: t("wishlist.themes.birthday"), theme: "birthday" },
-    { emoji: "🎄", label: t("wishlist.themes.christmas"), theme: "christmas" },
-  ];
-
   return (
     <main className="min-h-screen">
       {/* Nav */}
@@ -34,7 +30,8 @@ function HomeContent() {
       {/* Hero */}
       <section className="flex min-h-[85vh] flex-col items-center justify-center px-4 pt-20 sm:min-h-screen sm:px-6 sm:pt-16">
         <div className="mx-auto max-w-3xl text-center">
-          <h1 className="font-serif text-5xl leading-tight tracking-tight md:text-7xl md:leading-tight">
+          <WunschkisteLogo className="mx-auto mb-6 size-32 text-primary sm:hidden" />
+          <h1 className="font-serif text-4xl leading-tight tracking-tight md:text-7xl md:leading-tight">
             {t("landing.hero.title")}
             <br />
             <span className="text-accent">{t("landing.hero.titleAccent")}</span>
@@ -127,37 +124,6 @@ function HomeContent() {
             <p className="mt-6 text-lg leading-relaxed text-foreground/60">
               {t("landing.features.share.text")}
             </p>
-          </div>
-        </AnimateOnScroll>
-      </section>
-
-      {/* Feature: Anlässe/Themes */}
-      <section className="px-4 py-16 sm:px-6 sm:py-24 md:py-32">
-        <AnimateOnScroll>
-          <div className="mx-auto max-w-2xl">
-            <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-              <Palette className="size-7 text-primary" />
-            </div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-accent">
-              {t("landing.features.themes.label")}
-            </span>
-            <h2 className="mt-4 font-serif text-3xl leading-snug md:text-4xl md:leading-snug">
-              {t("landing.features.themes.title")}
-            </h2>
-            <p className="mt-6 text-lg leading-relaxed text-foreground/60">
-              {t("landing.features.themes.text")}
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              {occasions.map((occasion) => (
-                <span
-                  key={occasion.theme}
-                  className="inline-flex items-center gap-2 rounded-full border-2 border-border bg-card px-5 py-2.5 text-sm font-medium"
-                >
-                  <span className="text-lg">{occasion.emoji}</span>
-                  {occasion.label}
-                </span>
-              ))}
-            </div>
           </div>
         </AnimateOnScroll>
       </section>
