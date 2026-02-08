@@ -138,15 +138,15 @@ export default function DashboardPage() {
           <div className="py-20 text-center">
             <Gift className="mx-auto size-12 text-foreground/20" />
             <h3 className="mt-6 font-serif text-xl">
-              Noch keine Wunschkisten
+              {t("empty")}
             </h3>
             <p className="mt-2 text-foreground/50">
-              Erstelle deine erste Wunschkiste und teile sie mit Freunden und Familie.
+              {t("emptyText")}
             </p>
             <Link href="/wishlist/new">
               <Button variant="accent" className="mt-6">
                 <Plus className="size-4" />
-                Erste Wunschkiste erstellen
+                {t("createFirst")}
               </Button>
             </Link>
           </div>
@@ -167,9 +167,9 @@ export default function DashboardPage() {
                     {(wishlist.claimedCount > 0 || wishlist.description) && (
                       <p className="mt-0.5 text-sm text-foreground/50">
                         {wishlist.claimedCount > 0 && wishlist.ownerVisibility === "surprise"
-                          ? "Es wurden Wünsche vergeben"
+                          ? t("wishesAssigned")
                           : wishlist.claimedCount > 0
-                            ? `${wishlist.claimedCount} von ${wishlist.totalCount} vergeben`
+                            ? t("claimedOf", { claimed: wishlist.claimedCount, total: wishlist.totalCount })
                             : ""}
                         {wishlist.claimedCount > 0 && wishlist.description ? " · " : ""}
                         {wishlist.description ?? ""}
@@ -189,7 +189,7 @@ export default function DashboardPage() {
                       navigator.clipboard.writeText(
                         `${window.location.origin}/share/${wishlist.shareToken}`
                       );
-                      toast.success("Link kopiert!");
+                      toast.success(t("linkCopied"));
                     }}
                   >
                     <Share2 className="size-4" />
@@ -209,9 +209,9 @@ export default function DashboardPage() {
         )}
         {sharedWishlists.length > 0 && (
           <div className="mt-16">
-            <h2 className="font-serif text-2xl md:text-3xl">Wunschkisten von Freunden</h2>
+            <h2 className="font-serif text-2xl md:text-3xl">{t("friendsTitle")}</h2>
             <p className="mt-2 mb-6 text-foreground/50">
-              Wunschkisten, bei denen du Geschenke reserviert oder gekauft hast
+              {t("friendsSubtitle")}
             </p>
             <div className="space-y-3">
               {sharedWishlists.map((sw) => (
@@ -223,7 +223,7 @@ export default function DashboardPage() {
                   <div>
                     <h3 className="font-medium">{sw.title}</h3>
                     <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm text-foreground/50">
-                      {sw.ownerName && <span>von {sw.ownerName}</span>}
+                      {sw.ownerName && <span>{tCommon("from", { name: sw.ownerName })}</span>}
                       {sw.eventDate && (
                         <span className="inline-flex items-center gap-1">
                           <Calendar className="size-3" />
@@ -235,13 +235,13 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-2">
                     {sw.myReservedCount > 0 && (
                       <Badge variant="secondary">
-                        {sw.myReservedCount} reserviert
+                        {t("reserved", { count: sw.myReservedCount })}
                       </Badge>
                     )}
                     {sw.myBoughtCount > 0 && (
                       <Badge variant="default" className="bg-green-600">
                         <Check className="mr-1 size-3" />
-                        {sw.myBoughtCount} gekauft
+                        {t("bought", { count: sw.myBoughtCount })}
                       </Badge>
                     )}
                   </div>
@@ -255,10 +255,10 @@ export default function DashboardPage() {
       <ConfirmationDialog
         open={deleteId !== null}
         onOpenChange={(open) => { if (!open) setDeleteId(null); }}
-        title="Wunschkiste löschen?"
-        description="Diese Aktion kann nicht rückgängig gemacht werden. Alle Wünsche und Reservierungen gehen verloren."
-        confirmLabel="Löschen"
-        cancelLabel="Abbrechen"
+        title={t("deleteTitle")}
+        description={t("deleteText")}
+        confirmLabel={tCommon("delete")}
+        cancelLabel={tCommon("cancel")}
         variant="destructive"
         onConfirm={handleDelete}
       />

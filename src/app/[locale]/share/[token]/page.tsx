@@ -16,6 +16,7 @@ import Image from "next/image";
 import { ChristmasDecorations, ChristmasHeaderStar, ChristmasEmptyState } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
 import { formatPrice } from "@/lib/format";
+import { useTranslations } from "next-intl";
 
 interface Product {
   id: string;
@@ -64,6 +65,8 @@ function isEventPast(dateStr: string): boolean {
 
 export default function SharePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = use(params);
+  const t = useTranslations("share");
+  const tCommon = useTranslations("common");
   const queryClient = useQueryClient();
   const { data: session } = useSession();
   const [claimDialogOpen, setClaimDialogOpen] = useState(false);
@@ -173,7 +176,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
   if (isLoading) {
     return (
       <main className="flex min-h-screen items-center justify-center">
-        <p className="text-foreground/40">Laden...</p>
+        <p className="text-foreground/40">{tCommon("loading")}</p>
       </main>
     );
   }
@@ -182,9 +185,9 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-4 px-6">
         <Gift className="size-16 text-foreground/20" />
-        <h1 className="font-serif text-2xl">Wunschkiste nicht gefunden</h1>
+        <h1 className="font-serif text-2xl">{t("notFoundTitle")}</h1>
         <p className="text-foreground/50">
-          Diese Wunschkiste existiert nicht oder ist nicht mehr öffentlich.
+          {t("notFoundText")}
         </p>
       </main>
     );
@@ -207,7 +210,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
           <h1 className="mt-4 font-serif text-4xl md:text-5xl">{wishlist.title}</h1>
           {wishlist.ownerName && (
             <p className="mt-3 text-foreground/50">
-              von {wishlist.ownerName}
+              {tCommon("from", { name: wishlist.ownerName })}
             </p>
           )}
           {wishlist.description && (
@@ -218,7 +221,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
               <Calendar className="size-4" />
               {formatEventDate(wishlist.eventDate)}
               {isEventPast(wishlist.eventDate) && (
-                <Badge variant="secondary">Anlass vorbei</Badge>
+                <Badge variant="secondary">{t("eventPassed")}</Badge>
               )}
             </p>
           )}
@@ -228,10 +231,10 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
         {isOwner && wishlist.ownerVisibility === "surprise" && wishlist.claimedCount !== undefined && (
           <div className="mb-8 rounded-xl border-2 border-border bg-card p-4 text-center">
             <p className="text-lg font-medium">
-              {wishlist.claimedCount} von {wishlist.totalCount} Wünschen sind vergeben
+              {t("claimedOf", { claimed: wishlist.claimedCount ?? 0, total: wishlist.totalCount ?? 0 })}
             </p>
             <p className="mt-1 text-sm text-foreground/50">
-              Du hast den Überraschungs-Modus aktiviert — du siehst nicht, wer was besorgt.
+              {t("surpriseMode")}
             </p>
           </div>
         )}
@@ -245,7 +248,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
               <Gift className="mx-auto size-12 text-foreground/20" />
             )}
             <p className="mt-4 text-foreground/40">
-              Diese Wunschkiste ist noch leer.
+              {t("emptyState")}
             </p>
           </div>
         ) : (
@@ -271,7 +274,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
         <Dialog open={claimDialogOpen} onOpenChange={setClaimDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle className="font-serif text-xl">Wunsch beanspruchen</DialogTitle>
+              <DialogTitle className="font-serif text-xl">{t("claimTitle")}</DialogTitle>
               <DialogDescription>
                 {selectedProduct?.title}
               </DialogDescription>
@@ -289,10 +292,10 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                 )}
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="claim-message">Nachricht (optional)</Label>
+                    <Label htmlFor="claim-message">{t("messageLabel")}</Label>
                     <Textarea
                       id="claim-message"
-                      placeholder="Eine Nachricht für den Beschenkten..."
+                      placeholder={t("messagePlaceholder")}
                       value={claimMessage}
                       onChange={(e) => setClaimMessage(e.target.value)}
                       rows={3}
@@ -308,14 +311,14 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                     className="w-full"
                   >
                     <ShoppingBag className="size-4" />
-                    {submitting ? "..." : "Zum Shop & als gekauft markieren"}
+                    {submitting ? "..." : t("buyAndMark")}
                   </Button>
                   <Button
                     variant="ghost"
                     onClick={() => setClaimDialogOpen(false)}
                     className="w-full"
                   >
-                    Abbrechen
+                    {tCommon("cancel")}
                   </Button>
                 </DialogFooter>
               </>
@@ -327,7 +330,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
         <Dialog open={reserveDialogOpen} onOpenChange={setReserveDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle className="font-serif text-xl">Wunsch reservieren</DialogTitle>
+              <DialogTitle className="font-serif text-xl">{t("reserveTitle")}</DialogTitle>
               <DialogDescription>
                 {selectedProduct?.title}
               </DialogDescription>
@@ -344,7 +347,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                   </div>
                 )}
                 <p className="text-sm text-foreground/60">
-                  Du reservierst diesen Wunsch, damit andere wissen, dass sich schon jemand darum kümmert.
+                  {t("reserveText")}
                 </p>
                 <DialogFooter className="flex-col gap-2 sm:flex-col">
                   <Button
@@ -352,14 +355,14 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                     disabled={submitting}
                     className="w-full"
                   >
-                    {submitting ? "..." : "Reservieren"}
+                    {submitting ? "..." : t("reserve")}
                   </Button>
                   <Button
                     variant="ghost"
                     onClick={() => setReserveDialogOpen(false)}
                     className="w-full"
                   >
-                    Abbrechen
+                    {tCommon("cancel")}
                   </Button>
                 </DialogFooter>
               </>
@@ -380,10 +383,10 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
         {/* Footer */}
         <footer className="mt-16 border-t border-border pt-8 text-center text-xs text-foreground/40">
           <p>
-            Diese Seite enthält Affiliate-Links. Bei einem Kauf erhalten wir eine kleine Provision.
+            {t("affiliateDisclosure")}
           </p>
           <p className="mt-2">
-            Erstellt mit{" "}
+            {t("createdWith")}{" "}
             <Link href="/" className="inline-flex items-center gap-1 font-medium text-primary hover:underline">
               <Image src="/wunschkiste-logo.svg" alt="" width={16} height={16} className="size-4 logo-light" />
               <Image src="/wunschkiste-logo-dark.svg" alt="" width={16} height={16} className="size-4 logo-dark" />
@@ -417,6 +420,8 @@ function ProductCard({
   onUpgrade: () => void;
   onAuthRequired: (type: "buy" | "reserve") => void;
 }) {
+  const t = useTranslations("share");
+  const tCommon = useTranslations("common");
   const isClaimed = product.status !== "available";
   const isMine = product.claimedByMe;
 
@@ -448,15 +453,15 @@ function ProductCard({
             {product.status === "bought" ? (
               <Badge variant="default" className="bg-green-600">
                 <Check className="mr-1 size-3" />
-                Gekauft
-                {product.claimedByName && !isOwner && ` von ${product.claimedByName}`}
-                {isOwner && ownerVisibility === "full" && product.claimedByName && ` von ${product.claimedByName}`}
+                {t("bought")}
+                {product.claimedByName && !isOwner && ` ${tCommon("from", { name: product.claimedByName })}`}
+                {isOwner && ownerVisibility === "full" && product.claimedByName && ` ${tCommon("from", { name: product.claimedByName })}`}
               </Badge>
             ) : (
               <Badge variant="secondary">
-                Reserviert
-                {product.claimedByName && !isOwner && ` von ${product.claimedByName}`}
-                {isOwner && ownerVisibility === "full" && product.claimedByName && ` von ${product.claimedByName}`}
+                {t("reserved")}
+                {product.claimedByName && !isOwner && ` ${tCommon("from", { name: product.claimedByName })}`}
+                {isOwner && ownerVisibility === "full" && product.claimedByName && ` ${tCommon("from", { name: product.claimedByName })}`}
               </Badge>
             )}
           </div>
@@ -471,10 +476,10 @@ function ProductCard({
               <>
                 <Button size="sm" onClick={onClaim}>
                   <ShoppingBag className="size-4" />
-                  Kaufen
+                  {t("buy")}
                 </Button>
                 <Button size="sm" variant="outline" onClick={onReserve}>
-                  Reservieren
+                  {t("reserve")}
                 </Button>
               </>
             )}
@@ -483,7 +488,7 @@ function ProductCard({
               <>
                 <Button size="sm" onClick={onUpgrade}>
                   <ShoppingBag className="size-4" />
-                  Jetzt kaufen
+                  {t("buyNow")}
                 </Button>
                 <Button
                   variant="ghost"
@@ -492,7 +497,7 @@ function ProductCard({
                   className="text-destructive hover:text-destructive"
                 >
                   <Undo2 className="size-3" />
-                  Aufheben
+                  {t("unreserve")}
                 </Button>
               </>
             )}
@@ -501,7 +506,7 @@ function ProductCard({
               <>
                 <Button size="sm" variant="outline" disabled>
                   <Check className="size-4" />
-                  Gekauft
+                  {t("bought")}
                 </Button>
                 <Button
                   variant="ghost"
@@ -510,7 +515,7 @@ function ProductCard({
                   className="text-destructive hover:text-destructive"
                 >
                   <Undo2 className="size-3" />
-                  Rückgängig
+                  {t("undo")}
                 </Button>
               </>
             )}
@@ -521,10 +526,10 @@ function ProductCard({
           <>
             <Button size="sm" onClick={() => onAuthRequired("buy")}>
               <ShoppingBag className="size-4" />
-              Kaufen
+              {t("buy")}
             </Button>
             <Button size="sm" variant="outline" onClick={() => onAuthRequired("reserve")}>
-              Reservieren
+              {t("reserve")}
             </Button>
           </>
         )}

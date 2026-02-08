@@ -14,15 +14,13 @@ import { MainNav } from "@/components/main-nav";
 import { de } from "date-fns/locale";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import type { OwnerVisibility } from "@/lib/db/schema";
 
-const visibilityOptions: { value: OwnerVisibility; label: string; description: string }[] = [
-  { value: "full", label: "Alles sehen", description: "Du siehst welche Geschenke vergeben sind und von wem" },
-  { value: "partial", label: "Teilweise", description: "Du siehst was vergeben ist, aber nicht von wem" },
-  { value: "surprise", label: "Überraschung!", description: "Du siehst nur die Anzahl vergebener Geschenke" },
-];
-
 export default function NewWishlistPage() {
+  const t = useTranslations("newWishlist");
+  const tVis = useTranslations("visibility");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const { data: session, isPending } = useSession();
   const [title, setTitle] = useState("");
@@ -32,6 +30,12 @@ export default function NewWishlistPage() {
   const [ownerVisibility, setOwnerVisibility] = useState<OwnerVisibility>("partial");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const visibilityOptions: { value: OwnerVisibility; label: string; description: string }[] = [
+    { value: "full", label: tVis("full"), description: tVis("fullDescription") },
+    { value: "partial", label: tVis("partial"), description: tVis("partialDescription") },
+    { value: "surprise", label: tVis("surprise"), description: tVis("surpriseDescription") },
+  ];
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -57,7 +61,7 @@ export default function NewWishlistPage() {
     });
 
     if (!response.ok) {
-      setError("Fehler beim Erstellen der Wunschkiste");
+      setError(t("error"));
       setLoading(false);
       return;
     }
@@ -69,7 +73,7 @@ export default function NewWishlistPage() {
   if (isPending) {
     return (
       <main className="flex min-h-screen items-center justify-center">
-        <p className="text-foreground/40">Laden...</p>
+        <p className="text-foreground/40">{tCommon("loading")}</p>
       </main>
     );
   }
@@ -83,9 +87,9 @@ export default function NewWishlistPage() {
       <MainNav />
 
       <div className="mx-auto max-w-xl px-6 pt-36 pb-12">
-        <h1 className="font-serif text-3xl md:text-4xl">Neue Wunschkiste</h1>
+        <h1 className="font-serif text-3xl md:text-4xl">{t("title")}</h1>
         <p className="mt-2 text-foreground/50">
-          Erstelle eine Wunschkiste für deinen besonderen Anlass
+          {t("subtitle")}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-10 space-y-8">
@@ -98,10 +102,10 @@ export default function NewWishlistPage() {
           {/* Theme Selection - MVP deaktiviert, Code bleibt erhalten */}
 
           <div className="space-y-2">
-            <Label htmlFor="title">Titel *</Label>
+            <Label htmlFor="title">{t("titleLabel")}</Label>
             <Input
               id="title"
-              placeholder="z.B. Meine Geburtstagswünsche"
+              placeholder={t("titlePlaceholder")}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
@@ -111,10 +115,10 @@ export default function NewWishlistPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Beschreibung (optional)</Label>
+            <Label htmlFor="description">{t("descriptionLabel")}</Label>
             <Textarea
               id="description"
-              placeholder="Eine kurze Nachricht für deine Gäste..."
+              placeholder={t("descriptionPlaceholder")}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               maxLength={500}
@@ -125,7 +129,7 @@ export default function NewWishlistPage() {
 
           {/* Event Date */}
           <div className="space-y-2">
-            <Label>Anlass-Datum (optional)</Label>
+            <Label>{t("eventDateLabel")}</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -137,7 +141,7 @@ export default function NewWishlistPage() {
                   )}
                 >
                   <CalendarIcon className="mr-2 size-4" />
-                  {eventDate ? format(eventDate, "PPP", { locale: de }) : "Datum wählen"}
+                  {eventDate ? format(eventDate, "PPP", { locale: de }) : t("selectDate")}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -156,14 +160,14 @@ export default function NewWishlistPage() {
                 className="inline-flex items-center gap-1 text-xs text-foreground/50 hover:text-foreground"
               >
                 <X className="size-3" />
-                Datum entfernen
+                {t("removeDate")}
               </button>
             )}
           </div>
 
           {/* Owner Visibility */}
           <div className="space-y-3">
-            <Label>Was möchtest du sehen?</Label>
+            <Label>{t("visibilityLabel")}</Label>
             <div className="space-y-2">
               {visibilityOptions.map((option) => (
                 <button
@@ -186,14 +190,14 @@ export default function NewWishlistPage() {
           <div className="flex justify-end gap-3 pt-4">
             <Link href="/dashboard">
               <Button type="button" variant="ghost">
-                Abbrechen
+                {tCommon("cancel")}
               </Button>
             </Link>
             <Button
               type="submit"
               disabled={loading || !title}
             >
-              {loading ? "Erstellen..." : "Wunschkiste erstellen"}
+              {loading ? t("creating") : t("create")}
             </Button>
           </div>
         </form>

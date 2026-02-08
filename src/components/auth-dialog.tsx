@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useTranslations } from "next-intl";
 
 interface AuthDialogProps {
   open: boolean;
@@ -19,6 +20,7 @@ interface AuthDialogProps {
 }
 
 export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
+  const t = useTranslations("auth");
   const [mode, setMode] = useState<"register" | "login">("register");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -46,7 +48,7 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
 
     if (mode === "register") {
       if (password.length < 8) {
-        setError("Passwort muss mindestens 8 Zeichen lang sein");
+        setError(t("passwordMinLength"));
         setLoading(false);
         return;
       }
@@ -54,9 +56,9 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
       const result = await signUp.email({ email, password, name });
       if (result.error) {
         if (result.error.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL") {
-          setError("Diese E-Mail wird bereits verwendet");
+          setError(t("emailInUse"));
         } else {
-          setError("Registrierung fehlgeschlagen");
+          setError(t("registrationFailed"));
         }
         setLoading(false);
         return;
@@ -64,7 +66,7 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
     } else {
       const result = await signIn.email({ email, password });
       if (result.error) {
-        setError("Ungültige E-Mail oder Passwort");
+        setError(t("invalidCredentials"));
         setLoading(false);
         return;
       }
@@ -87,7 +89,7 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle className="font-serif text-xl">
-            {mode === "register" ? "Registrieren" : "Anmelden"}
+            {mode === "register" ? t("register") : t("login")}
           </DialogTitle>
         </DialogHeader>
 
@@ -102,7 +104,7 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
             }`}
             onClick={() => { setMode("register"); setError(null); }}
           >
-            Registrieren
+            {t("register")}
           </button>
           <button
             type="button"
@@ -113,7 +115,7 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
             }`}
             onClick={() => { setMode("login"); setError(null); }}
           >
-            Anmelden
+            {t("login")}
           </button>
         </div>
 
@@ -126,11 +128,11 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
 
           {mode === "register" && (
             <div className="space-y-2">
-              <Label htmlFor="auth-name">Name</Label>
+              <Label htmlFor="auth-name">{t("name")}</Label>
               <Input
                 id="auth-name"
                 type="text"
-                placeholder="Max Mustermann"
+                placeholder={t("namePlaceholder")}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -140,11 +142,11 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="auth-email">E-Mail</Label>
+            <Label htmlFor="auth-email">{t("email")}</Label>
             <Input
               id="auth-email"
               type="email"
-              placeholder="name@example.com"
+              placeholder={t("emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -153,11 +155,11 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="auth-password">Passwort</Label>
+            <Label htmlFor="auth-password">{t("password")}</Label>
             <Input
               id="auth-password"
               type="password"
-              placeholder={mode === "register" ? "Mindestens 8 Zeichen" : ""}
+              placeholder={mode === "register" ? t("passwordPlaceholder") : ""}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -168,8 +170,8 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
 
           <Button type="submit" className="w-full" size="lg" disabled={loading}>
             {loading
-              ? (mode === "register" ? "Registrieren..." : "Anmelden...")
-              : (mode === "register" ? "Registrieren" : "Anmelden")}
+              ? (mode === "register" ? t("registering") : t("loggingIn"))
+              : (mode === "register" ? t("register") : t("login"))}
           </Button>
 
           <div className="relative my-2">
@@ -177,7 +179,7 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
               <span className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-foreground/40">oder</span>
+              <span className="bg-background px-2 text-foreground/40">{t("or")}</span>
             </div>
           </div>
 
@@ -206,7 +208,7 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
                 fill="#EA4335"
               />
             </svg>
-            Mit Google fortfahren
+            {t("continueWithGoogle")}
           </Button>
         </form>
       </DialogContent>

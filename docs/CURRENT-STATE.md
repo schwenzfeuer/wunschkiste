@@ -1,10 +1,10 @@
 # Current State
 
-> Letzte Aktualisierung: 08.02.2026 (Nacht)
+> Letzte Aktualisierung: 08.02.2026 (Nachmittag)
 
 ## Status
 
-**Phase:** v1.0 Feature-complete + i18n-Migration in Arbeit. 67 Tests, Build-Status nach i18n-Migration pruefen.
+**Phase:** v1.0 Feature-complete, i18n-Migration abgeschlossen. 67 Tests gruen, Build gruen.
 
 ## Was existiert
 
@@ -94,6 +94,8 @@
 - [x] **Gebrandetes Email-Template**: Logo + Wortmarke Header, Creme-Hintergrund, 3D-Button, Google Fonts (DM Sans + Playfair Display)
 - [x] **Password-Reset-Email redesigned**: Gleiches Template-Layout wie Reminder-Emails
 - [x] **67 Tests gruen**: 54 API (inkl. 5 neue Reminder-Tests) + 13 E2E
+- [x] **i18n-Migration komplett**: Alle Seiten und Komponenten nutzen `useTranslations()` -- keine hardcoded deutschen Strings mehr
+- [x] **de.json korrigiert**: Umlaute, scharfes S, Paragraphenzeichen, Apostrophe korrekt
 
 ## Tech-Stack (installiert)
 
@@ -239,11 +241,13 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
-### 08.02.2026 - i18n-Migration (WIP)
-- **Translation-Files erweitert**: de.json + en.json mit allen fehlenden Keys (auth, forgotPassword, resetPassword, dashboard, newWishlist, editor, visibility, share, nav)
-- **Auth-Seiten migriert**: Login, Register, Forgot-Password, Reset-Password nutzen jetzt `useTranslations()`
-- **Dashboard teilweise migriert**: Titel, Buttons, Loading, Toasts -- restliche Wishlist-Cards/Shared-Section noch offen
-- **Noch offen**: Dashboard (Rest), Wishlist New/Editor, Share-Page, auth-dialog, main-nav (Rest), theme-toggle
+### 08.02.2026 - i18n-Migration abgeschlossen
+- **de.json korrigiert**: Alle Umlaute (ue/ae/oe), scharfes S (ss), Paragraphenzeichen (SS/SSSS), fehlende Apostrophe repariert
+- **Translation-Files erweitert**: de.json + en.json mit allen Keys (auth, forgotPassword, resetPassword, dashboard, newWishlist, editor, visibility, share, nav)
+- **Alle Seiten migriert**: Login, Register, Forgot-Password, Reset-Password, Dashboard, Wishlist New, Wishlist Editor, Share-Page
+- **Alle Komponenten migriert**: main-nav (komplett), auth-dialog (komplett), confirmation-dialog (Props von Callern)
+- **Landing Page war bereits migriert** in vorheriger Session
+- Build gruen, 67 Tests gruen (54 API + 13 E2E)
 
 ### 08.02.2026 - Email-Erinnerungen fuer Teilnehmer
 - **sent_reminders Tabelle**: reminderTypeEnum ("7_days", "3_days") + UNIQUE-Constraint (userId, wishlistId, reminderType)
@@ -296,28 +300,12 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **Playwright Timeout**: 30s → 60s (Multi-User-Tests brauchen mehr Zeit bei paralleler Ausführung)
 - 51 Tests grün (38 API + 13 E2E), Build grün
 
-### 07.02.2026 - Christmas SVG-Deko, Dark Theme & einheitlicher Header
-- ChristmasDecorations-Komponente: Inline-SVGs (6-zackige Schneeflocken, 5-zackige Sterne, stilisierte Tannen)
-- CSS-Animationen: float-gentle, twinkle, sway + prefers-reduced-motion Support
-- Christmas-Farbpalette komplett überarbeitet: dunkles Tannengrün + Dunkelrot Cards + Gold Schrift
-- Geschenk-SVG (wunschkiste-geschenk.svg) als großes Deko-Element unten rechts (angeschnitten)
-- `[data-theme]` CSS-Fix: color/background-color explizit setzen (CSS-Variable-Vererbung)
-- `.bg-card` CSS-Fix: automatisch `color: var(--card-foreground)` setzen
-- MainNav auf alle Seiten eingebaut (Dashboard, Wishlist, Share) — einheitlicher Header mit border-b
-- Dashboard eigenen Header durch MainNav ersetzt (Code-Deduplizierung)
-- Theme-Auswahl für MVP auskommentiert (Code bleibt erhalten)
-- DESIGN.md aktualisiert: SVG-Doku, "Wunschliste" → "Wunschkiste"
-- Build OK, alle 35 Tests grün
-
-
 ## Notizen fuer naechste Session
 
-- **i18n-Migration fortsetzen**: Dashboard (restliche Strings), wishlist/new, wishlist/[id], share/[token], auth-dialog, main-nav, theme-toggle
-- Translation-Keys sind ALLE schon in de.json/en.json angelegt -- nur noch die Komponenten umstellen
-- Betroffene Dateien und was zu tun ist stehen oben im Session-Log
-- Nach Abschluss: `pnpm build` + Tests laufen lassen
-- Danach: Manuelles Testing, dann Deployment
+- **i18n komplett** -- App ist bereit fuer manuelles Testing und dann Deployment
 - Email-Reminders: Endpoint bereit fuer Cron-Trigger (`curl -X POST -H "Authorization: Bearer $CRON_API_KEY"`)
-- Resend Domain `wunschkiste.app` nicht verifiziert -- `wunschkiste.app` muss bei Resend verifiziert werden
+- Resend Domain `wunschkiste.app` nicht verifiziert -- muss bei Resend verifiziert werden (DNS TXT Records)
 - Drizzle Migrations: `db:generate` funktioniert nicht korrekt (fehlender 0001-Snapshot), daher Migrations manuell + `db:push`
+- en.json: Englische Uebersetzungen sind Platzhalter (gleiche Keys wie de.json, Inhalte muessen noch uebersetzt werden)
+- Naechste Schritte: Manuelles Testing, dann Cloudflare Pages Deployment
 - Cloudflare R2: User API Token fuer Dev aktiv, Account API Token fuer Production noch erstellen

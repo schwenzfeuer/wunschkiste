@@ -75,11 +75,11 @@ export function MainNav() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
                     <ImagePlus className="mr-2 size-4" />
-                    Bild ändern
+                    {t("changeImage")}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}>
                     {resolvedTheme === "dark" ? <Sun className="mr-2 size-4" /> : <Moon className="mr-2 size-4" />}
-                    {resolvedTheme === "dark" ? "Light Mode" : "Dark Mode"}
+                    {resolvedTheme === "dark" ? t("lightMode") : t("darkMode")}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>

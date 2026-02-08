@@ -21,6 +21,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { formatPrice, normalizePrice } from "@/lib/format";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import type { OwnerVisibility } from "@/lib/db/schema";
 
 interface Product {
@@ -60,14 +61,11 @@ interface Participant {
   image: string | null;
 }
 
-const visibilityOptions: { value: OwnerVisibility; label: string; description: string }[] = [
-  { value: "full", label: "Alles sehen", description: "Welche Geschenke vergeben sind und von wem" },
-  { value: "partial", label: "Teilweise", description: "Was vergeben ist, aber nicht von wem" },
-  { value: "surprise", label: "Überraschung!", description: "Nur die Anzahl vergebener Geschenke" },
-];
-
 export default function WishlistPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const t = useTranslations("editor");
+  const tVis = useTranslations("visibility");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const { data: session, isPending } = useSession();
   const [wishlist, setWishlist] = useState<Wishlist | null>(null);
@@ -90,6 +88,12 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
   const [surpriseSpoiled, setSurpriseSpoiled] = useState(false);
   const [eventDate, setEventDate] = useState<Date | undefined>();
   const [ownerVisibility, setOwnerVisibility] = useState<OwnerVisibility>("partial");
+
+  const visibilityOptions: { value: OwnerVisibility; label: string; description: string }[] = [
+    { value: "full", label: tVis("full"), description: tVis("fullDescription") },
+    { value: "partial", label: tVis("partial"), description: tVis("partialDescription") },
+    { value: "surprise", label: tVis("surprise"), description: tVis("surpriseDescription") },
+  ];
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -180,7 +184,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
     });
     if (response.ok) {
       setProducts(products.filter((p) => p.id !== deleteProductId));
-      toast.success("Wunsch gelöscht!");
+      toast.success(t("wishDeleted"));
     }
     setDeleteProductId(null);
   }
@@ -216,7 +220,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
     if (!wishlist) return;
     const shareUrl = `${window.location.origin}/share/${wishlist.shareToken}`;
     navigator.clipboard.writeText(shareUrl);
-    toast.success("Link kopiert!");
+    toast.success(t("linkCopied"));
   }
 
   async function handleEventDateChange(date: Date | undefined) {
@@ -244,7 +248,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
   if (isPending || loading) {
     return (
       <main className="flex min-h-screen items-center justify-center">
-        <p className="text-foreground/40">Laden...</p>
+        <p className="text-foreground/40">{tCommon("loading")}</p>
       </main>
     );
   }
@@ -271,29 +275,29 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={handleShare}>
               <Share2 className="size-4" />
-              Teilen
+              {t("share")}
             </Button>
             <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="accent" size="sm">
                   <Plus className="size-4" />
-                  Wunsch hinzufügen
+                  {t("addWish")}
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
-                  <DialogTitle className="font-serif text-xl">Wunsch hinzufügen</DialogTitle>
+                  <DialogTitle className="font-serif text-xl">{t("addWishTitle")}</DialogTitle>
                   <DialogDescription>
-                    Füge einen Produktlink hinzu. Die Daten werden automatisch extrahiert.
+                    {t("addWishDescription")}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="url">Produkt-URL</Label>
+                    <Label htmlFor="url">{t("productUrl")}</Label>
                     <div className="flex gap-2">
                       <Input
                         id="url"
-                        placeholder="https://www.amazon.de/dp/..."
+                        placeholder={t("productUrlPlaceholder")}
                         value={newUrl}
                         onChange={(e) => setNewUrl(e.target.value)}
                         className="h-11 rounded-lg border-2 bg-card"
@@ -304,7 +308,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                         onClick={handleScrape}
                         disabled={!newUrl || scraping}
                       >
-                        {scraping ? <Loader2 className="size-4 animate-spin" /> : "Laden"}
+                        {scraping ? <Loader2 className="size-4 animate-spin" /> : t("load")}
                       </Button>
                     </div>
                   </div>
@@ -312,7 +316,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                   {scrapedData && (
                     <>
                       <div className="space-y-2">
-                        <Label htmlFor="title">Titel *</Label>
+                        <Label htmlFor="title">{t("titleLabel")}</Label>
                         <Input
                           id="title"
                           value={productTitle}
@@ -339,7 +343,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                           </span>
                         )}
                         {scrapedData.shopName && (
-                          <span>von {scrapedData.shopName}</span>
+                          <span>{tCommon("from", { name: scrapedData.shopName })}</span>
                         )}
                       </div>
                     </>
@@ -351,13 +355,13 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                     variant="ghost"
                     onClick={() => setAddDialogOpen(false)}
                   >
-                    Abbrechen
+                    {tCommon("cancel")}
                   </Button>
                   <Button
                     onClick={handleAddProduct}
                     disabled={!productTitle || !newUrl || adding}
                   >
-                    {adding ? "Hinzufügen..." : "Hinzufügen"}
+                    {adding ? t("adding") : t("add")}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -369,7 +373,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
         <div className="mb-8 space-y-4 rounded-xl border-2 border-border bg-card/50 p-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
-              <Label className="text-xs text-foreground/50">Anlass-Datum</Label>
+              <Label className="text-xs text-foreground/50">{t("eventDate")}</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -382,7 +386,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                     )}
                   >
                     <CalendarIcon className="mr-2 size-3.5" />
-                    {eventDate ? format(eventDate, "PPP", { locale: de }) : "Kein Datum"}
+                    {eventDate ? format(eventDate, "PPP", { locale: de }) : t("noDate")}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -401,13 +405,13 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                   className="inline-flex items-center gap-1 text-xs text-foreground/50 hover:text-foreground"
                 >
                   <X className="size-3" />
-                  Entfernen
+                  {t("removeDate")}
                 </button>
               )}
             </div>
 
             <div className="space-y-1">
-              <Label className="text-xs text-foreground/50">Sichtbarkeit für dich</Label>
+              <Label className="text-xs text-foreground/50">{t("visibility")}</Label>
               <div className="flex gap-1">
                 {visibilityOptions.filter((option) => option.value !== "surprise" || (!surpriseSpoiled && ownerVisibility === "surprise")).map((option) => (
                   <Button
@@ -455,7 +459,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
               )}
             </div>
             <span className="text-sm text-foreground/50">
-              {participants.length} {participants.length === 1 ? "Teilnehmer" : "Teilnehmer"}
+              {t("participants", { count: participants.length })}
             </span>
           </button>
         )}
@@ -463,7 +467,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
         {products.length === 0 ? (
           <div className="py-20 text-center">
             <p className="text-foreground/40">
-              Noch keine Wünsche. Füge deinen ersten Wunsch hinzu!
+              {t("emptyState")}
             </p>
           </div>
         ) : (
@@ -495,13 +499,13 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                         className={product.reservationStatus === "bought" ? "bg-green-600" : ""}
                       >
                         {product.reservationStatus === "bought" ? (
-                          <><Check className="mr-1 size-3" />Gekauft</>
+                          <><Check className="mr-1 size-3" />{t("bought")}</>
                         ) : (
-                          <><ShoppingCart className="mr-1 size-3" />Reserviert</>
+                          <><ShoppingCart className="mr-1 size-3" />{t("reserved")}</>
                         )}
                       </Badge>
                       {product.reservedByName && (
-                        <span className="text-xs text-foreground/50">von {product.reservedByName}</span>
+                        <span className="text-xs text-foreground/50">{tCommon("from", { name: product.reservedByName })}</span>
                       )}
                     </div>
                   )}
@@ -536,11 +540,11 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
         <Dialog open={!!editProduct} onOpenChange={(open) => !open && setEditProduct(null)}>
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
-              <DialogTitle className="font-serif text-xl">Wunsch bearbeiten</DialogTitle>
+              <DialogTitle className="font-serif text-xl">{t("editTitle")}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-title">Titel *</Label>
+                <Label htmlFor="edit-title">{t("titleLabel")}</Label>
                 <Input
                   id="edit-title"
                   value={editTitle}
@@ -550,12 +554,12 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-price">Preis</Label>
+                <Label htmlFor="edit-price">{t("priceLabel")}</Label>
                 <Input
                   id="edit-price"
                   value={editPrice}
                   onChange={(e) => setEditPrice(e.target.value)}
-                  placeholder="z.B. 29,99"
+                  placeholder={t("pricePlaceholder")}
                   inputMode="decimal"
                   className="h-11 rounded-lg border-2 bg-card"
                 />
@@ -563,10 +567,10 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
             </div>
             <DialogFooter>
               <Button variant="ghost" onClick={() => setEditProduct(null)}>
-                Abbrechen
+                {tCommon("cancel")}
               </Button>
               <Button onClick={handleEditProduct} disabled={!editTitle || saving}>
-                {saving ? "Speichern..." : "Speichern"}
+                {saving ? tCommon("saving") : tCommon("save")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -576,10 +580,10 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
       <ConfirmationDialog
         open={deleteProductId !== null}
         onOpenChange={(open) => { if (!open) setDeleteProductId(null); }}
-        title="Wunsch löschen?"
-        description="Dieser Wunsch wird unwiderruflich aus der Wunschkiste entfernt."
-        confirmLabel="Löschen"
-        cancelLabel="Abbrechen"
+        title={t("deleteTitle")}
+        description={t("deleteText")}
+        confirmLabel={tCommon("delete")}
+        cancelLabel={tCommon("cancel")}
         variant="destructive"
         onConfirm={handleDeleteProduct}
       />
@@ -587,10 +591,10 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
       <ConfirmationDialog
         open={pendingVisibility !== null}
         onOpenChange={(open) => { if (!open) setPendingVisibility(null); }}
-        title="Überraschung verderben?"
-        description="Wenn du die Sichtbarkeit änderst, siehst du welche Wünsche bereits vergeben wurden. Das lässt sich nicht rückgängig machen."
-        confirmLabel="Ja, zeig mir alles"
-        cancelLabel="Lieber nicht"
+        title={t("spoilerTitle")}
+        description={t("spoilerText")}
+        confirmLabel={t("spoilerConfirm")}
+        cancelLabel={t("spoilerCancel")}
         onConfirm={() => {
           if (pendingVisibility) {
             handleVisibilityChange(pendingVisibility);
@@ -603,13 +607,13 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
       <Dialog open={participantsOpen} onOpenChange={setParticipantsOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle className="font-serif text-xl">Teilnehmer</DialogTitle>
+            <DialogTitle className="font-serif text-xl">{t("participantsTitle")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             {participants.map((p) => (
               <div key={p.id} className="flex items-center gap-3">
                 <UserAvatar name={p.name} imageUrl={p.image} size="sm" />
-                <span className="text-sm font-medium">{p.name || "Unbekannt"}</span>
+                <span className="text-sm font-medium">{p.name || t("unknown")}</span>
               </div>
             ))}
           </div>
