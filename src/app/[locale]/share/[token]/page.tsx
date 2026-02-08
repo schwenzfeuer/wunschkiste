@@ -14,6 +14,7 @@ import { Link } from "@/i18n/routing";
 import Image from "next/image";
 import { ChristmasDecorations, ChristmasHeaderStar, ChristmasEmptyState } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
+import { formatPrice } from "@/lib/format";
 
 interface Product {
   id: string;
@@ -206,7 +207,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
             <LogIn className="mx-auto mb-2 size-5 text-primary" />
             <p className="text-sm text-foreground/70">
               <Link
-                href={`/login?callbackUrl=/share/${token}`}
+                href={{ pathname: "/login", query: { callbackUrl: `/share/${token}` } }}
                 className="font-medium text-primary hover:underline"
               >
                 Anmelden
@@ -378,7 +379,7 @@ function ProductCard({
         <div className="mt-1 flex items-center gap-3 text-sm text-foreground/50">
           {product.price && (
             <span className="font-semibold text-foreground">
-              {product.price} {product.currency}
+              {formatPrice(product.price, product.currency)}
             </span>
           )}
           {product.shopName && <span>{product.shopName}</span>}
@@ -455,7 +456,7 @@ function ProductCard({
         )}
 
         {!isOwner && !isLoggedIn && product.status === "available" && (
-          <Link href={`/login?callbackUrl=/share/${token}`}>
+          <Link href={{ pathname: "/login", query: { callbackUrl: `/share/${token}` } }}>
             <Button size="sm" variant="outline">
               <LogIn className="size-4" />
               Anmelden

@@ -489,3 +489,91 @@ CSS `transform` (z.B. `translateY`) funktioniert auf SVG `<g>` Elementen standar
 ```
 
 `transform-box: fill-box` sagt dem Browser, die Bounding Box der SVG-Gruppe als Referenz für Transforms zu nutzen. Ohne das wird `translateY` auf `<g>`-Elementen ignoriert.
+
+---
+
+## next-intl Lokalisierte Pathnames
+
+**Recherche-Datum:** 08.02.2026
+
+### Konfiguration
+
+`defineRouting` akzeptiert ein `pathnames`-Objekt, das Filesystem-Pfade auf lokalisierte URLs mapped:
+```typescript
+export const routing = defineRouting({
+  pathnames: {
+    "/dashboard": {
+      de: "/meine-wunschkisten",
+      en: "/dashboard",
+    },
+    "/wishlist/[id]": {
+      de: "/wunschkiste/[id]",
+      en: "/wishlist/[id]",
+    },
+  },
+});
+```
+
+### Strikte Typisierung
+
+Mit `pathnames` werden `Link href` und `router.push()` **strikt typisiert** — nur die definierten Pfade sind erlaubt. Dynamische Pfade brauchen die Objekt-Syntax:
+```typescript
+// ❌ Compile Error
+router.push(`/wishlist/${id}`);
+Link href={`/wishlist/${id}`}
+
+// ✅ Korrekt
+router.push({ pathname: "/wishlist/[id]", params: { id } });
+<Link href={{ pathname: "/wishlist/[id]", params: { id } }}>
+
+// Query-Params
+<Link href={{ pathname: "/login", query: { callbackUrl: "/share/abc" } }}>
+```
+
+### Dynamische Strings (callbackUrl)
+
+Für Werte aus URL-Params die nicht statisch typisierbar sind, Type-Cast verwenden:
+```typescript
+const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+router.push(callbackUrl as "/dashboard");
+```
+
+### Tests
+
+E2E-Tests müssen die **lokalisierten** URLs verwenden (`page.goto("/anmelden")`, nicht `/login`), da die Middleware die Filesystem-Pfade zur Laufzeit rewritet.
+
+---
+
+## react-day-picker v9 Navigation
+
+**Recherche-Datum:** 08.02.2026
+
+### DOM-Struktur
+
+In v9 ist `nav` ein **Geschwister**-Element von `months`, nicht ein Kind von `month_caption`:
+```html
+<div class="rdp-root">     <!-- DayPicker root -->
+  <div class="rdp-months">
+    <div class="rdp-month">
+      <div class="rdp-month_caption">Februar 2026</div>
+      <table class="rdp-month_grid">...</table>
+    </div>
+  </div>
+  <nav class="rdp-nav">   <!-- Geschwister, nicht Kind! -->
+    <button class="rdp-button_previous">◀</button>
+    <button class="rdp-button_next">▶</button>
+  </nav>
+</div>
+```
+
+### Fix für shadcn Calendar
+
+Die Standard-shadcn-Calendar setzt `absolute left-1`/`absolute right-1` auf die Buttons, aber ohne passenden `relative`-Container greifen diese ins Leere. Fix:
+```typescript
+className={cn("relative p-3", className)}  // Root: relative
+classNames={{
+  nav: "absolute top-3 left-3 right-3 flex justify-between z-10",  // Nav absolut oben
+  button_previous: cn(buttonVariants({ variant: "outline" }), "size-7 bg-transparent p-0 opacity-50 hover:opacity-100"),  // KEIN absolute
+  button_next: cn(buttonVariants({ variant: "outline" }), "size-7 bg-transparent p-0 opacity-50 hover:opacity-100"),  // KEIN absolute
+}}
+```

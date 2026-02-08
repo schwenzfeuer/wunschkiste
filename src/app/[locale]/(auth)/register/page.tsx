@@ -51,7 +51,7 @@ function RegisterForm() {
       return;
     }
 
-    router.push(callbackUrl);
+    router.push(callbackUrl as "/dashboard");
   }
 
   return (
@@ -162,7 +162,7 @@ function RegisterForm() {
           <p className="text-center text-sm text-foreground/60">
             Bereits ein Konto?{" "}
             <Link
-              href={`/login${callbackUrl !== "/dashboard" ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`}
+              href={{ pathname: "/login", query: callbackUrl !== "/dashboard" ? { callbackUrl } : undefined }}
               className="font-medium text-primary hover:underline"
             >
               Anmelden

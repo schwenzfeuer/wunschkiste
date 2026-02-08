@@ -43,7 +43,7 @@ export function MainNav() {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-sm">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-border bg-background/80 backdrop-blur-sm">
       <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-3">
           <WunschkisteLogo className="size-20" />
@@ -57,7 +57,7 @@ export function MainNav() {
               <Link href="/dashboard">
                 <Button size="sm">{t("myWishlists")}</Button>
               </Link>
-              <DropdownMenu>
+              <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
                   <button className="rounded-full ring-2 ring-transparent transition-all hover:ring-primary/20 focus-visible:outline-none focus-visible:ring-primary">
                     <UserAvatar

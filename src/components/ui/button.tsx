@@ -14,7 +14,7 @@ const buttonVariants = cva(
         accent:
           "bg-accent text-accent-foreground rounded-full border-2 border-black shadow-[0_4px_0_0_black] hover:shadow-[0_7px_0_0_black] hover:translate-y-[-3px] active:translate-y-[1px] active:shadow-[0_2px_0_0_black] transition-all",
         destructive:
-          "bg-destructive text-white rounded-full hover:bg-destructive/90 focus-visible:ring-destructive/20",
+          "bg-destructive text-white rounded-full border-2 border-black shadow-[0_4px_0_0_black] hover:shadow-[0_7px_0_0_black] hover:translate-y-[-3px] active:translate-y-[1px] active:shadow-[0_2px_0_0_black] transition-all",
         outline:
           "border-2 border-primary bg-transparent text-primary rounded-full hover:bg-primary hover:text-primary-foreground",
         secondary:

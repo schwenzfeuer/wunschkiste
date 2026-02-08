@@ -9,17 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ArrowLeft, Calendar as CalendarIcon, X } from "lucide-react";
+import { Calendar as CalendarIcon, X } from "lucide-react";
+import { MainNav } from "@/components/main-nav";
 import { de } from "date-fns/locale";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { OwnerVisibility } from "@/lib/db/schema";
-
-const themes = [
-  { value: "standard", label: "Standard", emoji: "🎁", description: "Für jeden Anlass" },
-  { value: "birthday", label: "Geburtstag", emoji: "🎂", description: "Party-Vibes!" },
-  { value: "christmas", label: "Weihnachten", emoji: "🎄", description: "Festlich & gemütlich" },
-];
 
 const visibilityOptions: { value: OwnerVisibility; label: string; description: string }[] = [
   { value: "full", label: "Alles sehen", description: "Du siehst welche Geschenke vergeben sind und von wem" },
@@ -68,7 +63,7 @@ export default function NewWishlistPage() {
     }
 
     const wishlist = await response.json();
-    router.push(`/wishlist/${wishlist.id}`);
+    router.push({ pathname: "/wishlist/[id]", params: { id: wishlist.id } });
   }
 
   if (isPending) {
@@ -85,15 +80,9 @@ export default function NewWishlistPage() {
 
   return (
     <main className="min-h-screen">
-      <div className="mx-auto max-w-xl px-6 py-8">
-        <Link
-          href="/dashboard"
-          className="mb-8 inline-flex items-center text-sm text-foreground/50 hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="mr-2 size-4" />
-          Zurück zum Dashboard
-        </Link>
+      <MainNav />
 
+      <div className="mx-auto max-w-xl px-6 pt-36 pb-12">
         <h1 className="font-serif text-3xl md:text-4xl">Neue Wunschkiste</h1>
         <p className="mt-2 text-foreground/50">
           Erstelle eine Wunschkiste für deinen besonderen Anlass
@@ -106,30 +95,7 @@ export default function NewWishlistPage() {
             </div>
           )}
 
-          {/* Theme Selection */}
-          <div className="space-y-3">
-            <Label>Wähle ein Theme</Label>
-            <div className="grid grid-cols-3 gap-3">
-              {themes.map((t) => (
-                <button
-                  key={t.value}
-                  type="button"
-                  onClick={() => setTheme(t.value)}
-                  className={`flex flex-col items-center rounded-xl border-2 p-3 transition-all ${
-                    theme === t.value
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/30"
-                  }`}
-                >
-                  <span className="text-2xl">{t.emoji}</span>
-                  <span className="mt-1 text-xs font-medium">{t.label}</span>
-                </button>
-              ))}
-            </div>
-            <p className="text-center text-sm text-foreground/50">
-              {themes.find((t) => t.value === theme)?.description}
-            </p>
-          </div>
+          {/* Theme Selection - MVP deaktiviert, Code bleibt erhalten */}
 
           <div className="space-y-2">
             <Label htmlFor="title">Titel *</Label>

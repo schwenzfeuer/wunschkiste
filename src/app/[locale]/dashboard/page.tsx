@@ -6,6 +6,7 @@ import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Plus, Gift, Share2, Trash2, Pencil } from "lucide-react";
 import { MainNav } from "@/components/main-nav";
+import { ConfirmationDialog } from "@/components/confirmation-dialog";
 import { toast } from "sonner";
 
 interface Wishlist {
@@ -29,6 +30,7 @@ export default function DashboardPage() {
   const { data: session, isPending } = useSession();
   const [wishlists, setWishlists] = useState<Wishlist[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -51,13 +53,14 @@ export default function DashboardPage() {
     }
   }, [session]);
 
-  async function handleDelete(id: string) {
-    if (!confirm("Wunschkiste wirklich löschen?")) return;
-
-    const response = await fetch(`/api/wishlists/${id}`, { method: "DELETE" });
+  async function handleDelete() {
+    if (!deleteId) return;
+    const response = await fetch(`/api/wishlists/${deleteId}`, { method: "DELETE" });
     if (response.ok) {
-      setWishlists(wishlists.filter((w) => w.id !== id));
+      setWishlists(wishlists.filter((w) => w.id !== deleteId));
+      toast.success("Wunschkiste gelöscht!");
     }
+    setDeleteId(null);
   }
 
   if (isPending || loading) {
@@ -76,20 +79,22 @@ export default function DashboardPage() {
     <main className="min-h-screen">
       <MainNav />
 
-      <div className="mx-auto max-w-3xl px-6 pt-28 pb-12">
-        <div className="mb-10 flex items-end justify-between">
+      <div className="mx-auto max-w-3xl px-6 pt-36 pb-12">
+        <div className="mb-10 flex items-start justify-between">
           <div>
             <h1 className="font-serif text-3xl md:text-4xl">Meine Wunschkisten</h1>
             <p className="mt-2 text-foreground/50">
               Verwalte deine Wunschkisten und teile sie mit anderen
             </p>
           </div>
-          <Link href="/wishlist/new">
-            <Button>
-              <Plus className="size-4" />
-              Neue Kiste
-            </Button>
-          </Link>
+          {wishlists.length > 0 && (
+            <Link href="/wishlist/new">
+              <Button variant="accent">
+                <Plus className="size-4" />
+                Neue Kiste
+              </Button>
+            </Link>
+          )}
         </div>
 
         {wishlists.length === 0 ? (
@@ -111,33 +116,31 @@ export default function DashboardPage() {
         ) : (
           <div className="space-y-3">
             {wishlists.map((wishlist) => (
-              <div
+              <Link
                 key={wishlist.id}
-                className="group relative flex items-center justify-between rounded-xl border-2 border-border bg-background px-6 py-5 transition-colors hover:border-primary/20"
+                href={{ pathname: "/wishlist/[id]", params: { id: wishlist.id } }}
+                className="group relative flex items-center justify-between rounded-xl border-2 border-border bg-background px-6 py-5 transition-colors hover:border-primary"
               >
-                <Link href={`/wishlist/${wishlist.id}`} className="relative z-10 flex-1">
-                  <div className="flex items-center gap-3">
-                    {themeEmojis[wishlist.theme] && (
-                      <span className="text-xl">{themeEmojis[wishlist.theme]}</span>
+                <div className="flex items-center gap-3">
+                  {themeEmojis[wishlist.theme] && (
+                    <span className="text-xl">{themeEmojis[wishlist.theme]}</span>
+                  )}
+                  <div>
+                    <h3 className="font-medium">{wishlist.title}</h3>
+                    {wishlist.description && (
+                      <p className="mt-0.5 text-sm text-foreground/50">{wishlist.description}</p>
                     )}
-                    <div>
-                      <h3 className="font-medium">{wishlist.title}</h3>
-                      {wishlist.description && (
-                        <p className="mt-0.5 text-sm text-foreground/50">{wishlist.description}</p>
-                      )}
-                    </div>
                   </div>
-                </Link>
+                </div>
                 <div className="relative z-10 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 max-sm:opacity-100">
-                  <Link href={`/wishlist/${wishlist.id}`}>
-                    <Button variant="ghost" size="icon-sm">
-                      <Pencil className="size-4" />
-                    </Button>
-                  </Link>
+                  <Button variant="ghost" size="icon-sm">
+                    <Pencil className="size-4" />
+                  </Button>
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
                       navigator.clipboard.writeText(
                         `${window.location.origin}/share/${wishlist.shareToken}`
                       );
@@ -149,17 +152,28 @@ export default function DashboardPage() {
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    onClick={() => handleDelete(wishlist.id)}
+                    onClick={(e) => { e.preventDefault(); setDeleteId(wishlist.id); }}
                     className="text-destructive hover:text-destructive"
                   >
                     <Trash2 className="size-4" />
                   </Button>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
       </div>
+
+      <ConfirmationDialog
+        open={deleteId !== null}
+        onOpenChange={(open) => { if (!open) setDeleteId(null); }}
+        title="Wunschkiste löschen?"
+        description="Diese Aktion kann nicht rückgängig gemacht werden. Alle Wünsche und Reservierungen gehen verloren."
+        confirmLabel="Löschen"
+        cancelLabel="Abbrechen"
+        variant="destructive"
+        onConfirm={handleDelete}
+      />
     </main>
   );
 }

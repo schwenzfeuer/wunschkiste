@@ -4,12 +4,12 @@ import { freshTestUser } from "../helpers";
 async function registerAndLoginUI(page: Page) {
   const user = freshTestUser();
 
-  await page.goto("/register");
+  await page.goto("/registrieren");
   await page.fill('input[id="name"]', user.name);
   await page.fill('input[id="email"]', user.email);
   await page.fill('input[id="password"]', user.password);
   await page.getByRole("button", { name: "Registrieren" }).click();
-  await page.waitForURL("**/dashboard");
+  await page.waitForURL("**/meine-wunschkisten");
 
   return user;
 }
@@ -18,17 +18,14 @@ test.describe("Wishlist Flow", () => {
   test("create a new wishlist", async ({ page }) => {
     await registerAndLoginUI(page);
 
-    await page.getByRole("link", { name: /Neue Kiste/i }).click();
-    await page.waitForURL("**/wishlist/new");
+    await page.getByRole("link", { name: /Erste Wunschkiste erstellen/i }).click();
+    await page.waitForURL("**/wunschkiste/neu");
 
     await page.fill('input[id="title"]', "Mein 30. Geburtstag");
     await page.fill('textarea[id="description"]', "Wünsche zum runden Geburtstag");
 
-    // Select birthday theme
-    await page.getByText("🎂").click();
-
     await page.getByRole("button", { name: /erstellen/i }).click();
-    await page.waitForURL("**/wishlist/**");
+    await page.waitForURL("**/wunschkiste/**");
 
     await expect(page.locator("h1")).toContainText("Mein 30. Geburtstag");
   });
@@ -49,11 +46,11 @@ test.describe("Wishlist Flow", () => {
     });
 
     // Login via UI
-    await page.goto("/login");
+    await page.goto("/anmelden");
     await page.fill('input[id="email"]', user.email);
     await page.fill('input[id="password"]', user.password);
     await page.getByRole("button", { name: "Anmelden" }).click();
-    await page.waitForURL("**/dashboard");
+    await page.waitForURL("**/meine-wunschkisten");
 
     // Create wishlist via API
     const createRes = await request.post("/api/wishlists", {

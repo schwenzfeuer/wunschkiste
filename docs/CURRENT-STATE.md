@@ -1,6 +1,6 @@
 # Current State
 
-> Letzte Aktualisierung: 07.02.2026 (Abend)
+> Letzte Aktualisierung: 08.02.2026
 
 ## Status
 
@@ -70,6 +70,14 @@
 - [x] **Toasts**: Sonner/Toaster, QueryProvider mit globalem onError, Error/404 Pages
 - [x] **Rate-Limiting**: ArcJet auf /api/scrape und /api/share/[token]/reserve (DRY_RUN in dev)
 - [x] **51 Tests grün**: 38 API (inkl. 20 neue Share-Tests) + 13 E2E
+- [x] **Calendar Fix**: react-day-picker v9 Nav-Buttons korrekt oben positioniert
+- [x] **ConfirmationDialog**: shadcn AlertDialog statt `window.confirm()` für Löschen-Aktionen
+- [x] **Preisformatierung**: `formatPrice()` zeigt "29,99 €" statt "29.99 EUR", Komma-Eingabe
+- [x] **Lokalisierte Routen**: next-intl `pathnames` — `/meine-wunschkisten`, `/wunschkiste/neu`, `/anmelden`, `/registrieren`, `/teilen/[token]`
+- [x] **Dashboard UX**: Items komplett klickbar, hover border primary, "Neue Kiste" nur bei bestehenden Listen
+- [x] **DropdownMenu Fix**: `modal={false}` verhindert Scrollbar-Layout-Shift
+- [x] **New-Page**: MainNav Header, Theme-Auswahl für MVP entfernt
+- [x] **Button destructive**: 3D-Effekt wie primary/accent, in Rot
 
 ## Tech-Stack (installiert)
 
@@ -117,6 +125,7 @@ src/
 │       └── profile/avatar/            # Avatar Upload/Delete (R2)
 ├── components/
 │   ├── animate-on-scroll.tsx          # Scroll-Animation Wrapper
+│   ├── confirmation-dialog.tsx        # Wiederverwendbarer Bestätigungsdialog
 │   ├── product-image.tsx              # Bild mit Broken-Image-Fallback
 │   ├── theme-card.tsx                 # Theme-Vorschaukarte mit Mini-Animation
 │   ├── wunschkiste-logo.tsx           # Inline SVG Logo mit schwebendem Stern
@@ -135,7 +144,9 @@ src/
 │   ├── email/                         # Resend Email-Service
 │   ├── storage/                       # Cloudflare R2 Client
 │   └── security/                      # ArcJet Rate-Limiting
-├── i18n/                              # next-intl Config
+├── lib/
+│   └── format.ts                      # Preisformatierung (formatPrice, normalizePrice)
+├── i18n/                              # next-intl Config + lokalisierte Pathnames
 └── middleware.ts                      # Locale Routing
 messages/
 ├── de.json
@@ -211,6 +222,18 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 08.02.2026 - UI/UX-Fixes, Preisformatierung & lokalisierte Routen
+- **Calendar Fix**: react-day-picker v9 Nav-Pfeile oben positioniert (relative Container + absolute nav)
+- **Button-Varianten**: "Wunsch hinzufügen" & "Neue Kiste" accent-Stil, destructive mit 3D-Effekt
+- **ConfirmationDialog**: shadcn AlertDialog statt `window.confirm()` (Dashboard + Editor)
+- **Dashboard UX**: Items komplett klickbar als Link, hover border primary, "Neue Kiste" nur bei Listen
+- **DropdownMenu**: `modal={false}` verhindert Scrollbar-Layout-Shift beim Profilmenü
+- **New-Page**: MainNav Header hinzugefügt, Theme-Auswahl für MVP entfernt
+- **Preisformatierung**: `formatPrice()` → "29,99 €" statt "29.99 EUR", Komma-Eingabe im Input
+- **Lokalisierte Routen**: next-intl pathnames (`/meine-wunschkisten`, `/wunschkiste/neu`, `/anmelden`, `/registrieren`, `/teilen/[token]`, `/passwort-vergessen`)
+- **Tests angepasst**: E2E-Tests auf lokalisierte URLs umgestellt
+- Build grün, 51 Tests grün
+
 ### 07.02.2026 - AP 9: Tests, Build-Fixes, .env.example
 - **Build-Fixes**: ArcJet `protect()` braucht `{ requested: 1 }`, `forgetPassword` → `requestPasswordReset`, Resend lazy init, Suspense-Boundaries für `useSearchParams()`
 - **Share-Tests komplett neu**: 20 Tests (Reserve Auth 401/403, Buy, DELETE eigene/fremde, PATCH upgrade, Owner-Visibility full/partial/surprise, EventDate CRUD)
@@ -262,19 +285,12 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - prefers-reduced-motion für alle Animationen
 - Build OK, alle 35 Tests grün
 
-### 06.02.2026 - Bug Fixes & Test Suite
-- 3 Bug Fixes: Theme im Editor (data-theme), Google Auth Button, Nav Auth-State
-- MainNav Komponente: Dynamische Nav mit Auth-State (Login/Register vs. Meine Wunschlisten/Logout)
-- HeroCta Komponente: CTA passt sich Auth-State an
-- Playwright installiert + konfiguriert
-- 22 API-Tests: Health, Auth (Register, Login, Fehler), Wishlists (CRUD, Auth-Guard, Cross-User), Products (CRUD), Share (Token, Reservierung, Doppel-Reservierung)
-- 13 E2E-Tests: Landing Page, Auth Flow (Register, Login, Google Button, Navigation), Wishlist Flow (Erstellen, Dashboard, Theme)
-- Turbopack Cache Bug: `.next` Verzeichnis löschen wenn SST-Dateien korrupt
-
 
 ## Notizen für nächste Session
 
-- v1.0 Feature-complete — nächster Schritt: Manuelles Testing, dann Deployment
+- v1.0 Feature-complete + UI/UX Polish — nächster Schritt: Manuelles Testing, dann Deployment
+- Lokalisierte Routen aktiv: DE-URLs ohne Prefix, EN unter `/en/...`
+- Neue Sprachen einfach ergänzbar: `locales` in config.ts + pathnames in routing.ts + messages/xx.json
 - Cloudflare R2: User API Token für Dev aktiv, Account API Token für Production noch erstellen
 - PROGRESS.md ist veraltet / überflüssig — kann gelöscht werden (alles in CURRENT-STATE.md)
 - Theme-Code (CSS, Komponenten, API) bleibt erhalten — nur UI-Auswahl auskommentiert für MVP

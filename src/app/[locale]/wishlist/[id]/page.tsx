@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
-import { useRouter, Link } from "@/i18n/routing";
+import { useRouter } from "@/i18n/routing";
 import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,12 +10,14 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ProductImage } from "@/components/product-image";
-import { ArrowLeft, Plus, Trash2, ExternalLink, Share2, Loader2, Pencil, Calendar as CalendarIcon, X } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Share2, Loader2, Pencil, Calendar as CalendarIcon, X } from "lucide-react";
 import { ChristmasDecorations } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
+import { ConfirmationDialog } from "@/components/confirmation-dialog";
 import { de } from "date-fns/locale";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { formatPrice, normalizePrice } from "@/lib/format";
 import { toast } from "sonner";
 import type { OwnerVisibility } from "@/lib/db/schema";
 
@@ -71,6 +73,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
   const [editTitle, setEditTitle] = useState("");
   const [editPrice, setEditPrice] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
   const [eventDate, setEventDate] = useState<Date | undefined>();
   const [ownerVisibility, setOwnerVisibility] = useState<OwnerVisibility>("partial");
 
@@ -152,22 +155,22 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
     setAdding(false);
   }
 
-  async function handleDeleteProduct(productId: string) {
-    if (!confirm("Produkt wirklich löschen?")) return;
-
-    const response = await fetch(`/api/wishlists/${id}/products/${productId}`, {
+  async function handleDeleteProduct() {
+    if (!deleteProductId) return;
+    const response = await fetch(`/api/wishlists/${id}/products/${deleteProductId}`, {
       method: "DELETE",
     });
-
     if (response.ok) {
-      setProducts(products.filter((p) => p.id !== productId));
+      setProducts(products.filter((p) => p.id !== deleteProductId));
+      toast.success("Wunsch gelöscht!");
     }
+    setDeleteProductId(null);
   }
 
   function openEditDialog(product: Product) {
     setEditProduct(product);
     setEditTitle(product.title);
-    setEditPrice(product.price || "");
+    setEditPrice(product.price ? product.price.replace(".", ",") : "");
   }
 
   async function handleEditProduct() {
@@ -179,7 +182,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: editTitle,
-        price: editPrice || null,
+        price: editPrice ? normalizePrice(editPrice) : null,
       }),
     });
 
@@ -235,7 +238,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
     >
       <MainNav />
       {wishlist.theme === "christmas" && <ChristmasDecorations />}
-      <div className="mx-auto max-w-3xl px-6 pt-28 pb-8">
+      <div className="mx-auto max-w-3xl px-6 pt-36 pb-8">
         <div className="mb-10 flex items-start justify-between">
           <div>
             <h1 className="font-serif text-3xl md:text-4xl">{wishlist.title}</h1>
@@ -250,7 +253,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
             </Button>
             <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
               <DialogTrigger asChild>
-                <Button size="sm">
+                <Button variant="accent" size="sm">
                   <Plus className="size-4" />
                   Wunsch hinzufügen
                 </Button>
@@ -310,7 +313,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                       <div className="flex items-center justify-center gap-4 text-sm text-foreground/60">
                         {scrapedData.price && (
                           <span className="text-lg font-semibold text-foreground">
-                            {scrapedData.price} {scrapedData.currency}
+                            {formatPrice(scrapedData.price, scrapedData.currency || "EUR")}
                           </span>
                         )}
                         {scrapedData.shopName && (
@@ -424,7 +427,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                   <div className="mt-1 flex items-center gap-3 text-sm text-foreground/50">
                     {product.price && (
                       <span className="font-semibold text-foreground">
-                        {product.price} {product.currency}
+                        {formatPrice(product.price, product.currency)}
                       </span>
                     )}
                     {product.shopName && <span>{product.shopName}</span>}
@@ -446,7 +449,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    onClick={() => handleDeleteProduct(product.id)}
+                    onClick={() => setDeleteProductId(product.id)}
                     className="text-destructive hover:text-destructive"
                   >
                     <Trash2 className="size-4" />
@@ -479,7 +482,8 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                   id="edit-price"
                   value={editPrice}
                   onChange={(e) => setEditPrice(e.target.value)}
-                  placeholder="z.B. 29.99"
+                  placeholder="z.B. 29,99"
+                  inputMode="decimal"
                   className="h-11 rounded-lg border-2 bg-card"
                 />
               </div>
@@ -495,6 +499,17 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
           </DialogContent>
         </Dialog>
       </div>
+
+      <ConfirmationDialog
+        open={deleteProductId !== null}
+        onOpenChange={(open) => { if (!open) setDeleteProductId(null); }}
+        title="Wunsch löschen?"
+        description="Dieser Wunsch wird unwiderruflich aus der Wunschkiste entfernt."
+        confirmLabel="Löschen"
+        cancelLabel="Abbrechen"
+        variant="destructive"
+        onConfirm={handleDeleteProduct}
+      />
     </main>
   );
 }
