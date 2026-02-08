@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
-import { WunschkisteLogo } from "@/components/wunschkiste-logo";
+import { BrandLogo } from "@/components/brand-logo";
 import { ArrowLeft, Mail } from "lucide-react";
 
 export default function ForgotPasswordPage() {
@@ -40,9 +40,8 @@ export default function ForgotPasswordPage() {
     <main className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <div className="mb-10 flex justify-center">
-          <Link href="/" className="flex items-center gap-3">
-            <WunschkisteLogo className="size-20" />
-            <Image src="/wunschkiste-wordmark.svg" alt="Wunschkiste" width={200} height={40} className="h-10 w-auto" />
+          <Link href="/">
+            <BrandLogo size="md" />
           </Link>
         </div>
 

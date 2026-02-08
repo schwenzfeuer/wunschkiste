@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter, Link } from "@/i18n/routing";
 import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
-import { Plus, Gift, Share2, Trash2, Pencil } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Gift, Share2, Trash2, Pencil, Check, Calendar } from "lucide-react";
 import { MainNav } from "@/components/main-nav";
 import { ConfirmationDialog } from "@/components/confirmation-dialog";
 import { toast } from "sonner";
@@ -19,6 +20,25 @@ interface Wishlist {
   createdAt: string;
 }
 
+interface SharedWishlist {
+  id: string;
+  title: string;
+  shareToken: string;
+  ownerName: string | null;
+  eventDate: string | null;
+  myReservedCount: number;
+  myBoughtCount: number;
+}
+
+function formatEventDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("de-DE", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
 const themeEmojis: Record<string, string> = {
   standard: "",
   birthday: "🎂",
@@ -29,6 +49,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
   const [wishlists, setWishlists] = useState<Wishlist[]>([]);
+  const [sharedWishlists, setSharedWishlists] = useState<SharedWishlist[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -40,12 +61,22 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function fetchWishlists() {
-      const response = await fetch("/api/wishlists");
-      if (response.ok) {
-        const data = await response.json();
-        setWishlists(data);
+      try {
+        const [ownRes, sharedRes] = await Promise.all([
+          fetch("/api/wishlists"),
+          fetch("/api/wishlists/shared"),
+        ]);
+        if (ownRes.ok) {
+          setWishlists(await ownRes.json());
+        }
+        if (sharedRes.ok) {
+          setSharedWishlists(await sharedRes.json());
+        }
+      } catch {
+        toast.error("Fehler beim Laden der Wunschkisten");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
 
     if (session) {
@@ -160,6 +191,49 @@ export default function DashboardPage() {
                 </div>
               </Link>
             ))}
+          </div>
+        )}
+        {sharedWishlists.length > 0 && (
+          <div className="mt-16">
+            <h2 className="font-serif text-2xl md:text-3xl">Wunschkisten von Freunden</h2>
+            <p className="mt-2 mb-6 text-foreground/50">
+              Wunschkisten, bei denen du Geschenke reserviert oder gekauft hast
+            </p>
+            <div className="space-y-3">
+              {sharedWishlists.map((sw) => (
+                <Link
+                  key={sw.id}
+                  href={{ pathname: "/share/[token]", params: { token: sw.shareToken } }}
+                  className="group flex items-center justify-between rounded-xl border-2 border-border bg-background px-6 py-5 transition-colors hover:border-primary"
+                >
+                  <div>
+                    <h3 className="font-medium">{sw.title}</h3>
+                    <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm text-foreground/50">
+                      {sw.ownerName && <span>von {sw.ownerName}</span>}
+                      {sw.eventDate && (
+                        <span className="inline-flex items-center gap-1">
+                          <Calendar className="size-3" />
+                          {formatEventDate(sw.eventDate)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {sw.myReservedCount > 0 && (
+                      <Badge variant="secondary">
+                        {sw.myReservedCount} reserviert
+                      </Badge>
+                    )}
+                    {sw.myBoughtCount > 0 && (
+                      <Badge variant="default" className="bg-green-600">
+                        <Check className="mr-1 size-3" />
+                        {sw.myBoughtCount} gekauft
+                      </Badge>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         )}
       </div>

@@ -182,22 +182,6 @@ function HomeContent() {
         </AnimateOnScroll>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border px-6 py-8">
-        <div className="mx-auto max-w-3xl">
-          <p className="text-center text-xs text-foreground/40">
-            {t("footer.affiliateDisclosure")}
-          </p>
-          <div className="mt-4 flex justify-center gap-6 text-xs">
-            <Link href="/impressum" className="text-foreground/40 hover:text-foreground transition-colors">
-              {t("footer.imprint")}
-            </Link>
-            <Link href="/datenschutz" className="text-foreground/40 hover:text-foreground transition-colors">
-              {t("footer.privacy")}
-            </Link>
-          </div>
-        </div>
-      </footer>
     </main>
   );
 }

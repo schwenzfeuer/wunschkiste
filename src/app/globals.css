@@ -109,6 +109,53 @@
   --warning: #F59E0B;
 }
 
+/* Dark Mode: Hauptfarben getauscht (Creme ↔ Blau) */
+.dark {
+  --background: #0042AF;
+  --foreground: #FEF1D0;
+
+  --card: #0052C4;
+  --card-foreground: #FEF1D0;
+  --popover: #0052C4;
+  --popover-foreground: #FEF1D0;
+
+  --primary: #FEF1D0;
+  --primary-foreground: #0042AF;
+
+  --secondary: #003080;
+  --secondary-foreground: #FEF1D0;
+
+  --muted: #003890;
+  --muted-foreground: #A0B8D8;
+
+  --accent: #FF8C42;
+  --accent-foreground: #FFFFFF;
+
+  --destructive: #EF4444;
+
+  --border: #1A5BC0;
+  --input: #1A5BC0;
+  --ring: #FEF1D0;
+
+  --chart-1: #FEF1D0;
+  --chart-2: #FF8C42;
+  --chart-3: #7AA4E8;
+  --chart-4: #FFB380;
+  --chart-5: #C8DDF5;
+
+  --sidebar: #003590;
+  --sidebar-foreground: #FEF1D0;
+  --sidebar-primary: #FEF1D0;
+  --sidebar-primary-foreground: #0042AF;
+  --sidebar-accent: #FF8C42;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #1A5BC0;
+  --sidebar-ring: #FEF1D0;
+
+  --success: #22C55E;
+  --warning: #FBBF24;
+}
+
 /* Theme: Birthday - Verspielt, bunt */
 [data-theme="birthday"] {
   --background: #FFF0F5;
@@ -199,6 +246,19 @@
   .bg-card {
     color: var(--card-foreground);
   }
+}
+
+/* Dark mode logo switching */
+.logo-dark {
+  display: none;
+}
+
+.dark .logo-light {
+  display: none;
+}
+
+.dark .logo-dark {
+  display: block;
 }
 
 /* Scroll animations */

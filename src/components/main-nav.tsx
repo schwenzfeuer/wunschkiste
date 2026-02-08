@@ -3,20 +3,21 @@
 import { useRef } from "react";
 import { Link, useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
 import { useSession, signOut } from "@/lib/auth/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { UserAvatar } from "@/components/user-avatar";
-import { LogOut, ImagePlus } from "lucide-react";
-import Image from "next/image";
-import { WunschkisteLogo } from "@/components/wunschkiste-logo";
+import { LogOut, ImagePlus, Moon, Sun } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 
 export function MainNav() {
   const t = useTranslations("nav");
   const router = useRouter();
   const queryClient = useQueryClient();
   const { data: session, isPending } = useSession();
+  const { resolvedTheme, setTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function handleLogout() {
@@ -45,9 +46,8 @@ export function MainNav() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-border bg-background/80 backdrop-blur-sm">
       <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-        <Link href="/" className="flex items-center gap-3">
-          <WunschkisteLogo className="size-20" />
-          <Image src="/wunschkiste-wordmark.svg" alt="Wunschkiste" width={200} height={40} className="h-8 w-auto" />
+        <Link href="/" className="flex items-center">
+          <BrandLogo size="sm" />
         </Link>
         <div className="flex items-center gap-4">
           {isPending ? (
@@ -76,6 +76,10 @@ export function MainNav() {
                   <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
                     <ImagePlus className="mr-2 size-4" />
                     Bild ändern
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}>
+                    {resolvedTheme === "dark" ? <Sun className="mr-2 size-4" /> : <Moon className="mr-2 size-4" />}
+                    {resolvedTheme === "dark" ? "Light Mode" : "Dark Mode"}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
