@@ -9,7 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { UserAvatar } from "@/components/user-avatar";
-import { LogOut, ImagePlus, Moon, Sun } from "lucide-react";
+import { LogOut, ImagePlus, Moon, Sun, List } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 
 export function MainNav() {
@@ -45,16 +45,17 @@ export function MainNav() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-border bg-background/80 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
+      <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
         <Link href="/" className="flex items-center">
-          <BrandLogo size="sm" />
+          <BrandLogo size="sm" hideIcon className="sm:hidden" />
+          <BrandLogo size="sm" className="hidden sm:flex" />
         </Link>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           {isPending ? (
             <div className="h-9 w-20" />
           ) : session ? (
             <>
-              <Link href="/dashboard">
+              <Link href="/dashboard" className="hidden sm:block">
                 <Button size="sm">{t("myWishlists")}</Button>
               </Link>
               <DropdownMenu modal={false}>
@@ -73,6 +74,10 @@ export function MainNav() {
                     <p className="text-xs text-foreground/50">{session.user.email}</p>
                   </div>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem className="sm:hidden" onClick={() => router.push("/dashboard" as "/dashboard")}>
+                    <List className="mr-2 size-4" />
+                    {t("myWishlists")}
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
                     <ImagePlus className="mr-2 size-4" />
                     {t("changeImage")}

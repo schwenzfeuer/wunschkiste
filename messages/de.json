@@ -130,6 +130,7 @@
     "wishesAssigned": "Es wurden Wünsche vergeben",
     "claimedOf": "{claimed} von {total} vergeben",
     "linkCopied": "Link kopiert!",
+    "shareEmpty": "Füge zuerst Wünsche hinzu, bevor du die Liste teilst",
     "deleted": "Wunschkiste gelöscht!",
     "loadError": "Fehler beim Laden der Wunschkisten",
     "friendsTitle": "Wunschkisten von Freunden",
@@ -186,7 +187,8 @@
     "wishDeleted": "Wunsch gelöscht!",
     "linkCopied": "Link kopiert!",
     "bought": "Gekauft",
-    "reserved": "Reserviert"
+    "reserved": "Reserviert",
+    "shareEmpty": "Füge zuerst Wünsche hinzu, bevor du die Liste teilst"
   },
   "visibility": {
     "full": "Alles sehen",
@@ -210,8 +212,6 @@
     "reserveTitle": "Wunsch reservieren",
     "reserveText": "Du reservierst diesen Wunsch, damit andere wissen, dass sich schon jemand darum kümmert.",
     "reserve": "Reservieren",
-    "affiliateDisclosure": "Diese Seite enthält Affiliate-Links. Bei einem Kauf erhalten wir eine kleine Provision.",
-    "createdWith": "Erstellt mit",
     "bought": "Gekauft",
     "reserved": "Reserviert",
     "buy": "Kaufen",
@@ -243,7 +243,7 @@
   "footer": {
     "imprint": "Impressum",
     "privacy": "Datenschutz",
-    "affiliateDisclosure": "Diese Seite enthält Affiliate-Links. Bei einem Kauf über diese Links erhalten wir eine Provision."
+    "affiliateDisclosure": "Links mit einem Herz sind Affiliate-Links. Bei einem Kauf darueber erhalten wir eine kleine Provision - fuer dich aendert sich nichts."
   },
   "legal": {
     "backToHome": "Zurück zur Startseite",

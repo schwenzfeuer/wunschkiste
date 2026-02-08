@@ -86,7 +86,7 @@ export default function NewWishlistPage() {
     <main className="min-h-screen">
       <MainNav />
 
-      <div className="mx-auto max-w-xl px-6 pt-36 pb-12">
+      <div className="mx-auto max-w-xl px-4 pt-28 pb-12 sm:px-6 sm:pt-36">
         <h1 className="font-serif text-3xl md:text-4xl">{t("title")}</h1>
         <p className="mt-2 text-foreground/50">
           {t("subtitle")}

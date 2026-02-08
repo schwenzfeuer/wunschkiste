@@ -218,6 +218,10 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
 
   function handleShare() {
     if (!wishlist) return;
+    if (products.length === 0) {
+      toast.error(t("shareEmpty"));
+      return;
+    }
     const shareUrl = `${window.location.origin}/share/${wishlist.shareToken}`;
     navigator.clipboard.writeText(shareUrl);
     toast.success(t("linkCopied"));
@@ -264,8 +268,8 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
     >
       <MainNav />
       {wishlist.theme === "christmas" && <ChristmasDecorations />}
-      <div className="mx-auto max-w-3xl px-6 pt-36 pb-8">
-        <div className="mb-10 flex items-start justify-between">
+      <div className="mx-auto max-w-3xl px-4 pt-28 pb-8 sm:px-6 sm:pt-36">
+        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h1 className="font-serif text-3xl md:text-4xl">{wishlist.title}</h1>
             {wishlist.description && (
@@ -273,7 +277,12 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
             )}
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleShare}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShare}
+              disabled={products.length === 0}
+            >
               <Share2 className="size-4" />
               {t("share")}
             </Button>
@@ -495,8 +504,7 @@ export default function WishlistPage({ params }: { params: Promise<{ id: string 
                   {product.reservationStatus && (
                     <div className="mt-1.5 flex items-center gap-2">
                       <Badge
-                        variant={product.reservationStatus === "bought" ? "default" : "secondary"}
-                        className={product.reservationStatus === "bought" ? "bg-green-600" : ""}
+                        className={product.reservationStatus === "bought" ? "bg-accent text-accent-foreground" : "bg-accent/40 text-accent-foreground"}
                       >
                         {product.reservationStatus === "bought" ? (
                           <><Check className="mr-1 size-3" />{t("bought")}</>

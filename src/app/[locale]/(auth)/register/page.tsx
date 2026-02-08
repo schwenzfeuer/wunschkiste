@@ -57,7 +57,7 @@ function RegisterForm() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-6">
+    <main className="flex min-h-screen items-start justify-center px-4 pt-16 sm:items-center sm:px-6 sm:pt-0">
       <div className="w-full max-w-sm">
         <div className="mb-10 flex justify-center">
           <Link href="/">

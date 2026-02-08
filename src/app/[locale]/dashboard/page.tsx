@@ -116,8 +116,8 @@ export default function DashboardPage() {
     <main className="min-h-screen">
       <MainNav />
 
-      <div className="mx-auto max-w-3xl px-6 pt-36 pb-12">
-        <div className="mb-10 flex items-start justify-between">
+      <div className="mx-auto max-w-3xl px-4 pt-28 pb-12 sm:px-6 sm:pt-36">
+        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h1 className="font-serif text-3xl md:text-4xl">{t("title")}</h1>
             <p className="mt-2 text-foreground/50">
@@ -125,7 +125,7 @@ export default function DashboardPage() {
             </p>
           </div>
           {wishlists.length > 0 && (
-            <Link href="/wishlist/new">
+            <Link href="/wishlist/new" className="shrink-0">
               <Button variant="accent">
                 <Plus className="size-4" />
                 {t("newBox")}
@@ -156,16 +156,16 @@ export default function DashboardPage() {
               <Link
                 key={wishlist.id}
                 href={{ pathname: "/wishlist/[id]", params: { id: wishlist.id } }}
-                className="group relative flex items-center justify-between rounded-xl border-2 border-border bg-card px-6 py-5 transition-colors hover:border-primary/20"
+                className="group relative flex flex-col gap-3 rounded-xl border-2 border-border bg-card px-4 py-4 transition-colors hover:border-primary/20 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   {themeEmojis[wishlist.theme] && (
-                    <span className="text-xl">{themeEmojis[wishlist.theme]}</span>
+                    <span className="text-xl shrink-0">{themeEmojis[wishlist.theme]}</span>
                   )}
-                  <div>
-                    <h3 className="font-medium">{wishlist.title}</h3>
+                  <div className="min-w-0">
+                    <h3 className="font-medium truncate">{wishlist.title}</h3>
                     {(wishlist.claimedCount > 0 || wishlist.description) && (
-                      <p className="mt-0.5 text-sm text-foreground/50">
+                      <p className="mt-0.5 text-sm text-foreground/50 truncate">
                         {wishlist.claimedCount > 0 && wishlist.ownerVisibility === "surprise"
                           ? t("wishesAssigned")
                           : wishlist.claimedCount > 0
@@ -177,7 +177,7 @@ export default function DashboardPage() {
                     )}
                   </div>
                 </div>
-                <div className="relative z-10 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 max-sm:opacity-100">
+                <div className="relative z-10 flex items-center gap-1 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100">
                   <Button variant="ghost" size="icon-sm">
                     <Pencil className="size-4" />
                   </Button>
@@ -186,6 +186,10 @@ export default function DashboardPage() {
                     size="icon-sm"
                     onClick={(e) => {
                       e.preventDefault();
+                      if (wishlist.totalCount === 0) {
+                        toast.error(t("shareEmpty"));
+                        return;
+                      }
                       navigator.clipboard.writeText(
                         `${window.location.origin}/share/${wishlist.shareToken}`
                       );
@@ -218,7 +222,7 @@ export default function DashboardPage() {
                 <Link
                   key={sw.id}
                   href={{ pathname: "/share/[token]", params: { token: sw.shareToken } }}
-                  className="group flex items-center justify-between rounded-xl border-2 border-border bg-card px-6 py-5 transition-colors hover:border-primary/20"
+                  className="group flex flex-col gap-3 rounded-xl border-2 border-border bg-card px-4 py-4 transition-colors hover:border-primary/20 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5"
                 >
                   <div>
                     <h3 className="font-medium">{sw.title}</h3>

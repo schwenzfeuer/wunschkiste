@@ -4,15 +4,11 @@ import { useState, use } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ProductImage } from "@/components/product-image";
 import { AuthDialog } from "@/components/auth-dialog";
-import { Gift, Check, ShoppingBag, Calendar, Undo2 } from "lucide-react";
-import { Link } from "@/i18n/routing";
-import Image from "next/image";
+import { Gift, Check, ShoppingBag, Calendar, Undo2, Heart } from "lucide-react";
 import { ChristmasDecorations, ChristmasHeaderStar, ChristmasEmptyState } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
 import { formatPrice } from "@/lib/format";
@@ -72,7 +68,6 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
   const [claimDialogOpen, setClaimDialogOpen] = useState(false);
   const [reserveDialogOpen, setReserveDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [claimMessage, setClaimMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<{ product: Product; type: "buy" | "reserve" } | null>(null);
@@ -90,13 +85,11 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
 
   function openClaimDialog(product: Product) {
     setSelectedProduct(product);
-    setClaimMessage("");
     setClaimDialogOpen(true);
   }
 
   function openReserveDialog(product: Product) {
     setSelectedProduct(product);
-    setClaimMessage("");
     setReserveDialogOpen(true);
   }
 
@@ -129,7 +122,6 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
       body: JSON.stringify({
         productId: selectedProduct.id,
         status,
-        message: claimMessage || undefined,
       }),
     });
 
@@ -138,7 +130,6 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
       setClaimDialogOpen(false);
       setReserveDialogOpen(false);
       setSelectedProduct(null);
-      setClaimMessage("");
 
       if (status === "bought") {
         const shopUrl = selectedProduct.affiliateUrl || selectedProduct.originalUrl;
@@ -183,7 +174,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
 
   if (isError || !wishlist) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-4 px-6">
+      <main className="flex min-h-screen flex-col items-center justify-center gap-4 px-4 sm:px-6">
         <Gift className="size-16 text-foreground/20" />
         <h1 className="font-serif text-2xl">{t("notFoundTitle")}</h1>
         <p className="text-foreground/50">
@@ -203,7 +194,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
     >
       <MainNav />
       {wishlist.theme === "christmas" && <ChristmasDecorations />}
-      <div className="mx-auto max-w-2xl px-6 pt-28 pb-12">
+      <div className="mx-auto max-w-2xl px-4 pt-24 pb-12 sm:px-6 sm:pt-28">
         {/* Header */}
         <div className="mb-12 text-center">
           {wishlist.theme === "christmas" ? <ChristmasHeaderStar /> : null}
@@ -290,27 +281,13 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                     />
                   </div>
                 )}
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="claim-message">{t("messageLabel")}</Label>
-                    <Textarea
-                      id="claim-message"
-                      placeholder={t("messagePlaceholder")}
-                      value={claimMessage}
-                      onChange={(e) => setClaimMessage(e.target.value)}
-                      rows={3}
-                      maxLength={500}
-                      className="rounded-lg border-2 bg-card"
-                    />
-                  </div>
-                </div>
                 <DialogFooter className="flex-col gap-2 sm:flex-col">
                   <Button
                     onClick={() => handleClaim("bought")}
                     disabled={submitting}
                     className="w-full"
                   >
-                    <ShoppingBag className="size-4" />
+                    {selectedProduct?.affiliateUrl ? <Heart className="size-4" /> : <ShoppingBag className="size-4" />}
                     {submitting ? "..." : t("buyAndMark")}
                   </Button>
                   <Button
@@ -380,20 +357,6 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
           onSuccess={handleAuthSuccess}
         />
 
-        {/* Footer */}
-        <footer className="mt-16 border-t border-border pt-8 text-center text-xs text-foreground/40">
-          <p>
-            {t("affiliateDisclosure")}
-          </p>
-          <p className="mt-2">
-            {t("createdWith")}{" "}
-            <Link href="/" className="inline-flex items-center gap-1 font-medium text-primary hover:underline">
-              <Image src="/wunschkiste-logo.svg" alt="" width={16} height={16} className="size-4 logo-light" />
-              <Image src="/wunschkiste-logo-dark.svg" alt="" width={16} height={16} className="size-4 logo-dark" />
-              Wunschkiste
-            </Link>
-          </p>
-        </footer>
       </div>
     </main>
   );
@@ -451,14 +414,14 @@ function ProductCard({
         {isClaimed && (
           <div className="mt-2">
             {product.status === "bought" ? (
-              <Badge variant="default" className="bg-green-600">
+              <Badge className="bg-accent text-accent-foreground">
                 <Check className="mr-1 size-3" />
                 {t("bought")}
                 {product.claimedByName && !isOwner && ` ${tCommon("from", { name: product.claimedByName })}`}
                 {isOwner && ownerVisibility === "full" && product.claimedByName && ` ${tCommon("from", { name: product.claimedByName })}`}
               </Badge>
             ) : (
-              <Badge variant="secondary">
+              <Badge className="bg-accent/40 text-accent-foreground">
                 {t("reserved")}
                 {product.claimedByName && !isOwner && ` ${tCommon("from", { name: product.claimedByName })}`}
                 {isOwner && ownerVisibility === "full" && product.claimedByName && ` ${tCommon("from", { name: product.claimedByName })}`}
@@ -475,7 +438,7 @@ function ProductCard({
             {product.status === "available" && (
               <>
                 <Button size="sm" onClick={onClaim}>
-                  <ShoppingBag className="size-4" />
+                  {product.affiliateUrl ? <Heart className="size-4" /> : <ShoppingBag className="size-4" />}
                   {t("buy")}
                 </Button>
                 <Button size="sm" variant="outline" onClick={onReserve}>
@@ -487,7 +450,7 @@ function ProductCard({
             {isMine && product.status === "reserved" && (
               <>
                 <Button size="sm" onClick={onUpgrade}>
-                  <ShoppingBag className="size-4" />
+                  {product.affiliateUrl ? <Heart className="size-4" /> : <ShoppingBag className="size-4" />}
                   {t("buyNow")}
                 </Button>
                 <Button
@@ -525,7 +488,7 @@ function ProductCard({
         {!isOwner && !isLoggedIn && product.status === "available" && (
           <>
             <Button size="sm" onClick={() => onAuthRequired("buy")}>
-              <ShoppingBag className="size-4" />
+              {product.affiliateUrl ? <Heart className="size-4" /> : <ShoppingBag className="size-4" />}
               {t("buy")}
             </Button>
             <Button size="sm" variant="outline" onClick={() => onAuthRequired("reserve")}>

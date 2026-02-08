@@ -130,6 +130,7 @@
     "wishesAssigned": "Wishes have been claimed",
     "claimedOf": "{claimed} of {total} claimed",
     "linkCopied": "Link copied!",
+    "shareEmpty": "Add wishes first before sharing the list",
     "deleted": "Wishbox deleted!",
     "loadError": "Error loading wishboxes",
     "friendsTitle": "Friends' wishboxes",
@@ -186,7 +187,8 @@
     "wishDeleted": "Wish deleted!",
     "linkCopied": "Link copied!",
     "bought": "Bought",
-    "reserved": "Reserved"
+    "reserved": "Reserved",
+    "shareEmpty": "Add wishes first before sharing the list"
   },
   "visibility": {
     "full": "See everything",
@@ -210,8 +212,6 @@
     "reserveTitle": "Reserve wish",
     "reserveText": "You're reserving this wish so others know someone is already taking care of it.",
     "reserve": "Reserve",
-    "affiliateDisclosure": "This page contains affiliate links. We receive a small commission on purchases.",
-    "createdWith": "Created with",
     "bought": "Bought",
     "reserved": "Reserved",
     "buy": "Buy",
@@ -243,7 +243,7 @@
   "footer": {
     "imprint": "Imprint",
     "privacy": "Privacy Policy",
-    "affiliateDisclosure": "This page contains affiliate links. We receive a commission on purchases made through these links."
+    "affiliateDisclosure": "Links marked with a heart are affiliate links. We receive a small commission on purchases -- at no extra cost to you."
   },
   "legal": {
     "backToHome": "Back to home",

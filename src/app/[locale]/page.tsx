@@ -32,7 +32,7 @@ function HomeContent() {
       <MainNav />
 
       {/* Hero */}
-      <section className="flex min-h-screen flex-col items-center justify-center px-6 pt-16">
+      <section className="flex min-h-[85vh] flex-col items-center justify-center px-4 pt-20 sm:min-h-screen sm:px-6 sm:pt-16">
         <div className="mx-auto max-w-3xl text-center">
           <h1 className="font-serif text-5xl leading-tight tracking-tight md:text-7xl md:leading-tight">
             {t("landing.hero.title")}
@@ -58,7 +58,7 @@ function HomeContent() {
       </section>
 
       {/* Problem */}
-      <section id="problem" className="px-6 py-24 md:py-32">
+      <section id="problem" className="px-4 py-16 sm:px-6 sm:py-24 md:py-32">
         <AnimateOnScroll>
           <div className="mx-auto max-w-2xl">
             <span className="text-xs font-semibold uppercase tracking-widest text-accent">
@@ -75,7 +75,7 @@ function HomeContent() {
       </section>
 
       {/* Solution */}
-      <section className="px-6 py-24 md:py-32">
+      <section className="px-4 py-16 sm:px-6 sm:py-24 md:py-32">
         <AnimateOnScroll>
           <div className="mx-auto max-w-2xl">
             <span className="text-xs font-semibold uppercase tracking-widest text-accent">
@@ -92,7 +92,7 @@ function HomeContent() {
       </section>
 
       {/* Feature: Auto-Erkennung */}
-      <section className="px-6 py-24 md:py-32">
+      <section className="px-4 py-16 sm:px-6 sm:py-24 md:py-32">
         <AnimateOnScroll>
           <div className="mx-auto max-w-2xl">
             <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
@@ -112,7 +112,7 @@ function HomeContent() {
       </section>
 
       {/* Feature: Teilen & Reservieren */}
-      <section className="px-6 py-24 md:py-32">
+      <section className="px-4 py-16 sm:px-6 sm:py-24 md:py-32">
         <AnimateOnScroll>
           <div className="mx-auto max-w-2xl">
             <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
@@ -132,7 +132,7 @@ function HomeContent() {
       </section>
 
       {/* Feature: Anlässe/Themes */}
-      <section className="px-6 py-24 md:py-32">
+      <section className="px-4 py-16 sm:px-6 sm:py-24 md:py-32">
         <AnimateOnScroll>
           <div className="mx-auto max-w-2xl">
             <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
@@ -163,7 +163,7 @@ function HomeContent() {
       </section>
 
       {/* CTA */}
-      <section className="px-6 py-24 md:py-32">
+      <section className="px-4 py-16 sm:px-6 sm:py-24 md:py-32">
         <AnimateOnScroll>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="font-serif text-3xl leading-snug md:text-5xl md:leading-snug">
