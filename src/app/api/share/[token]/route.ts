@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { eq, inArray } from "drizzle-orm";
 import { auth } from "@/lib/auth";
-import { db, wishlists, products, reservations, users } from "@/lib/db";
+import { db, wishlists, products, reservations, users, savedWishlists } from "@/lib/db";
 
 type RouteParams = { params: Promise<{ token: string }> };
 
@@ -38,6 +38,12 @@ export async function GET(
   const isOwner = session?.user?.id === wishlist.ownerId;
   const isLoggedIn = !!session?.user;
   const currentUserId = session?.user?.id;
+
+  if (isLoggedIn && !isOwner) {
+    await db.insert(savedWishlists)
+      .values({ userId: currentUserId!, wishlistId: wishlist.id })
+      .onConflictDoNothing();
+  }
 
   const wishlistProducts = await db
     .select({

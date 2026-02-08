@@ -4,7 +4,7 @@
 
 ## Status
 
-**Phase:** v1.0 Feature-complete. Alle AP 1-9 implementiert. Build grün, 51 Tests grün.
+**Phase:** v1.0 Feature-complete. Alle AP 1-9 implementiert. Build grün, 57 Tests grün.
 
 ## Was existiert
 
@@ -78,6 +78,8 @@
 - [x] **DropdownMenu Fix**: `modal={false}` verhindert Scrollbar-Layout-Shift
 - [x] **New-Page**: MainNav Header, Theme-Auswahl für MVP entfernt
 - [x] **Button destructive**: 3D-Effekt wie primary/accent, in Rot
+- [x] **Auto-Save geteilter Wunschkisten**: Neue `saved_wishlists`-Tabelle, Share-Besuch speichert Wishlist automatisch im Dashboard
+- [x] **Shared-Endpoint umgebaut**: Query basiert auf `saved_wishlists` statt `reservations` — Wishlists ohne Reservierungen erscheinen mit 0/0 Counts
 
 ## Tech-Stack (installiert)
 
@@ -164,7 +166,7 @@ messages/
 - [x] Playwright E2E Setup + User-Flow Tests (Register, Login, Wishlist CRUD, Share, Reservierung)
 - [x] API-Tests für alle Routes (Wishlists, Products, Scraper, Share, Auth)
 - [x] Share-Tests erweitert: Reserve Auth, DELETE, PATCH, Owner-Visibility, EventDate CRUD
-- 51 Tests gesamt: 38 API + 13 E2E, alle grün
+- 57 Tests gesamt: 44 API + 13 E2E, alle grün
 
 ### Mobile-Testing & Live-Updates (Plan: `~/.claude/plans/serene-greeting-moon.md`)
 - [x] TanStack Query installieren + QueryClientProvider einrichten
@@ -222,6 +224,14 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 08.02.2026 - Auto-Save geteilter Wunschkisten
+- **Neue Tabelle `saved_wishlists`**: user_id + wishlist_id mit UNIQUE-Constraint, CASCADE-Delete
+- **Auto-Save in Share-Route**: Eingeloggte Nicht-Owner → INSERT ON CONFLICT DO NOTHING
+- **Shared-Endpoint umgebaut**: `saved_wishlists` als Basis statt `reservations`, LEFT JOIN für 0/0 Counts
+- **Migration**: `0002_saved_wishlists.sql` + `db:push`
+- **6 neue Tests**: Auto-Save, keine Duplikate, Owner-Besuch, Unreserve behält Wishlist
+- 57 Tests grün (44 API + 13 E2E), Build grün
+
 ### 08.02.2026 - UI/UX-Fixes, Preisformatierung & lokalisierte Routen
 - **Calendar Fix**: react-day-picker v9 Nav-Pfeile oben positioniert (relative Container + absolute nav)
 - **Button-Varianten**: "Wunsch hinzufügen" & "Neue Kiste" accent-Stil, destructive mit 3D-Effekt
@@ -271,26 +281,12 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - `localeDetection: false` in next-intl routing (Browser-Sprache führte zu ungewolltem `/en` Redirect)
 - Besser für SEO: Googlebot crawlt mit `en-US`, würde sonst DE-Seiten nicht indexieren
 
-### 06.02.2026 - Polling, Themes, Affiliate, i18n-Fix
-- TanStack Query 5.90: Share-Page pollt alle 10s + refetchOnWindowFocus
-- ProductImage-Komponente: onError → Gift-Icon Fallback
-- Immersive CSS Theme-Animationen: Schneeflocken, Konfetti, Shimmer, Wolken
-- ThemeCard-Komponente: Vorschaukarten mit echtem Hintergrund + Mini-Animation
-- Theme-Picker im Wishlist-Editor: Theme nach Erstellung änderbar
-- Dashboard-Cards: Theme-Hintergrund + Mini-Animationen pro Wunschliste
-- Amazon Affiliate: ASIN aus URL extrahieren, clean URL bauen, Tag `wunschkiste-21`
-- `rel="sponsored nofollow"` auf Affiliate-Links (SEO/Legal)
-- Locale-Fix: `next/link` → `@/i18n/routing` Link in allen 11 Dateien (kein Locale-Verlust)
-- AWIN-Recherche: Programmes API + Link Builder API dokumentiert
-- prefers-reduced-motion für alle Animationen
-- Build OK, alle 35 Tests grün
-
 
 ## Notizen für nächste Session
 
 - v1.0 Feature-complete + UI/UX Polish — nächster Schritt: Manuelles Testing, dann Deployment
+- Auto-Save aktiv: Share-Besuch speichert Wishlist automatisch → Dashboard zeigt sie sofort (auch ohne Reservierung)
+- Drizzle Migrations: `db:generate` funktioniert nicht korrekt (fehlender 0001-Snapshot), daher Migrations manuell + `db:push`
 - Lokalisierte Routen aktiv: DE-URLs ohne Prefix, EN unter `/en/...`
-- Neue Sprachen einfach ergänzbar: `locales` in config.ts + pathnames in routing.ts + messages/xx.json
 - Cloudflare R2: User API Token für Dev aktiv, Account API Token für Production noch erstellen
-- PROGRESS.md ist veraltet / überflüssig — kann gelöscht werden (alles in CURRENT-STATE.md)
 - Theme-Code (CSS, Komponenten, API) bleibt erhalten — nur UI-Auswahl auskommentiert für MVP

@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, boolean, decimal, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, boolean, decimal, pgEnum, unique } from "drizzle-orm/pg-core";
 
 export const wishlistThemeEnum = pgEnum("wishlist_theme", [
   "standard",
@@ -116,6 +116,19 @@ export const reservations = pgTable("reservations", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const savedWishlists = pgTable("saved_wishlists", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  wishlistId: uuid("wishlist_id")
+    .notNull()
+    .references(() => wishlists.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  unique().on(t.userId, t.wishlistId),
+]);
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
@@ -126,6 +139,7 @@ export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;
 export type Reservation = typeof reservations.$inferSelect;
 export type NewReservation = typeof reservations.$inferInsert;
+export type SavedWishlist = typeof savedWishlists.$inferSelect;
 export type WishlistTheme = (typeof wishlistThemeEnum.enumValues)[number];
 export type OwnerVisibility = (typeof ownerVisibilityEnum.enumValues)[number];
 export type ReservationStatus = (typeof reservationStatusEnum.enumValues)[number];
