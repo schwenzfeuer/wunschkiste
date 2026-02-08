@@ -58,7 +58,7 @@ Eine Wunschzettel-App bei der Nutzer kostenlos Wunschlisten erstellen und teilen
 - [ ] Rechtliche Situation beim Scraping von Produktdaten prüfen
 - [x] ~~Telefon-Login~~ - entschieden: nicht im MVP
 - [ ] Schnell starten um PA-API Zugang zu sichern (10 Sales generieren)
-- [x] Finaler Projektname: Wunschkiste (Domain: wunschkiste.xyz)
+- [x] Finaler Projektname: Wunschkiste (Domain: wunschkiste.app)
 
 ## Konkurrenz
 

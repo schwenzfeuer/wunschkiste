@@ -157,14 +157,14 @@ async function extractProductData(url: string) {
 
 **Env Variables:**
 ```
-BETTER_AUTH_URL=https://wunschkiste.xyz
+BETTER_AUTH_URL=https://wunschkiste.app
 GOOGLE_CLIENT_ID=xxx
 GOOGLE_CLIENT_SECRET=xxx
 ```
 
 **Redirect URLs (Google Cloud Console):**
 - Local: `http://localhost:3000/api/auth/callback/google`
-- Prod: `https://wunschkiste.xyz/api/auth/callback/google`
+- Prod: `https://wunschkiste.app/api/auth/callback/google`
 
 ### Facebook OAuth
 
@@ -176,7 +176,7 @@ FACEBOOK_CLIENT_SECRET=xxx
 
 **Redirect URLs (Facebook Developer Portal):**
 - Local: `http://localhost:3000/api/auth/callback/facebook`
-- Prod: `https://wunschkiste.xyz/api/auth/callback/facebook`
+- Prod: `https://wunschkiste.app/api/auth/callback/facebook`
 
 ### Konfiguration
 
@@ -434,9 +434,9 @@ function getResend() {
 
 ### Domain-Verifizierung (08.02.2026)
 
-Resend verweigert den Versand mit `from: "...@wunschkiste.xyz"` wenn die Domain nicht verifiziert ist:
+Resend verweigert den Versand mit `from: "...@wunschkiste.app"` wenn die Domain nicht verifiziert ist:
 ```
-403: "The wunschkiste.xyz domain is not verified"
+403: "The wunschkiste.app domain is not verified"
 ```
 Zum Testen `onboarding@resend.dev` als Absender verwenden. Fuer Production muss die Domain bei Resend verifiziert werden (DNS TXT Records).
 

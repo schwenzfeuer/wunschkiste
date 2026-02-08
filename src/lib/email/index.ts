@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 
-const FROM = "Wunschkiste <noreply@wunschkiste.xyz>";
+const FROM = "Wunschkiste <noreply@wunschkiste.app>";
 
 function getResend() {
   const key = process.env.RESEND_API_KEY;
@@ -12,9 +12,9 @@ function getBaseUrl() {
   return process.env.BETTER_AUTH_URL || "http://localhost:3000";
 }
 
-const LOGO_URL_LIGHT = "https://wunschkiste.xyz/wunschkiste-logo.svg";
-const LOGO_URL_DARK = "https://wunschkiste.xyz/wunschkiste-logo-dark.svg";
-const WORDMARK_URL = "https://wunschkiste.xyz/wunschkiste-wordmark.svg";
+const LOGO_URL_LIGHT = "https://wunschkiste.app/wunschkiste-logo.svg";
+const LOGO_URL_DARK = "https://wunschkiste.app/wunschkiste-logo-dark.svg";
+const WORDMARK_URL = "https://wunschkiste.app/wunschkiste-wordmark.svg";
 
 function emailLayout(content: string, footerText: string) {
   return `

@@ -230,7 +230,7 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Offene Punkte
 
-- [x] Finaler Projektname: Wunschkiste (Domain: wunschkiste.xyz)
+- [x] Finaler Projektname: Wunschkiste (Domain: wunschkiste.app)
 - [x] Amazon Associates Account (Tag: `wunschkiste-21`, in .env.local gesetzt)
 - [ ] AWIN Publisher Account (beantragt, warte auf Freischaltung)
 - [x] Google OAuth Credentials
@@ -308,8 +308,8 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 - v1.0 Feature-complete + Email-Reminders -- naechster Schritt: Manuelles Testing, dann Deployment
 - Email-Reminders: Endpoint bereit fuer Cron-Trigger (`curl -X POST -H "Authorization: Bearer $CRON_API_KEY"`)
-- Resend Domain `wunschkiste.app` nicht verifiziert -- `wunschkiste.xyz` muss bei Resend verifiziert werden
-- Logo-URLs in Emails zeigen auf `wunschkiste.xyz` -- funktioniert erst nach Deployment
+- Resend Domain `wunschkiste.app` nicht verifiziert -- `wunschkiste.app` muss bei Resend verifiziert werden
+- Logo-URLs in Emails zeigen auf `wunschkiste.app` -- funktioniert erst nach Deployment
 - Drizzle Migrations: `db:generate` funktioniert nicht korrekt (fehlender 0001-Snapshot), daher Migrations manuell + `db:push`
 - Lokalisierte Routen aktiv: DE-URLs ohne Prefix, EN unter `/en/...`
 - Cloudflare R2: User API Token fuer Dev aktiv, Account API Token fuer Production noch erstellen
