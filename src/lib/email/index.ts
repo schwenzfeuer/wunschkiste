@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 
-const FROM = "Wunschkiste <noreply@wunschkiste.app>";
+const FROM = "Wunschkiste <noreply@wunschkiste.xyz>";
 
 function getResend() {
   const key = process.env.RESEND_API_KEY;

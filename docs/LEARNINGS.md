@@ -434,9 +434,9 @@ function getResend() {
 
 ### Domain-Verifizierung (08.02.2026)
 
-Resend verweigert den Versand mit `from: "...@wunschkiste.app"` wenn die Domain nicht verifiziert ist:
+Resend verweigert den Versand mit `from: "...@wunschkiste.xyz"` wenn die Domain nicht verifiziert ist:
 ```
-403: "The wunschkiste.app domain is not verified"
+403: "The wunschkiste.xyz domain is not verified"
 ```
 Zum Testen `onboarding@resend.dev` als Absender verwenden. Fuer Production muss die Domain bei Resend verifiziert werden (DNS TXT Records).
 
