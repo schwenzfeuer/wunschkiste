@@ -377,6 +377,54 @@ Amazon ist NICHT bei AWIN (eigenes PartnerNet).
 
 ---
 
+## Cloudflare Workers + OpenNext Deployment
+
+**Recherche-Datum:** 09.02.2026
+
+### compatibility_date ist kritisch
+
+`wrangler.jsonc` braucht eine aktuelle `compatibility_date`. Mit `2025-04-01` fehlt `MessagePort` als globale Variable, was Next.js intern braucht. Symptom: `ReferenceError: MessagePort is not defined` bei API-Route-Aufrufen. Fix: `compatibility_date: "2025-12-01"` oder neuer.
+
+### keep_names: false fuer next-themes
+
+Esbuild setzt `keep-names` standardmaessig auf `true`, was eine `__name`-Funktion in Modules injiziert. `next-themes` konvertiert Scripts zu Strings (inline `<script>` Tags), in denen `__name` dann nicht definiert ist. Fix: `"keep_names": false` in `wrangler.jsonc`. Siehe: https://opennext.js.org/cloudflare/howtos/keep_names
+
+### Worker Size Limits
+
+Free Tier: 3 MiB (compressed). Paid ($5/mo): 10 MiB. Wunschkiste-Bundle ist ~5.2 MiB gzip wegen cheerio + @aws-sdk/client-s3. Paid Plan noetig.
+
+### runtime="edge" nicht verwenden
+
+OpenNext auf Cloudflare unterstuetzt kein Edge Runtime. `export const runtime = "edge"` aus Route-Dateien entfernen. Alles laeuft als nodejs Runtime.
+
+### output: "standalone" entfernen
+
+OpenNext uebernimmt das Bundling. `output: "standalone"` in `next.config.ts` muss entfernt werden, sonst Konflikte.
+
+### drizzle-orm/neon-http statt postgres.js
+
+Cloudflare Workers haben keine TCP-Sockets. `postgres.js` funktioniert nicht. Stattdessen `@neondatabase/serverless` mit `drizzle-orm/neon-http` (HTTP-basiert). Keine Code-Aenderungen an Queries noetig, nur der Driver-Import aendert sich.
+
+### Neon Connection String
+
+- `drizzle-kit push` liest `.env.local` NICHT automatisch. `source .env.local && pnpm db:push` verwenden.
+- Connection Strings mit `&` muessen in der Shell gequoted werden (einfache Anfuehrungszeichen).
+- Pooler-Endpoint (`-pooler` im Hostnamen) funktioniert mit neon-http.
+
+### Workers vs Pages -- zwei verschiedene Projekte
+
+`wrangler deploy` erstellt ein **Worker**-Projekt. Env-Vars die im **Pages**-Projekt gesetzt sind, gelten dort nicht. Env-Vars muessen im Worker-Projekt gesetzt werden (Dashboard → Workers & Pages → wunschkiste → Settings → Variables and Secrets).
+
+### Google OAuth bei Domain-Wechsel
+
+Bei Domain-Wechsel muessen in der Google Cloud Console **beide** aktualisiert werden:
+1. Autorisierte JavaScript-Quellen: `https://wunschkiste.app`
+2. Autorisierte Weiterleitungs-URIs: `https://wunschkiste.app/api/auth/callback/google`
+
+Aenderungen brauchen ein paar Minuten bis sie aktiv sind.
+
+---
+
 ## @arcjet/next Rate-Limiting
 
 **Recherche-Datum:** 07.02.2026

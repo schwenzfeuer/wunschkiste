@@ -37,7 +37,7 @@ export async function generateMetadata({
   return {
     metadataBase: new URL(baseUrl),
     title: {
-      default: "Wunschkiste -- Wunschlisten erstellen und teilen",
+      default: "Wunschkiste - Wünsche teilen, Freunde schenken.",
       template: "%s - Wunschkiste",
     },
     description,
@@ -54,13 +54,13 @@ export async function generateMetadata({
       type: "website",
       siteName: "Wunschkiste",
       locale: locale === "de" ? "de_DE" : "en_US",
-      title: "Wunschkiste -- Wunschlisten erstellen und teilen",
+      title: "Wunschkiste - Wünsche teilen, Freunde schenken.",
       description,
       url: `${baseUrl}${path}`,
     },
     twitter: {
       card: "summary_large_image",
-      title: "Wunschkiste -- Wunschlisten erstellen und teilen",
+      title: "Wunschkiste - Wünsche teilen, Freunde schenken.",
       description,
     },
     alternates: {

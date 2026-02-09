@@ -1,10 +1,10 @@
 # Current State
 
-> Letzte Aktualisierung: 08.02.2026 (Nacht)
+> Letzte Aktualisierung: 09.02.2026
 
 ## Status
 
-**Phase:** v1.0 Feature-complete, SEO-ready, Share-Seite SSR. 67 Tests gruen, Build gruen.
+**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 67 Tests gruen, Build gruen.
 
 ## Was existiert
 
@@ -18,8 +18,8 @@
 - [x] ADRs dokumentiert (`DECISIONS.md`)
 - [x] Git Repo auf GitHub (`schwenzfeuer/wunschkiste`)
 - [x] Projekt-Setup (Next.js 16, Tailwind 4, shadcn/ui, Drizzle, better-auth, next-intl)
-- [x] **PostgreSQL** via Docker auf Port 5433, Schema gepusht
-- [x] **Auth** (Email/Password funktioniert, Google/Facebook Code vorbereitet)
+- [x] **PostgreSQL** via Neon (Frankfurt Region, neon-http Driver)
+- [x] **Auth** (Email/Password + Google OAuth funktioniert)
 - [x] **Wishlists API** (CRUD: erstellen, lesen, bearbeiten, löschen)
 - [x] **Products API** (CRUD mit Affiliate-Link-Integration)
 - [x] **URL-Scraper** (Cheerio: OpenGraph + JSON-LD + Meta-Tags Fallback)
@@ -33,7 +33,7 @@
 - [x] **Alle Seiten redesigned**: Auth, Dashboard, Editor, Share-View
 - [x] **Themes**: Birthday, Christmas (aktiv), Wedding, Baby (ausgeblendet) (Hex-Farben, data-theme)
 - [x] **Legal Pages**: Impressum & Datenschutz (mit TODO-Platzhaltern für persönliche Daten)
-- [x] **Deployment**: Dockerfile (multi-stage, standalone), docker-compose, Drizzle Migrations, Health Check
+- [x] **Deployment**: Cloudflare Workers via @opennextjs/cloudflare + wrangler
 - [x] **Google Auth Button**: Login + Register Seiten mit Google OAuth Button
 - [x] **MainNav Komponente**: Auth-State-Aware Nav (Login/Register vs. Meine Wunschlisten/Logout)
 - [x] **HeroCta Komponente**: Dynamischer CTA basierend auf Auth-State
@@ -131,6 +131,9 @@
 - [x] **Share-Seite Server/Client-Split**: page.tsx (Server) + share-page-content.tsx (Client)
 - [x] **Share-Seite SSR**: Server fetcht volle Daten inkl. Auth, uebergibt als initialData an react-query
 - [x] **Alle Client-Pages refactored**: Auth, Dashboard, Wishlist-Editor mit Server-Wrapper fuer Metadata
+- [x] **Cloudflare Workers Deployment**: @opennextjs/cloudflare + wrangler, Custom Domain wunschkiste.app
+- [x] **Neon PostgreSQL**: neon-http Driver, Frankfurt Region, Schema gepusht
+- [x] **Google OAuth Production**: Redirect URI + JavaScript Origin fuer wunschkiste.app
 
 ## Tech-Stack (installiert)
 
@@ -138,7 +141,7 @@
 - Next.js 16.1.6 (App Router + Turbopack)
 - React 19.2.3
 - Tailwind CSS 4.1.18 + shadcn/ui (new-york style)
-- Drizzle ORM 0.45.1 + postgres.js
+- Drizzle ORM 0.45.1 + @neondatabase/serverless (neon-http)
 - better-auth 1.4.18
 - next-intl 4.8.2
 - TanStack Query 5.90.20
@@ -149,6 +152,7 @@
 - sonner (Toasts via shadcn)
 - @arcjet/next (Rate-Limiting + Bot-Protection)
 - react-day-picker + date-fns (Calendar/Datepicker)
+- @opennextjs/cloudflare + wrangler (Deployment)
 
 ## Projektstruktur
 
@@ -182,7 +186,7 @@ src/
 │       └── profile/avatar/            # Avatar Upload/Delete (R2)
 ├── components/
 │   ├── animate-on-scroll.tsx          # Scroll-Animation Wrapper
-│   ├── confirmation-dialog.tsx        # Wiederverwendbarer Bestätigungsdialog
+│   ├── confirmation-dialog.tsx        # Wiederverwendbarer Bestaetigungsdialog
 │   ├── product-image.tsx              # Bild mit Broken-Image-Fallback
 │   ├── theme-card.tsx                 # Theme-Vorschaukarte mit Mini-Animation
 │   ├── wunschkiste-logo.tsx           # Inline SVG Logo mit schwebendem Stern
@@ -195,7 +199,7 @@ src/
 │   └── use-in-view.ts                 # Intersection Observer Hook
 ├── lib/
 │   ├── auth/                          # better-auth Config (UUID-Mode)
-│   ├── db/                            # Drizzle Schema & Connection
+│   ├── db/                            # Drizzle Schema & Connection (neon-http)
 │   ├── affiliate/                     # Amazon Tag Integration
 │   ├── scraper/                       # Cheerio + OpenGraph + JSON-LD
 │   ├── email/                         # Resend Email-Service
@@ -210,47 +214,28 @@ messages/
 └── en.json
 ```
 
-## Nächste Schritte
-
-### Bug Fixes
-- [x] Themes wirken nicht – CSS-Variablen in Wishlist-Komponenten nutzen (data-theme auf Editor-Seite)
-- [x] Google Auth Button fehlt im Login/Register UI (Google-Button mit Divider hinzugefügt)
-- [x] Nav Auth-State – MainNav-Komponente mit dynamischem Auth-State + HeroCta-Komponente
-
-### Tests
-- [x] Playwright E2E Setup + User-Flow Tests (Register, Login, Wishlist CRUD, Share, Reservierung)
-- [x] API-Tests für alle Routes (Wishlists, Products, Scraper, Share, Auth)
-- [x] Share-Tests erweitert: Reserve Auth, DELETE, PATCH, Owner-Visibility, EventDate CRUD
-- 67 Tests gesamt: 54 API + 13 E2E, alle gruen
-
-### Mobile-Testing & Live-Updates (Plan: `~/.claude/plans/serene-greeting-moon.md`)
-- [x] TanStack Query installieren + QueryClientProvider einrichten
-- [x] Share-Page: `useQuery` mit `refetchInterval: 10s` + `refetchOnWindowFocus: true`
-- [x] Broken Images Fix: `ProductImage`-Komponente mit Fallback (Gift-Icon)
-- [x] Immersive Themes: Christmas (Schneeflocken), Birthday (Konfetti), Wedding (Shimmer), Baby (Wolken)
+## Naechste Schritte
 
 ### AWIN Integration (nach Account-Freischaltung)
 - [ ] Programmes API abrufen → Domain-Mapping aufbauen
-- [ ] Link Builder API integrieren → Affiliate-Links für AWIN-Shops generieren
+- [ ] Link Builder API integrieren → Affiliate-Links fuer AWIN-Shops generieren
 
 ### Sonstiges
-- [ ] Persönliche Daten eintragen in messages/*.json (TODO-Platzhalter ersetzen)
-- [x] Google OAuth Credentials einrichten (Cloud Console)
-- [ ] Dokploy einrichten - App auf Hetzner deployen
+- [ ] Persoenliche Daten eintragen in messages/*.json (TODO-Platzhalter ersetzen)
+- [ ] Resend Domain `wunschkiste.app` verifizieren (DNS TXT Records)
+- [ ] Email-Reminders: Cron-Trigger einrichten (cron-job.org oder Cloudflare Cron Triggers)
+- [ ] Realtime-Sync: Dashboard + Editor auf React Query umstellen (aktuell useState/useEffect)
+- [ ] Cloudflare Rate Limiting als Ersatz/Ergaenzung fuer ArcJet evaluieren
+- [ ] en.json: Englische Uebersetzungen fertigstellen (aktuell Platzhalter)
 
 ## Lokale Entwicklung
 
-PostgreSQL läuft via Docker:
+Lokale Entwicklung verbindet sich direkt mit Neon (kein lokaler Docker-PostgreSQL mehr noetig):
 ```bash
-# Container starten (falls nicht läuft)
-docker start wunschkiste-postgres
-
-# Oder neu erstellen
-docker run -d --name wunschkiste-postgres \
-  -e POSTGRES_USER=wunschkiste \
-  -e POSTGRES_PASSWORD=wunschkiste \
-  -e POSTGRES_DB=wunschkiste \
-  -p 5433:5432 postgres:16-alpine
+pnpm dev          # Dev-Server (verbindet sich mit Neon DB)
+pnpm build        # Build pruefen
+pnpm run deploy   # Deploy auf Cloudflare Workers
+pnpm run preview  # Lokaler Test mit Wrangler
 ```
 
 ### Cloudflare Tunnel (Mobile-Testing)
@@ -273,11 +258,26 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - [x] Finaler Projektname: Wunschkiste (Domain: wunschkiste.app)
 - [x] Amazon Associates Account (Tag: `wunschkiste-21`, in .env.local gesetzt)
 - [ ] AWIN Publisher Account (beantragt, warte auf Freischaltung)
-- [x] Google OAuth Credentials
+- [x] Google OAuth Credentials (Production: wunschkiste.app)
 - [ ] Facebook App Credentials
-- [x] PostgreSQL für lokale Entwicklung
+- [x] Neon PostgreSQL (Frankfurt Region)
+- [x] Cloudflare Workers Deployment (wunschkiste.app)
 
 ## Letzte Sessions
+
+### 09.02.2026 - Cloudflare Workers + Neon Deployment
+- **Neon PostgreSQL**: Account erstellt, Projekt "wunschkiste" in Frankfurt, Schema gepusht
+- **Database Driver**: postgres.js → @neondatabase/serverless (neon-http), Drizzle Adapter gewechselt
+- **OpenNext Cloudflare**: @opennextjs/cloudflare + wrangler als Build-Pipeline
+- **next.config.ts**: output:standalone entfernt, initOpenNextCloudflareForDev() hinzugefuegt
+- **wrangler.jsonc**: Worker Config mit nodejs_compat, keep_names: false, compatibility_date 2025-12-01
+- **open-next.config.ts**: defineCloudflareConfig()
+- **runtime="edge" entfernt**: OG-Image Route (OpenNext unterstuetzt kein Edge Runtime)
+- **Workers Paid Plan**: Bundle > 3 MiB Free-Limit (gzip ~5.2 MiB, Paid erlaubt 10 MiB)
+- **Custom Domain**: wunschkiste.app auf Cloudflare Worker
+- **Google OAuth**: Redirect URI + JavaScript Origin fuer wunschkiste.app aktualisiert
+- **compatibility_date Fix**: 2025-04-01 → 2025-12-01 (MessagePort-Support fuer Next.js)
+- Build gruen, alle Features funktionieren auf Production
 
 ### 08.02.2026 - SEO-Komplett-Durchgang + Share-Seite SSR
 - **robots.txt + sitemap.xml**: Crawler-Regeln, statische Seiten
@@ -293,66 +293,31 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 ### 08.02.2026 - UI-Polish & Mobile-Optimierung
 - **Badges differenziert**: Reserviert = Outline + Bookmark-Icon, Gekauft = Filled + Check-Icon
 - **Produkt-Sortierung**: Share-Seite zeigt verfuegbare oben, gekaufte unten
-- **Name neben Badge**: Konsistent mit Editor-Seite (statt im Badge)
 - **Konsistente Cards**: Editor + Share identisch (size-16, truncate+title, p-3/sm:p-4)
 - **Mobile Context-Menu**: DropdownMenu (MoreVertical) statt 3 Icon-Buttons im Editor
-- **Dashboard Teilnehmer**: Wishlists-API liefert Participants, xs-Avatare neben Titel
-- **ThemeToggle Hydration-Fix**: mounted-State verhindert Server/Client-Mismatch
-- **Smooth Scrolling + Desktop 125%**: Globale CSS-Anpassungen
-- **Landing**: Box-Icon auf Mobile ueber Hero, Theme-Section entfernt
-- **AuthDialog**: "Willkommen" als fester Titel
-- **Kalender**: Vergangene Daten disabled, dezenter "Datum entfernen" Text-Link
 - Build gruen
 
 ### 08.02.2026 - Affiliate-Kennzeichnung & UI-Polish
 - **Affiliate Heart-Icon**: Kauf-Buttons zeigen Heart statt ShoppingBag wenn `product.affiliateUrl` gesetzt
-- **Footer konsolidiert**: Lokaler Footer auf Share-Page entfernt, globaler SiteFooter mit Heart-Icon + aktualisiertem Disclosure-Text
-- **Kauf-Dialog verschlankt**: Ungenutztes Nachrichten-Feld (Label + Textarea) entfernt, State + Imports aufgeraeumt
-- **Badge-Farben Theme-konform**: "Gekauft" = `bg-accent`, "Reserviert" = `bg-accent/40` (statt hardcoded bg-green-600 / secondary)
-- **Beide Seiten aktualisiert**: Share-Page + Wishlist-Editor konsistent
+- **Footer konsolidiert**: Lokaler Footer auf Share-Page entfernt, globaler SiteFooter mit Heart-Icon
 - Build gruen
 
 ### 08.02.2026 - Mobile-First Responsive Fix
-- **Mobile-Analyse**: 16 Playwright-Screenshots (375x812) aller Seiten, 2 Testbenutzer mit Wunschlisten
-- **Nav komplett umgebaut**: Logo-Icon auf Mobile hidden, Wordmark-only, "Meine Wunschkisten" ins Dropdown-Menu
-- **BrandLogo erweitert**: `hideIcon` Prop + responsive `iconSizes` (size-10/size-20)
-- **Dashboard responsive**: Header flex-col auf Mobile, Cards flex-col mit Icons darunter, Shared-Cards ebenso
-- **Editor responsive**: Titel + Buttons gestackt auf Mobile statt nebeneinander (overflow fix)
-- **Landing Page**: Hero min-h-[85vh] statt min-h-screen auf Mobile, Sections py-16 statt py-24
-- **Auth-Seiten**: items-start + pt-16 auf Mobile statt vertikales Centering (weniger Leerraum)
-- **Globales Padding**: px-4/pt-28 auf Mobile, px-6/pt-36 ab sm-Breakpoint (alle Seiten)
-- **Leere Wunschkiste nicht teilbar**: Teilen-Button disabled wenn 0 Produkte + Toast-Hinweis (Editor + Dashboard)
-- **Build-Fix**: Toter `setClaimMessage`-Code aus Share-Seite entfernt (Linter-bereinigt)
-- Build gruen, 67 Tests gruen (54 API + 13 E2E)
-
-### 08.02.2026 - i18n-Migration abgeschlossen
-- **de.json korrigiert**: Alle Umlaute (ue/ae/oe), scharfes S (ss), Paragraphenzeichen (SS/SSSS), fehlende Apostrophe repariert
-- **Translation-Files erweitert**: de.json + en.json mit allen Keys (auth, forgotPassword, resetPassword, dashboard, newWishlist, editor, visibility, share, nav)
-- **Alle Seiten migriert**: Login, Register, Forgot-Password, Reset-Password, Dashboard, Wishlist New, Wishlist Editor, Share-Page
-- **Alle Komponenten migriert**: main-nav (komplett), auth-dialog (komplett), confirmation-dialog (Props von Callern)
-- **Landing Page war bereits migriert** in vorheriger Session
-- Build gruen, 67 Tests gruen (54 API + 13 E2E)
-
-### 08.02.2026 - Email-Erinnerungen fuer Teilnehmer
-- **sent_reminders Tabelle**: reminderTypeEnum ("7_days", "3_days") + UNIQUE-Constraint (userId, wishlistId, reminderType)
-- **sendReminderEmail()**: Gebrandetes Template mit Logo + Wortmarke, Creme-Hintergrund, 3D-Button (orange), Google Fonts
-- **Password-Reset-Email**: Auf gleiches Layout umgestellt (emailLayout + ctaButton Helpers)
-- **POST /api/reminders/send**: CRON_API_KEY Bearer-Auth, 7/3-Tage-Fenster mit 12h Toleranz
-- **Teilnehmer-Filter**: Owner ausgeschlossen, Kaeufer (status "bought") uebersprungen, 24h-Cooldown fuer frische Teilnehmer
-- **Idempotenz**: INSERT ON CONFLICT DO NOTHING auf sent_reminders, erst DB-Record dann Email
-- **5 neue Tests**: Auth (401 ohne/falscher Key, 200 mit Key), Fresh-Participant-Skip, Buyer/Owner-Skip
-- Build gruen, 67 Tests gruen (54 API + 13 E2E)
+- **Mobile-Analyse**: 16 Playwright-Screenshots (375x812) aller Seiten
+- **Nav komplett umgebaut**: Logo-Icon auf Mobile hidden, Wordmark-only
+- **Dashboard/Editor responsive**: flex-col auf Mobile, flex-row ab sm
+- Build gruen, 67 Tests gruen
 
 ## Notizen fuer naechste Session
 
-- **SEO komplett** -- robots.txt, sitemap, OG-Tags, Titles, JSON-LD, Share SSR
-- **Share-Seite SSR**: Daten werden server-seitig via `cache()` gefetcht und als `initialData` an react-query uebergeben. Auto-Save (savedWishlists) passiert weiterhin ueber den Client-seitigen API-Refetch (10s Polling)
-- **metadataBase Warning im Build**: Kommt weil `BETTER_AUTH_URL` nicht in der Build-Umgebung gesetzt ist -- in Production kein Problem
-- Email-Reminders: Endpoint bereit fuer Cron-Trigger (`curl -X POST -H "Authorization: Bearer $CRON_API_KEY"`)
+- **App ist LIVE** auf https://wunschkiste.app (Cloudflare Workers + Neon)
+- **Deploy-Command**: `pnpm run deploy` (opennextjs-cloudflare build + wrangler deploy)
+- **Env-Vars**: Im Cloudflare Dashboard unter Workers → wunschkiste → Settings → Variables and Secrets
+- **Docker-Files bleiben**: Dockerfile, docker-compose.production.yml, start.sh als Backup/Alternative
+- **ArcJet funktioniert** auf Cloudflare Workers (mit compatibility_date >= 2025-12-01)
+- Email-Reminders: Endpoint bereit fuer Cron-Trigger, extern triggern (cron-job.org)
 - Resend Domain `wunschkiste.app` nicht verifiziert -- muss bei Resend verifiziert werden (DNS TXT Records)
-- Drizzle Migrations: `db:generate` funktioniert nicht korrekt (fehlender 0001-Snapshot), daher Migrations manuell + `db:push`
-- en.json: Englische Uebersetzungen sind Platzhalter (gleiche Keys wie de.json, Inhalte muessen noch uebersetzt werden)
-- Naechste Schritte: Manuelles Testing (Share-Link in WhatsApp/Signal pruefen), dann Cloudflare Pages Deployment
-- Cloudflare R2: User API Token fuer Dev aktiv, Account API Token fuer Production noch erstellen
+- en.json: Englische Uebersetzungen sind Platzhalter
 - **Nachrichten-Feature (reservations.message)**: DB-Spalte existiert noch, UI entfernt
-- **AMAZON_AFFILIATE_TAG**: Muss in `.env` gesetzt sein damit Affiliate-URLs generiert werden
+- **AMAZON_AFFILIATE_TAG**: Muss in Cloudflare Env-Vars gesetzt sein
+- **Neon Passwort rotieren**: Wurde in Chat-Session sichtbar
