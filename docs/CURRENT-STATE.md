@@ -1,6 +1,6 @@
 # Current State
 
-> Letzte Aktualisierung: 09.02.2026
+> Letzte Aktualisierung: 09.02.2026 (Abend)
 
 ## Status
 
@@ -55,7 +55,7 @@
 - [x] **Themes reduziert**: Wedding & Baby aus UI entfernt (nur Standard, Geburtstag, Weihnachten)
 - [x] **Produkt-Edit**: Edit-Dialog im Wishlist-Editor (Titel + Preis bearbeitbar via PATCH API)
 - [x] **Dashboard Fix**: Theme-Animationen von Dashboard-Cards entfernt
-- [x] **Christmas SVG-Dekorationen**: ChristmasDecorations-Komponente (Schneeflocken, Sterne, Tannen als Inline-SVGs)
+- [x] **Christmas SVG-Dekorationen**: ChristmasDecorations-Komponente (Schneeflocken, Sterne, Tannen, Geschenk)
 - [x] **Immersives Dark Christmas-Theme**: Dunkelgrün (#14532D) + Dunkelrot (#802429) Cards + Gold (#D4A84B) Schrift
 - [x] **Geschenk-SVG Integration**: wunschkiste-geschenk.svg als Deko-Element (groß, angeschnitten unten rechts)
 - [x] **Einheitlicher Header**: MainNav auf allen Seiten (Dashboard, Wishlist, Share) mit border-b
@@ -134,6 +134,16 @@
 - [x] **Cloudflare Workers Deployment**: @opennextjs/cloudflare + wrangler, Custom Domain wunschkiste.app
 - [x] **Neon PostgreSQL**: neon-http Driver, Frankfurt Region, Schema gepusht
 - [x] **Google OAuth Production**: Redirect URI + JavaScript Origin fuer wunschkiste.app
+- [x] **Share Auto-Save SSR**: Eingeloggte Nicht-Owner werden beim SSR in saved_wishlists gespeichert
+- [x] **Share Auth-Flow**: AuthDialog oeffnet sich automatisch fuer nicht-eingeloggte User mit "An [Titel] teilnehmen"
+- [x] **AuthDialog title-Prop**: Kontextbezogene Ueberschrift statt hardcoded "Willkommen"
+- [x] **Toast-Styling**: Brandfarben (primary/primary-foreground), Position top-center
+- [x] **Dashboard Wishlist-Edit**: PencilLine-Icon + Dialog zum Bearbeiten von Titel/Beschreibung
+- [x] **Editor Wishlist-Edit**: Inline-PencilLine am Titel (on hover), klickbare Flaeche oeffnet Dialog
+- [x] **Teilnehmer-Button**: Oranger 3D-Button (accent, xs) mit Users-Icon
+- [x] **Mobile Badge-Layout**: Badge + "von Name" untereinander auf Mobile (Share + Editor)
+- [x] **PencilLine Icon**: Alle Pencil-Icons durch PencilLine ersetzt
+- [x] **Wrangler Custom Domain**: routes-Config in wrangler.jsonc damit Deploy Domain nicht entfernt
 
 ## Tech-Stack (installiert)
 
@@ -186,6 +196,7 @@ src/
 │       └── profile/avatar/            # Avatar Upload/Delete (R2)
 ├── components/
 │   ├── animate-on-scroll.tsx          # Scroll-Animation Wrapper
+│   ├── auth-dialog.tsx                # AuthDialog mit optionalem title-Prop
 │   ├── confirmation-dialog.tsx        # Wiederverwendbarer Bestaetigungsdialog
 │   ├── product-image.tsx              # Bild mit Broken-Image-Fallback
 │   ├── theme-card.tsx                 # Theme-Vorschaukarte mit Mini-Animation
@@ -265,6 +276,19 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 09.02.2026 (Abend) - Share Auth-Flow, Edit-Features, UI-Polish
+- **Share Auto-Save SSR**: Eingeloggte Nicht-Owner werden beim SSR automatisch in saved_wishlists gespeichert (onConflictDoNothing)
+- **Share Auth-Flow**: AuthDialog oeffnet sich automatisch fuer nicht-eingeloggte User, Titel "An [Name] teilnehmen", authDismissed-State, Join-Button nach Dismiss
+- **AuthDialog title-Prop**: Optionales title-Prop, faellt auf t("welcome") zurueck
+- **Toast-Styling**: Brandfarben (--primary/--primary-foreground), Position top-center statt bottom-right
+- **Dashboard Wishlist-Edit**: PencilLine-Icon zwischen Eye und Share, Dialog fuer Titel + Beschreibung
+- **Editor Wishlist-Edit**: Inline-PencilLine am Titel (on hover nach letztem Buchstaben), klickbare Flaeche oeffnet Dialog mit Titel + Beschreibung
+- **PencilLine Icon**: Alle Pencil-Icons durch PencilLine ersetzt (Dashboard + Editor)
+- **Teilnehmer-Button**: Oranger 3D-Button (accent, xs) mit Users-Icon statt plain text
+- **Mobile Badge-Layout**: Badge + "von Name" flex-col auf Mobile, flex-row ab sm (Share + Editor)
+- **Wrangler Custom Domain**: routes-Config in wrangler.jsonc ergaenzt
+- **LEARNINGS**: pnpm run deploy vs pnpm deploy, Custom Domain Config dokumentiert
+
 ### 09.02.2026 - Cloudflare Workers + Neon Deployment
 - **Neon PostgreSQL**: Account erstellt, Projekt "wunschkiste" in Frankfurt, Schema gepusht
 - **Database Driver**: postgres.js → @neondatabase/serverless (neon-http), Drizzle Adapter gewechselt
@@ -302,16 +326,10 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **Footer konsolidiert**: Lokaler Footer auf Share-Page entfernt, globaler SiteFooter mit Heart-Icon
 - Build gruen
 
-### 08.02.2026 - Mobile-First Responsive Fix
-- **Mobile-Analyse**: 16 Playwright-Screenshots (375x812) aller Seiten
-- **Nav komplett umgebaut**: Logo-Icon auf Mobile hidden, Wordmark-only
-- **Dashboard/Editor responsive**: flex-col auf Mobile, flex-row ab sm
-- Build gruen, 67 Tests gruen
-
 ## Notizen fuer naechste Session
 
 - **App ist LIVE** auf https://wunschkiste.app (Cloudflare Workers + Neon)
-- **Deploy-Command**: `pnpm run deploy` (opennextjs-cloudflare build + wrangler deploy)
+- **Deploy-Command**: `pnpm run deploy` (NICHT `pnpm deploy` -- das ist ein pnpm-eigener Befehl)
 - **Env-Vars**: Im Cloudflare Dashboard unter Workers → wunschkiste → Settings → Variables and Secrets
 - **Docker-Files bleiben**: Dockerfile, docker-compose.production.yml, start.sh als Backup/Alternative
 - **ArcJet funktioniert** auf Cloudflare Workers (mit compatibility_date >= 2025-12-01)

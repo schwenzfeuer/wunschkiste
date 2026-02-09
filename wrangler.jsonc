@@ -8,5 +8,12 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
-  "keep_names": false
+  "keep_names": false,
+  "routes": [
+    {
+      "pattern": "wunschkiste.app",
+      "zone_name": "wunschkiste.app",
+      "custom_domain": true
+    }
+  ]
 }

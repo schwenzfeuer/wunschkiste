@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, use } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
@@ -75,6 +75,7 @@ export default function SharePageContent({
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [authDismissed, setAuthDismissed] = useState(false);
   const [pendingAction, setPendingAction] = useState<{ product: Product; type: "buy" | "reserve" } | null>(null);
 
   const { data: wishlist, isLoading, isError } = useQuery<SharedWishlist>({
@@ -88,6 +89,12 @@ export default function SharePageContent({
     refetchInterval: 10_000,
     refetchOnWindowFocus: true,
   });
+
+  useEffect(() => {
+    if (!wishlist?.isLoggedIn && !session && !authDismissed) {
+      setAuthDialogOpen(true);
+    }
+  }, [wishlist?.isLoggedIn, session, authDismissed]);
 
   function openClaimDialog(product: Product) {
     setSelectedProduct(product);
@@ -223,6 +230,21 @@ export default function SharePageContent({
             </p>
           )}
         </div>
+
+        {/* Join button for unauthenticated users who dismissed the dialog */}
+        {!isLoggedIn && !session && authDismissed && (
+          <div className="mb-8 text-center">
+            <Button
+              size="lg"
+              onClick={() => {
+                setAuthDismissed(false);
+                setAuthDialogOpen(true);
+              }}
+            >
+              {t("join")}
+            </Button>
+          </div>
+        )}
 
         {/* Owner surprise mode banner */}
         {isOwner && wishlist.ownerVisibility === "surprise" && wishlist.claimedCount !== undefined && (
@@ -361,9 +383,13 @@ export default function SharePageContent({
           open={authDialogOpen}
           onOpenChange={(open) => {
             setAuthDialogOpen(open);
-            if (!open) setPendingAction(null);
+            if (!open) {
+              setPendingAction(null);
+              setAuthDismissed(true);
+            }
           }}
           onSuccess={handleAuthSuccess}
+          title={!wishlist.isLoggedIn && !session ? t("joinTitle", { title: wishlist.title }) : undefined}
         />
 
       </div>
@@ -421,7 +447,7 @@ function ProductCard({
 
         {/* Status badges */}
         {isClaimed && (
-          <div className="mt-1.5 flex items-center gap-2">
+          <div className="mt-1.5 flex flex-col items-start gap-0.5 sm:flex-row sm:items-center sm:gap-2">
             {product.status === "bought" ? (
               <Badge className="bg-accent text-accent-foreground">
                 <Check className="mr-1 size-3" />

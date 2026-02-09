@@ -17,9 +17,10 @@ interface AuthDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  title?: string;
 }
 
-export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
+export function AuthDialog({ open, onOpenChange, onSuccess, title }: AuthDialogProps) {
   const t = useTranslations("auth");
   const [mode, setMode] = useState<"register" | "login">("register");
   const [name, setName] = useState("");
@@ -89,7 +90,7 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle className="font-serif text-xl">
-            {t("welcome")}
+            {title || t("welcome")}
           </DialogTitle>
         </DialogHeader>
 

@@ -5,7 +5,11 @@ import { useRouter, Link } from "@/i18n/routing";
 import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Gift, Share2, Trash2, Eye, Check, Calendar, Users } from "lucide-react";
+import { Plus, Gift, Share2, Trash2, Eye, PencilLine, Check, Calendar, Users } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { UserAvatar } from "@/components/user-avatar";
 import { MainNav } from "@/components/main-nav";
 import { ConfirmationDialog } from "@/components/confirmation-dialog";
@@ -66,6 +70,10 @@ export default function DashboardContent() {
   const [sharedWishlists, setSharedWishlists] = useState<SharedWishlist[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [editWishlist, setEditWishlist] = useState<Wishlist | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editSaving, setEditSaving] = useState(false);
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -106,6 +114,34 @@ export default function DashboardContent() {
       toast.success(t("deleted"));
     }
     setDeleteId(null);
+  }
+
+  function openEditWishlist(wishlist: Wishlist) {
+    setEditWishlist(wishlist);
+    setEditTitle(wishlist.title);
+    setEditDescription(wishlist.description || "");
+  }
+
+  async function handleEditWishlist() {
+    if (!editWishlist || !editTitle.trim()) return;
+    setEditSaving(true);
+    const response = await fetch(`/api/wishlists/${editWishlist.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: editTitle.trim(),
+        description: editDescription.trim() || null,
+      }),
+    });
+    if (response.ok) {
+      setWishlists(wishlists.map((w) =>
+        w.id === editWishlist.id
+          ? { ...w, title: editTitle.trim(), description: editDescription.trim() || null }
+          : w
+      ));
+      setEditWishlist(null);
+    }
+    setEditSaving(false);
   }
 
   if (isPending || loading) {
@@ -212,6 +248,13 @@ export default function DashboardContent() {
                   <Button
                     variant="ghost"
                     size="icon-sm"
+                    onClick={(e) => { e.preventDefault(); openEditWishlist(wishlist); }}
+                  >
+                    <PencilLine className="size-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
                     onClick={(e) => {
                       e.preventDefault();
                       if (wishlist.totalCount === 0) {
@@ -283,6 +326,44 @@ export default function DashboardContent() {
           </div>
         )}
       </div>
+
+      <Dialog open={!!editWishlist} onOpenChange={(open) => { if (!open) setEditWishlist(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-xl">{tCommon("edit")}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-wl-title">{t("editTitleLabel")}</Label>
+              <Input
+                id="edit-wl-title"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                required
+                className="h-11 rounded-lg border-2 bg-card"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-wl-description">{t("editDescriptionLabel")}</Label>
+              <Textarea
+                id="edit-wl-description"
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                rows={3}
+                className="rounded-lg border-2 bg-card"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setEditWishlist(null)}>
+              {tCommon("cancel")}
+            </Button>
+            <Button onClick={handleEditWishlist} disabled={!editTitle.trim() || editSaving}>
+              {editSaving ? tCommon("saving") : tCommon("save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <ConfirmationDialog
         open={deleteId !== null}

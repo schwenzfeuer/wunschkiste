@@ -415,6 +415,23 @@ Cloudflare Workers haben keine TCP-Sockets. `postgres.js` funktioniert nicht. St
 
 `wrangler deploy` erstellt ein **Worker**-Projekt. Env-Vars die im **Pages**-Projekt gesetzt sind, gelten dort nicht. Env-Vars muessen im Worker-Projekt gesetzt werden (Dashboard → Workers & Pages → wunschkiste → Settings → Variables and Secrets).
 
+### Custom Domain in wrangler.jsonc pflegen
+
+`wrangler deploy` ueberschreibt die Remote-Config mit der lokalen. Wenn die Custom Domain (`wunschkiste.app`) nur remote im Dashboard konfiguriert ist aber nicht in `wrangler.jsonc`, wird sie beim naechsten Deploy entfernt. Die `routes`-Config muss in `wrangler.jsonc` stehen:
+```jsonc
+"routes": [
+  {
+    "pattern": "wunschkiste.app",
+    "zone_name": "wunschkiste.app",
+    "custom_domain": true
+  }
+]
+```
+
+### pnpm run deploy, nicht pnpm deploy
+
+`pnpm deploy` ist ein pnpm-eigener Befehl (Workspace-Deployment) und schlaegt fehl mit "No project was selected for deployment". Das Script aus `package.json` muss mit `pnpm run deploy` aufgerufen werden.
+
 ### Google OAuth bei Domain-Wechsel
 
 Bei Domain-Wechsel muessen in der Google Cloud Console **beide** aktualisiert werden:

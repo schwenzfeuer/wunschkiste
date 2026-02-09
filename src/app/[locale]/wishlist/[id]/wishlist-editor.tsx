@@ -6,12 +6,13 @@ import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ProductImage } from "@/components/product-image";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, ExternalLink, Share2, Loader2, Pencil, Calendar as CalendarIcon, X, Check, Bookmark, Users, MoreVertical } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Share2, Loader2, PencilLine, Calendar as CalendarIcon, X, Check, Bookmark, Users, MoreVertical } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChristmasDecorations } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
@@ -88,6 +89,10 @@ export default function WishlistEditor({ id }: { id: string }) {
   const [surpriseSpoiled, setSurpriseSpoiled] = useState(false);
   const [eventDate, setEventDate] = useState<Date | undefined>();
   const [ownerVisibility, setOwnerVisibility] = useState<OwnerVisibility>("partial");
+  const [editWlOpen, setEditWlOpen] = useState(false);
+  const [editWlTitle, setEditWlTitle] = useState("");
+  const [editWlDescription, setEditWlDescription] = useState("");
+  const [editWlSaving, setEditWlSaving] = useState(false);
 
   const visibilityOptions: { value: OwnerVisibility; label: string; description: string }[] = [
     { value: "full", label: tVis("full"), description: tVis("fullDescription") },
@@ -249,6 +254,35 @@ export default function WishlistEditor({ id }: { id: string }) {
     }
   }
 
+  function openEditWishlist() {
+    if (!wishlist) return;
+    setEditWlTitle(wishlist.title);
+    setEditWlDescription(wishlist.description || "");
+    setEditWlOpen(true);
+  }
+
+  async function handleEditWishlist() {
+    if (!wishlist || !editWlTitle.trim()) return;
+    setEditWlSaving(true);
+    const response = await fetch(`/api/wishlists/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: editWlTitle.trim(),
+        description: editWlDescription.trim() || null,
+      }),
+    });
+    if (response.ok) {
+      setWishlist({
+        ...wishlist,
+        title: editWlTitle.trim(),
+        description: editWlDescription.trim() || null,
+      });
+      setEditWlOpen(false);
+    }
+    setEditWlSaving(false);
+  }
+
   if (isPending || loading) {
     return (
       <main className="flex min-h-screen items-center justify-center">
@@ -270,12 +304,19 @@ export default function WishlistEditor({ id }: { id: string }) {
       {wishlist.theme === "christmas" && <ChristmasDecorations />}
       <div className="mx-auto max-w-3xl px-4 pt-28 pb-8 sm:px-6 sm:pt-36">
         <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <h1 className="font-serif text-3xl md:text-4xl">{wishlist.title}</h1>
+          <button
+            type="button"
+            onClick={openEditWishlist}
+            className="group/edit cursor-pointer text-left"
+          >
+            <h1 className="font-serif text-3xl md:text-4xl">
+              {wishlist.title}
+              <PencilLine className="ml-2 inline size-4 align-middle text-foreground/30 opacity-0 transition-opacity group-hover/edit:opacity-100" />
+            </h1>
             {wishlist.description && (
               <p className="mt-2 text-foreground/50">{wishlist.description}</p>
             )}
-          </div>
+          </button>
           <div className="flex gap-2">
             <Button
               variant="outline"
@@ -448,11 +489,7 @@ export default function WishlistEditor({ id }: { id: string }) {
         </div>
 
         {participants.length > 0 && (
-          <button
-            type="button"
-            onClick={() => setParticipantsOpen(true)}
-            className="mb-8 flex items-center gap-2 transition-opacity hover:opacity-80"
-          >
+          <div className="mb-8 flex items-center gap-3">
             <div className="flex -space-x-2">
               {participants.slice(0, 5).map((p) => (
                 <UserAvatar
@@ -469,10 +506,15 @@ export default function WishlistEditor({ id }: { id: string }) {
                 </div>
               )}
             </div>
-            <span className="text-sm text-foreground/50">
+            <Button
+              variant="accent"
+              size="xs"
+              onClick={() => setParticipantsOpen(true)}
+            >
+              <Users className="size-3" />
               {t("participants", { count: participants.length })}
-            </span>
-          </button>
+            </Button>
+          </div>
         )}
 
         {products.length === 0 ? (
@@ -504,7 +546,7 @@ export default function WishlistEditor({ id }: { id: string }) {
                     {product.shopName && <span>{product.shopName}</span>}
                   </div>
                   {product.reservationStatus && (
-                    <div className="mt-1.5 flex items-center gap-2">
+                    <div className="mt-1.5 flex flex-col items-start gap-0.5 sm:flex-row sm:items-center sm:gap-2">
                       <Badge
                         variant={product.reservationStatus === "bought" ? "default" : "outline"}
                         className={product.reservationStatus === "bought" ? "bg-accent text-accent-foreground" : "border-accent text-accent"}
@@ -524,7 +566,7 @@ export default function WishlistEditor({ id }: { id: string }) {
                 {/* Desktop: Icon-Buttons */}
                 <div className="hidden sm:flex items-center gap-1 shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
                   <Button variant="ghost" size="icon-sm" onClick={() => openEditDialog(product)}>
-                    <Pencil className="size-4" />
+                    <PencilLine className="size-4" />
                   </Button>
                   <a
                     href={product.affiliateUrl || product.originalUrl}
@@ -555,7 +597,7 @@ export default function WishlistEditor({ id }: { id: string }) {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => openEditDialog(product)}>
-                        <Pencil className="mr-2 size-4" />
+                        <PencilLine className="mr-2 size-4" />
                         {tCommon("edit")}
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
@@ -582,7 +624,46 @@ export default function WishlistEditor({ id }: { id: string }) {
             ))}
           </div>
         )}
-        {/* Edit Dialog */}
+        {/* Edit Wishlist Dialog */}
+        <Dialog open={editWlOpen} onOpenChange={(open) => { if (!open) setEditWlOpen(false); }}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="font-serif text-xl">{tCommon("edit")}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-wl-title">{t("editWlTitleLabel")}</Label>
+                <Input
+                  id="edit-wl-title"
+                  value={editWlTitle}
+                  onChange={(e) => setEditWlTitle(e.target.value)}
+                  required
+                  className="h-11 rounded-lg border-2 bg-card"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-wl-desc">{t("editWlDescriptionLabel")}</Label>
+                <Textarea
+                  id="edit-wl-desc"
+                  value={editWlDescription}
+                  onChange={(e) => setEditWlDescription(e.target.value)}
+                  rows={3}
+                  className="rounded-lg border-2 bg-card"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setEditWlOpen(false)}>
+                {tCommon("cancel")}
+              </Button>
+              <Button onClick={handleEditWishlist} disabled={!editWlTitle.trim() || editWlSaving}>
+                {editWlSaving ? tCommon("saving") : tCommon("save")}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Product Dialog */}
         <Dialog open={!!editProduct} onOpenChange={(open) => !open && setEditProduct(null)}>
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>

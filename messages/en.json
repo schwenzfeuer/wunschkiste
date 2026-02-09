@@ -138,6 +138,8 @@
     "friendsSubtitle": "Wishboxes where you've reserved or bought gifts",
     "reserved": "{count} reserved",
     "bought": "{count} bought",
+    "editTitleLabel": "Title",
+    "editDescriptionLabel": "Description",
     "deleteTitle": "Delete wishbox?",
     "deleteText": "This action cannot be undone. All wishes and reservations will be lost."
   },
@@ -190,7 +192,9 @@
     "bought": "Bought",
     "reserved": "Reserved",
     "shareEmpty": "Add wishes first before sharing the list",
-    "openInShop": "View in shop"
+    "openInShop": "View in shop",
+    "editWlTitleLabel": "Title",
+    "editWlDescriptionLabel": "Description"
   },
   "visibility": {
     "full": "See everything",
@@ -219,7 +223,9 @@
     "buy": "Buy",
     "buyNow": "Buy now",
     "unreserve": "Unreserve",
-    "undo": "Undo"
+    "undo": "Undo",
+    "join": "Join wishbox",
+    "joinTitle": "Join {title}"
   },
   "wishlist": {
     "title": "Wishbox",

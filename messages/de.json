@@ -138,6 +138,8 @@
     "friendsSubtitle": "Wunschkisten, bei denen du Geschenke reserviert oder gekauft hast",
     "reserved": "{count} reserviert",
     "bought": "{count} gekauft",
+    "editTitleLabel": "Titel",
+    "editDescriptionLabel": "Beschreibung",
     "deleteTitle": "Wunschkiste löschen?",
     "deleteText": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Wünsche und Reservierungen gehen verloren."
   },
@@ -190,7 +192,9 @@
     "bought": "Gekauft",
     "reserved": "Reserviert",
     "shareEmpty": "Füge zuerst Wünsche hinzu, bevor du die Liste teilst",
-    "openInShop": "Im Shop ansehen"
+    "openInShop": "Im Shop ansehen",
+    "editWlTitleLabel": "Titel",
+    "editWlDescriptionLabel": "Beschreibung"
   },
   "visibility": {
     "full": "Alles sehen",
@@ -219,7 +223,9 @@
     "buy": "Kaufen",
     "buyNow": "Jetzt kaufen",
     "unreserve": "Aufheben",
-    "undo": "Rückgängig"
+    "undo": "Rückgängig",
+    "join": "An Wunschkiste teilnehmen",
+    "joinTitle": "An {title} teilnehmen"
   },
   "wishlist": {
     "title": "Wunschkiste",
