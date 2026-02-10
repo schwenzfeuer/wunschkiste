@@ -47,7 +47,7 @@
 | Cloudflare Pages | App Hosting (Edge, auto-skalierend) |
 | Neon | Serverless PostgreSQL |
 | Cloudflare R2 | Avatar Storage (bereits eingerichtet) |
-| Cloudflare Cron Triggers | Geplante Jobs (Email-Erinnerungen) |
+| GitHub Actions | Geplante Jobs (Email-Erinnerungen, taeglich 09:00 UTC) |
 
 ## Explizit NICHT verwendet
 

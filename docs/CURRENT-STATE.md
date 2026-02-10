@@ -148,6 +148,7 @@
 - [x] **Auth Rate-Limiting**: ajAuth (5 req/min + Bot-Detection) auf /api/auth POST
 - [x] **Datenschutz komplett**: Bot-Schutz (ArcJet), Hosting (Cloudflare + Neon), Kontaktdaten
 - [x] **Email-Reminders Cron**: GitHub Actions Workflow (taeglich 09:00 UTC, CRON_API_KEY Secret)
+- [x] **Web Share API**: Nativer Share-Dialog auf Mobile (Dashboard + Editor), Clipboard-Fallback auf Desktop
 
 ## Tech-Stack (installiert)
 
@@ -236,12 +237,9 @@ messages/
 - [ ] Link Builder API integrieren → Affiliate-Links fuer AWIN-Shops generieren
 
 ### Sonstiges
-- [x] ~~Persoenliche Daten eintragen in messages/*.json~~ (erledigt 10.02.)
-- [x] ~~Resend Domain verifizieren~~ (erledigt)
-- [x] ~~Email-Reminders Cron-Trigger~~ (GitHub Actions Workflow, erledigt 10.02.)
-- [x] ~~Dashboard + Editor auf React Query umstellen~~ (erledigt 10.02.)
 - [ ] Cloudflare Rate Limiting als Ersatz/Ergaenzung fuer ArcJet evaluieren
 - [ ] en.json: Englische Uebersetzungen fertigstellen (aktuell Platzhalter)
+- [ ] Facebook OAuth Credentials einrichten
 
 ## Lokale Entwicklung
 
@@ -280,12 +278,13 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
-### 10.02.2026 - React Query, Auth Rate-Limiting, Legal, Cron
+### 10.02.2026 - React Query, Auth Rate-Limiting, Legal, Cron, Web Share
 - **React Query Migration**: Dashboard (wishlists, sharedWishlists) + Editor (wishlist, products, participants) auf useQuery/invalidateQueries umgestellt
 - **Auth Rate-Limiting**: ajAuth (tokenBucket 5/min + detectBot) auf /api/auth POST-Handler gewrappt
 - **Datenschutz erweitert**: Bot-Schutz-Sektion (ArcJet, IP-Verarbeitung, Art. 6 Abs. 1 lit. f), Hosting konkretisiert (Cloudflare + Neon)
 - **Impressum/Datenschutz**: Alle TODO-Platzhalter durch echte Kontaktdaten ersetzt (DE + EN)
 - **Email-Reminders Cron**: GitHub Actions Workflow (.github/workflows/reminders.yml), taeglich 09:00 UTC, CRON_API_KEY Secret
+- **Web Share API**: Teilen-Button nutzt navigator.share() auf Mobile (nativer Share-Dialog), Clipboard-Fallback auf Desktop
 - **ESLint-Fix**: `as const` statt `as "/dashboard"` in main-nav.tsx
 
 ### 09.02.2026 (Abend) - Share Auth-Flow, Edit-Features, UI-Polish
@@ -333,21 +332,14 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **Mobile Context-Menu**: DropdownMenu (MoreVertical) statt 3 Icon-Buttons im Editor
 - Build gruen
 
-### 08.02.2026 - Affiliate-Kennzeichnung & UI-Polish
-- **Affiliate Heart-Icon**: Kauf-Buttons zeigen Heart statt ShoppingBag wenn `product.affiliateUrl` gesetzt
-- **Footer konsolidiert**: Lokaler Footer auf Share-Page entfernt, globaler SiteFooter mit Heart-Icon
-- Build gruen
 
 ## Notizen fuer naechste Session
 
 - **App ist LIVE** auf https://wunschkiste.app (Cloudflare Workers + Neon)
 - **Deploy-Command**: `pnpm run deploy` (NICHT `pnpm deploy` -- das ist ein pnpm-eigener Befehl)
 - **Env-Vars**: Im Cloudflare Dashboard unter Workers → wunschkiste → Settings → Variables and Secrets
-- **Docker-Files bleiben**: Dockerfile, docker-compose.production.yml, start.sh als Backup/Alternative
 - **ArcJet funktioniert** auf Cloudflare Workers (mit compatibility_date >= 2025-12-01)
-- Email-Reminders: GitHub Actions Cron laueft taeglich 09:00 UTC, CRON_API_KEY als GitHub Secret hinterlegt
-- Resend Domain `wunschkiste.app` verifiziert
-- en.json: Englische Uebersetzungen sind Platzhalter
+- **Email-Reminders**: GitHub Actions Cron taeglich 09:00 UTC, CRON_API_KEY als GitHub Secret + Cloudflare Env-Var
 - **Nachrichten-Feature (reservations.message)**: DB-Spalte existiert noch, UI entfernt
 - **AMAZON_AFFILIATE_TAG**: Muss in Cloudflare Env-Vars gesetzt sein
-- **Neon Passwort rotiert** (10.02.2026)
+- en.json: Englische Uebersetzungen sind Platzhalter

@@ -63,17 +63,26 @@ const wishlistSchema = z.object({
 });
 ```
 
-## Rate Limiting
+## Rate Limiting (ArcJet)
 
-### Scraping Endpoint
+Alle Rate-Limits via ArcJet (DRY_RUN in dev, LIVE in production). Config: `src/lib/security/arcjet.ts`
 
-- Max 10 Requests pro Minute pro User
+### Auth Endpoint (`/api/auth/[...all]` POST)
+
+- Token Bucket: 5 req/min (Burst 10)
+- Bot Detection (Suchmaschinen erlaubt)
+- Schuetzt Login, Register, Forgot-Password
+
+### Scraping Endpoint (`/api/scrape`)
+
+- Token Bucket: 5 req/min (Burst 5)
+- Bot Detection (keine Bots erlaubt)
 - Verhindert Missbrauch des Scrapers
 
-### Public Wishlist Access
+### Reserve Endpoint (`/api/share/[token]/reserve`)
 
-- Max 100 Requests pro Minute pro IP
-- Verhindert Scraping unserer Daten
+- Token Bucket: 10 req/min (Burst 10)
+- Verhindert Spam bei Reservierungen
 
 ## SSRF Prevention
 
