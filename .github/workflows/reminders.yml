@@ -1,0 +1,17 @@
+name: Send Reminders
+
+on:
+  schedule:
+    # Taeglich um 09:00 UTC (10:00 CET / 11:00 CEST)
+    - cron: "0 9 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger reminder endpoint
+        run: |
+          curl -sf -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_API_KEY }}" \
+            https://wunschkiste.app/api/reminders/send

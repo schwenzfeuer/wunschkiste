@@ -49,7 +49,7 @@ interface UserAvatarProps {
 }
 
 const sizeMap = {
-  xs: "size-5 text-[10px]",
+  xs: "size-5 text-sm",
   sm: "size-8 text-xs",
   md: "size-10 text-sm",
   lg: "size-16 text-lg",

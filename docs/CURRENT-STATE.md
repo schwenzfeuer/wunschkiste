@@ -1,10 +1,10 @@
 # Current State
 
-> Letzte Aktualisierung: 09.02.2026 (Abend)
+> Letzte Aktualisierung: 10.02.2026
 
 ## Status
 
-**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 67 Tests gruen, Build gruen.
+**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 67 Tests gruen, Build gruen. Impressum/Datenschutz vollstaendig.
 
 ## Was existiert
 
@@ -32,7 +32,7 @@
 - [x] **Landing Page**: Storytelling-Flow (Problem → Lösung → Features → CTA)
 - [x] **Alle Seiten redesigned**: Auth, Dashboard, Editor, Share-View
 - [x] **Themes**: Birthday, Christmas (aktiv), Wedding, Baby (ausgeblendet) (Hex-Farben, data-theme)
-- [x] **Legal Pages**: Impressum & Datenschutz (mit TODO-Platzhaltern für persönliche Daten)
+- [x] **Legal Pages**: Impressum & Datenschutz (vollstaendig mit Kontaktdaten, ArcJet, Cloudflare, Neon)
 - [x] **Deployment**: Cloudflare Workers via @opennextjs/cloudflare + wrangler
 - [x] **Google Auth Button**: Login + Register Seiten mit Google OAuth Button
 - [x] **MainNav Komponente**: Auth-State-Aware Nav (Login/Register vs. Meine Wunschlisten/Logout)
@@ -68,7 +68,7 @@
 - [x] **Avatar-Upload**: R2 Storage Client, Upload-API, UserAvatar mit Initialen-Fallback
 - [x] **Passwort vergessen**: Resend Email-Service, Forgot/Reset-Password Seiten
 - [x] **Toasts**: Sonner/Toaster, QueryProvider mit globalem onError, Error/404 Pages
-- [x] **Rate-Limiting**: ArcJet auf /api/scrape und /api/share/[token]/reserve (DRY_RUN in dev)
+- [x] **Rate-Limiting**: ArcJet auf /api/scrape, /api/share/[token]/reserve und /api/auth (DRY_RUN in dev)
 - [x] **51 Tests grün**: 38 API (inkl. 20 neue Share-Tests) + 13 E2E
 - [x] **Calendar Fix**: react-day-picker v9 Nav-Buttons korrekt oben positioniert
 - [x] **ConfirmationDialog**: shadcn AlertDialog statt `window.confirm()` für Löschen-Aktionen
@@ -144,6 +144,10 @@
 - [x] **Mobile Badge-Layout**: Badge + "von Name" untereinander auf Mobile (Share + Editor)
 - [x] **PencilLine Icon**: Alle Pencil-Icons durch PencilLine ersetzt
 - [x] **Wrangler Custom Domain**: routes-Config in wrangler.jsonc damit Deploy Domain nicht entfernt
+- [x] **React Query Migration**: Dashboard + Editor auf useQuery/invalidateQueries umgestellt (wie Share-Seite)
+- [x] **Auth Rate-Limiting**: ajAuth (5 req/min + Bot-Detection) auf /api/auth POST
+- [x] **Datenschutz komplett**: Bot-Schutz (ArcJet), Hosting (Cloudflare + Neon), Kontaktdaten
+- [x] **Email-Reminders Cron**: GitHub Actions Workflow (taeglich 09:00 UTC, CRON_API_KEY Secret)
 
 ## Tech-Stack (installiert)
 
@@ -232,10 +236,10 @@ messages/
 - [ ] Link Builder API integrieren → Affiliate-Links fuer AWIN-Shops generieren
 
 ### Sonstiges
-- [ ] Persoenliche Daten eintragen in messages/*.json (TODO-Platzhalter ersetzen)
-- [ ] Resend Domain `wunschkiste.app` verifizieren (DNS TXT Records)
-- [ ] Email-Reminders: Cron-Trigger einrichten (cron-job.org oder Cloudflare Cron Triggers)
-- [ ] Realtime-Sync: Dashboard + Editor auf React Query umstellen (aktuell useState/useEffect)
+- [x] ~~Persoenliche Daten eintragen in messages/*.json~~ (erledigt 10.02.)
+- [x] ~~Resend Domain verifizieren~~ (erledigt)
+- [x] ~~Email-Reminders Cron-Trigger~~ (GitHub Actions Workflow, erledigt 10.02.)
+- [x] ~~Dashboard + Editor auf React Query umstellen~~ (erledigt 10.02.)
 - [ ] Cloudflare Rate Limiting als Ersatz/Ergaenzung fuer ArcJet evaluieren
 - [ ] en.json: Englische Uebersetzungen fertigstellen (aktuell Platzhalter)
 
@@ -271,10 +275,18 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - [ ] AWIN Publisher Account (beantragt, warte auf Freischaltung)
 - [x] Google OAuth Credentials (Production: wunschkiste.app)
 - [ ] Facebook App Credentials
-- [x] Neon PostgreSQL (Frankfurt Region)
+- [x] Neon PostgreSQL (Frankfurt Region, Passwort rotiert 10.02.)
 - [x] Cloudflare Workers Deployment (wunschkiste.app)
 
 ## Letzte Sessions
+
+### 10.02.2026 - React Query, Auth Rate-Limiting, Legal, Cron
+- **React Query Migration**: Dashboard (wishlists, sharedWishlists) + Editor (wishlist, products, participants) auf useQuery/invalidateQueries umgestellt
+- **Auth Rate-Limiting**: ajAuth (tokenBucket 5/min + detectBot) auf /api/auth POST-Handler gewrappt
+- **Datenschutz erweitert**: Bot-Schutz-Sektion (ArcJet, IP-Verarbeitung, Art. 6 Abs. 1 lit. f), Hosting konkretisiert (Cloudflare + Neon)
+- **Impressum/Datenschutz**: Alle TODO-Platzhalter durch echte Kontaktdaten ersetzt (DE + EN)
+- **Email-Reminders Cron**: GitHub Actions Workflow (.github/workflows/reminders.yml), taeglich 09:00 UTC, CRON_API_KEY Secret
+- **ESLint-Fix**: `as const` statt `as "/dashboard"` in main-nav.tsx
 
 ### 09.02.2026 (Abend) - Share Auth-Flow, Edit-Features, UI-Polish
 - **Share Auto-Save SSR**: Eingeloggte Nicht-Owner werden beim SSR automatisch in saved_wishlists gespeichert (onConflictDoNothing)
@@ -333,9 +345,9 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **Env-Vars**: Im Cloudflare Dashboard unter Workers → wunschkiste → Settings → Variables and Secrets
 - **Docker-Files bleiben**: Dockerfile, docker-compose.production.yml, start.sh als Backup/Alternative
 - **ArcJet funktioniert** auf Cloudflare Workers (mit compatibility_date >= 2025-12-01)
-- Email-Reminders: Endpoint bereit fuer Cron-Trigger, extern triggern (cron-job.org)
-- Resend Domain `wunschkiste.app` nicht verifiziert -- muss bei Resend verifiziert werden (DNS TXT Records)
+- Email-Reminders: GitHub Actions Cron laueft taeglich 09:00 UTC, CRON_API_KEY als GitHub Secret hinterlegt
+- Resend Domain `wunschkiste.app` verifiziert
 - en.json: Englische Uebersetzungen sind Platzhalter
 - **Nachrichten-Feature (reservations.message)**: DB-Spalte existiert noch, UI entfernt
 - **AMAZON_AFFILIATE_TAG**: Muss in Cloudflare Env-Vars gesetzt sein
-- **Neon Passwort rotieren**: Wurde in Chat-Session sichtbar
+- **Neon Passwort rotiert** (10.02.2026)

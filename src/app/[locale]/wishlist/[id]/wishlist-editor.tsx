@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@/i18n/routing";
 import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
@@ -69,10 +70,43 @@ export default function WishlistEditor({ id }: { id: string }) {
   const tCommon = useTranslations("common");
   const router = useRouter();
   const { data: session, isPending } = useSession();
-  const [wishlist, setWishlist] = useState<Wishlist | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [participants, setParticipants] = useState<Participant[]>([]);
+  const queryClient = useQueryClient();
+
+  const { data: wishlist, isLoading: wishlistLoading, isError: wishlistError } = useQuery<Wishlist>({
+    queryKey: ["wishlist", id],
+    queryFn: async () => {
+      const response = await fetch(`/api/wishlists/${id}`);
+      if (!response.ok) throw new Error("Not found");
+      return response.json();
+    },
+    enabled: !!session,
+    refetchOnWindowFocus: true,
+  });
+
+  const { data: products = [], isLoading: productsLoading } = useQuery<Product[]>({
+    queryKey: ["products", id],
+    queryFn: async () => {
+      const response = await fetch(`/api/wishlists/${id}/products`);
+      if (!response.ok) throw new Error("Failed to load products");
+      return response.json();
+    },
+    enabled: !!session,
+    refetchOnWindowFocus: true,
+  });
+
+  const { data: participants = [], isLoading: participantsLoading } = useQuery<Participant[]>({
+    queryKey: ["participants", id],
+    queryFn: async () => {
+      const response = await fetch(`/api/wishlists/${id}/participants`);
+      if (!response.ok) throw new Error("Failed to load participants");
+      return response.json();
+    },
+    enabled: !!session,
+    refetchOnWindowFocus: true,
+  });
+
+  const loading = wishlistLoading || productsLoading || participantsLoading;
+
   const [participantsOpen, setParticipantsOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [newUrl, setNewUrl] = useState("");
@@ -107,33 +141,17 @@ export default function WishlistEditor({ id }: { id: string }) {
   }, [session, isPending, router]);
 
   useEffect(() => {
-    async function fetchData() {
-      const [wishlistRes, productsRes, participantsRes] = await Promise.all([
-        fetch(`/api/wishlists/${id}`),
-        fetch(`/api/wishlists/${id}/products`),
-        fetch(`/api/wishlists/${id}/participants`),
-      ]);
-
-      if (!wishlistRes.ok) {
-        router.push("/dashboard");
-        return;
-      }
-
-      const wl = await wishlistRes.json();
-      setWishlist(wl);
-      setEventDate(wl.eventDate ? new Date(wl.eventDate) : undefined);
-      setOwnerVisibility(wl.ownerVisibility || "partial");
-      setProducts(await productsRes.json());
-      if (participantsRes.ok) {
-        setParticipants(await participantsRes.json());
-      }
-      setLoading(false);
+    if (wishlistError) {
+      router.push("/dashboard");
     }
+  }, [wishlistError, router]);
 
-    if (session) {
-      fetchData();
+  useEffect(() => {
+    if (wishlist) {
+      setEventDate(wishlist.eventDate ? new Date(wishlist.eventDate) : undefined);
+      setOwnerVisibility(wishlist.ownerVisibility || "partial");
     }
-  }, [session, id, router]);
+  }, [wishlist]);
 
   async function handleScrape() {
     if (!newUrl) return;
@@ -172,8 +190,7 @@ export default function WishlistEditor({ id }: { id: string }) {
     });
 
     if (response.ok) {
-      const product = await response.json();
-      setProducts([...products, product]);
+      await queryClient.invalidateQueries({ queryKey: ["products", id] });
       setAddDialogOpen(false);
       setNewUrl("");
       setScrapedData(null);
@@ -188,7 +205,7 @@ export default function WishlistEditor({ id }: { id: string }) {
       method: "DELETE",
     });
     if (response.ok) {
-      setProducts(products.filter((p) => p.id !== deleteProductId));
+      await queryClient.invalidateQueries({ queryKey: ["products", id] });
       toast.success(t("wishDeleted"));
     }
     setDeleteProductId(null);
@@ -214,8 +231,7 @@ export default function WishlistEditor({ id }: { id: string }) {
     });
 
     if (response.ok) {
-      const updated = await response.json();
-      setProducts(products.map((p) => (p.id === updated.id ? updated : p)));
+      await queryClient.invalidateQueries({ queryKey: ["products", id] });
       setEditProduct(null);
     }
     setSaving(false);
@@ -239,6 +255,7 @@ export default function WishlistEditor({ id }: { id: string }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ eventDate: date?.toISOString() ?? null }),
     });
+    await queryClient.invalidateQueries({ queryKey: ["wishlist", id] });
   }
 
   async function handleVisibilityChange(visibility: OwnerVisibility) {
@@ -248,10 +265,7 @@ export default function WishlistEditor({ id }: { id: string }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ownerVisibility: visibility }),
     });
-    const productsRes = await fetch(`/api/wishlists/${id}/products`);
-    if (productsRes.ok) {
-      setProducts(await productsRes.json());
-    }
+    await queryClient.invalidateQueries({ queryKey: ["products", id] });
   }
 
   function openEditWishlist() {
@@ -273,11 +287,7 @@ export default function WishlistEditor({ id }: { id: string }) {
       }),
     });
     if (response.ok) {
-      setWishlist({
-        ...wishlist,
-        title: editWlTitle.trim(),
-        description: editWlDescription.trim() || null,
-      });
+      await queryClient.invalidateQueries({ queryKey: ["wishlist", id] });
       setEditWlOpen(false);
     }
     setEditWlSaving(false);

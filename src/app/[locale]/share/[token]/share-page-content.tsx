@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ProductImage } from "@/components/product-image";
 import { AuthDialog } from "@/components/auth-dialog";
-import { Gift, Check, ShoppingBag, Calendar, Undo2, Heart, Bookmark } from "lucide-react";
+import { Gift, Check, ShoppingBag, Calendar, Undo2, Heart, Bookmark, ExternalLink } from "lucide-react";
 import { ChristmasDecorations, ChristmasHeaderStar, ChristmasEmptyState } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
 import { formatPrice } from "@/lib/format";
@@ -422,6 +422,8 @@ function ProductCard({
   const tCommon = useTranslations("common");
   const isClaimed = product.status !== "available";
   const isMine = product.claimedByMe;
+  const productUrl = product.affiliateUrl || product.originalUrl;
+  const isAffiliate = !!product.affiliateUrl;
 
   return (
     <div
@@ -429,13 +431,30 @@ function ProductCard({
         isClaimed && !isMine ? "opacity-60" : ""
       }`}
     >
-      <ProductImage
-        src={product.imageUrl}
-        alt={product.title}
-        className="size-16 shrink-0 rounded-lg object-contain"
-      />
+      <a
+        href={productUrl}
+        target="_blank"
+        rel={isAffiliate ? "sponsored nofollow noopener" : "noopener"}
+        className="shrink-0"
+      >
+        <ProductImage
+          src={product.imageUrl}
+          alt={product.title}
+          className="size-16 shrink-0 rounded-lg object-contain"
+        />
+      </a>
       <div className="flex-1 min-w-0">
-        <h3 className="font-medium leading-snug truncate" title={product.title}>{product.title}</h3>
+        <h3 className="font-medium leading-snug truncate" title={product.title}>
+          <a
+            href={productUrl}
+            target="_blank"
+            rel={isAffiliate ? "sponsored nofollow noopener" : "noopener"}
+            className="hover:underline"
+          >
+            {product.title}
+            <ExternalLink className="ml-1 inline size-3 text-foreground/30" />
+          </a>
+        </h3>
         <div className="mt-1 flex items-center gap-3 text-sm text-foreground/50">
           {product.price && (
             <span className="font-semibold text-foreground">

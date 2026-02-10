@@ -95,6 +95,27 @@ export async function sendReminderEmail(opts: {
   });
 }
 
+export async function sendWelcomeEmail(to: string, name: string) {
+  const firstName = name.split(" ")[0] || name;
+  const dashboardUrl = `${getBaseUrl()}/dashboard`;
+
+  const content = `
+    <h1 style="font-size: 22px; color: #0042AF; margin: 0 0 16px; font-family: 'Playfair Display', Georgia, serif;">Willkommen, ${firstName}!</h1>
+    <p style="color: #555; line-height: 1.6; margin: 0 0 4px;">
+      Schoen, dass du dabei bist! Mit Wunschkiste kannst du Wunschlisten erstellen und mit Familie und Freunden teilen.
+    </p>
+    ${ctaButton(dashboardUrl, "Erste Wunschkiste erstellen", "accent")}`;
+
+  const footer = "Du erhaeltst diese E-Mail, weil du dich bei Wunschkiste registriert hast.";
+
+  await getResend().emails.send({
+    from: FROM,
+    to,
+    subject: "Willkommen bei Wunschkiste",
+    html: emailLayout(content, footer),
+  });
+}
+
 export async function sendPasswordResetEmail(to: string, url: string) {
   const content = `
     <h1 style="font-size: 22px; color: #0042AF; margin: 0 0 16px; font-family: 'Playfair Display', Georgia, serif;">Passwort zuruecksetzen</h1>

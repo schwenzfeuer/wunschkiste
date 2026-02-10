@@ -116,6 +116,15 @@ function PrivacyContent() {
                   {t("legal.privacy.affiliateText")}
                 </p>
               </div>
+
+              <div>
+                <h3 className="mb-2 text-lg font-medium">
+                  {t("legal.privacy.botProtectionTitle")}
+                </h3>
+                <p className="leading-relaxed">
+                  {t("legal.privacy.botProtectionText")}
+                </p>
+              </div>
             </div>
           </section>
 

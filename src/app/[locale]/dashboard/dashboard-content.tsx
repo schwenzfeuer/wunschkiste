@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter, Link } from "@/i18n/routing";
 import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
@@ -66,9 +67,32 @@ export default function DashboardContent() {
   const tCommon = useTranslations("common");
   const router = useRouter();
   const { data: session, isPending } = useSession();
-  const [wishlists, setWishlists] = useState<Wishlist[]>([]);
-  const [sharedWishlists, setSharedWishlists] = useState<SharedWishlist[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+
+  const { data: wishlists = [], isLoading: wishlistsLoading } = useQuery<Wishlist[]>({
+    queryKey: ["wishlists"],
+    queryFn: async () => {
+      const response = await fetch("/api/wishlists");
+      if (!response.ok) throw new Error("Failed to load wishlists");
+      return response.json();
+    },
+    enabled: !!session,
+    refetchOnWindowFocus: true,
+  });
+
+  const { data: sharedWishlists = [], isLoading: sharedLoading } = useQuery<SharedWishlist[]>({
+    queryKey: ["wishlists", "shared"],
+    queryFn: async () => {
+      const response = await fetch("/api/wishlists/shared");
+      if (!response.ok) throw new Error("Failed to load shared wishlists");
+      return response.json();
+    },
+    enabled: !!session,
+    refetchOnWindowFocus: true,
+  });
+
+  const loading = wishlistsLoading || sharedLoading;
+
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editWishlist, setEditWishlist] = useState<Wishlist | null>(null);
   const [editTitle, setEditTitle] = useState("");
@@ -81,36 +105,11 @@ export default function DashboardContent() {
     }
   }, [session, isPending, router]);
 
-  useEffect(() => {
-    async function fetchWishlists() {
-      try {
-        const [ownRes, sharedRes] = await Promise.all([
-          fetch("/api/wishlists"),
-          fetch("/api/wishlists/shared"),
-        ]);
-        if (ownRes.ok) {
-          setWishlists(await ownRes.json());
-        }
-        if (sharedRes.ok) {
-          setSharedWishlists(await sharedRes.json());
-        }
-      } catch {
-        toast.error(t("loadError"));
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    if (session) {
-      fetchWishlists();
-    }
-  }, [session]);
-
   async function handleDelete() {
     if (!deleteId) return;
     const response = await fetch(`/api/wishlists/${deleteId}`, { method: "DELETE" });
     if (response.ok) {
-      setWishlists(wishlists.filter((w) => w.id !== deleteId));
+      await queryClient.invalidateQueries({ queryKey: ["wishlists"] });
       toast.success(t("deleted"));
     }
     setDeleteId(null);
@@ -134,11 +133,7 @@ export default function DashboardContent() {
       }),
     });
     if (response.ok) {
-      setWishlists(wishlists.map((w) =>
-        w.id === editWishlist.id
-          ? { ...w, title: editTitle.trim(), description: editDescription.trim() || null }
-          : w
-      ));
+      await queryClient.invalidateQueries({ queryKey: ["wishlists"] });
       setEditWishlist(null);
     }
     setEditSaving(false);

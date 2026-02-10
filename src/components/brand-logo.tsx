@@ -14,7 +14,7 @@ const wordmarkSizes = {
 };
 
 const iconSizes = {
-  sm: "size-10",
+  sm: "size-14",
   md: "size-20",
 };
 

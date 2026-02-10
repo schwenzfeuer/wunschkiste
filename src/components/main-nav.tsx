@@ -17,6 +17,7 @@ export function MainNav() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { data: session, isPending } = useSession();
+  const isGoogleAccount = session?.user.image?.includes("googleusercontent.com");
   const { resolvedTheme, setTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -74,14 +75,16 @@ export function MainNav() {
                     <p className="text-xs text-foreground/50">{session.user.email}</p>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="sm:hidden" onClick={() => router.push("/dashboard" as "/dashboard")}>
+                  <DropdownMenuItem className="sm:hidden" onClick={() => router.push("/dashboard" as const)}>
                     <List className="mr-2 size-4" />
                     {t("myWishlists")}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
-                    <ImagePlus className="mr-2 size-4" />
-                    {t("changeImage")}
-                  </DropdownMenuItem>
+                  {!isGoogleAccount && (
+                    <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
+                      <ImagePlus className="mr-2 size-4" />
+                      {t("changeImage")}
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}>
                     {resolvedTheme === "dark" ? <Sun className="mr-2 size-4" /> : <Moon className="mr-2 size-4" />}
                     {resolvedTheme === "dark" ? t("lightMode") : t("darkMode")}
