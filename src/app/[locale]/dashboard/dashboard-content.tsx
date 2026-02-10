@@ -250,16 +250,23 @@ export default function DashboardContent() {
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.preventDefault();
                       if (wishlist.totalCount === 0) {
                         toast.error(t("shareEmpty"));
                         return;
                       }
-                      navigator.clipboard.writeText(
-                        `${window.location.origin}/share/${wishlist.shareToken}`
-                      );
-                      toast.success(t("linkCopied"));
+                      const shareUrl = `${window.location.origin}/share/${wishlist.shareToken}`;
+                      if (navigator.share) {
+                        try {
+                          await navigator.share({ title: wishlist.title, url: shareUrl });
+                        } catch {
+                          // User cancelled share dialog
+                        }
+                      } else {
+                        navigator.clipboard.writeText(shareUrl);
+                        toast.success(t("linkCopied"));
+                      }
                     }}
                   >
                     <Share2 className="size-4" />

@@ -237,15 +237,23 @@ export default function WishlistEditor({ id }: { id: string }) {
     setSaving(false);
   }
 
-  function handleShare() {
+  async function handleShare() {
     if (!wishlist) return;
     if (products.length === 0) {
       toast.error(t("shareEmpty"));
       return;
     }
     const shareUrl = `${window.location.origin}/share/${wishlist.shareToken}`;
-    navigator.clipboard.writeText(shareUrl);
-    toast.success(t("linkCopied"));
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: wishlist.title, url: shareUrl });
+      } catch {
+        // User cancelled share dialog
+      }
+    } else {
+      navigator.clipboard.writeText(shareUrl);
+      toast.success(t("linkCopied"));
+    }
   }
 
   async function handleEventDateChange(date: Date | undefined) {
