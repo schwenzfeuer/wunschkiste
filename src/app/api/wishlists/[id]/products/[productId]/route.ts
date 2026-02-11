@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
 import { auth } from "@/lib/auth";
-import { db, products, wishlists } from "@/lib/db";
+import { db, products } from "@/lib/db";
+import { verifyWishlistAccess } from "@/lib/wishlist-access";
 
 const updateProductSchema = z.object({
   title: z.string().min(1).max(200).optional(),
@@ -13,17 +14,6 @@ const updateProductSchema = z.object({
 });
 
 type RouteParams = { params: Promise<{ id: string; productId: string }> };
-
-async function verifyWishlistOwnership(
-  wishlistId: string,
-  userId: string
-): Promise<boolean> {
-  const [wishlist] = await db
-    .select({ id: wishlists.id })
-    .from(wishlists)
-    .where(and(eq(wishlists.id, wishlistId), eq(wishlists.userId, userId)));
-  return !!wishlist;
-}
 
 export async function GET(
   request: NextRequest,
@@ -38,7 +28,8 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!(await verifyWishlistOwnership(id, session.user.id))) {
+  const { role } = await verifyWishlistAccess(id, session.user.id);
+  if (!role) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
@@ -67,7 +58,8 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!(await verifyWishlistOwnership(id, session.user.id))) {
+  const { role } = await verifyWishlistAccess(id, session.user.id);
+  if (!role) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
@@ -110,7 +102,8 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!(await verifyWishlistOwnership(id, session.user.id))) {
+  const { role } = await verifyWishlistAccess(id, session.user.id);
+  if (!role) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 

@@ -141,7 +141,8 @@
     "editTitleLabel": "Title",
     "editDescriptionLabel": "Description",
     "deleteTitle": "Delete wishbox?",
-    "deleteText": "This action cannot be undone. All wishes and reservations will be lost."
+    "deleteText": "This action cannot be undone. All wishes and reservations will be lost.",
+    "coEditor": "Co-editor"
   },
   "newWishlist": {
     "title": "New Wishbox",
@@ -194,7 +195,13 @@
     "shareEmpty": "Add wishes first before sharing the list",
     "openInShop": "View in shop",
     "editWlTitleLabel": "Title",
-    "editWlDescriptionLabel": "Description"
+    "editWlDescriptionLabel": "Description",
+    "coEditor": "Co-editor",
+    "makeEditor": "Make co-editor",
+    "removeEditor": "Remove co-editor",
+    "editorAdded": "Co-editor added",
+    "editorRemoved": "Co-editor removed",
+    "editWishlist": "Edit wishbox"
   },
   "visibility": {
     "full": "See everything",
@@ -225,7 +232,9 @@
     "unreserve": "Unreserve",
     "undo": "Undo",
     "join": "Join wishbox",
-    "joinTitle": "Join {title}"
+    "joinTitle": "Join {title}",
+    "coEditor": "Co-editor",
+    "editWishlist": "Edit wishbox"
   },
   "wishlist": {
     "title": "Wishbox",

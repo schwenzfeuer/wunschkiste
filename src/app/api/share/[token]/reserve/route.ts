@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
 import { auth } from "@/lib/auth";
-import { db, wishlists, products, reservations } from "@/lib/db";
+import { db, wishlists, products, reservations, savedWishlists } from "@/lib/db";
 import { reservationStatusEnum } from "@/lib/db/schema";
 import { ajReserve } from "@/lib/security/arcjet";
 
@@ -57,6 +57,24 @@ export async function POST(
   if (wishlist.userId === session.user.id) {
     return NextResponse.json(
       { error: "Cannot reserve on your own wishlist" },
+      { status: 403 }
+    );
+  }
+
+  const [editorCheck] = await db
+    .select({ role: savedWishlists.role })
+    .from(savedWishlists)
+    .where(
+      and(
+        eq(savedWishlists.wishlistId, wishlist.id),
+        eq(savedWishlists.userId, session.user.id),
+        eq(savedWishlists.role, "editor")
+      )
+    );
+
+  if (editorCheck) {
+    return NextResponse.json(
+      { error: "Editors cannot reserve on their co-managed wishlist" },
       { status: 403 }
     );
   }

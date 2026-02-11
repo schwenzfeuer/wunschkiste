@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { cache } from "react";
 import { headers } from "next/headers";
-import { eq, inArray } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db, wishlists, products, reservations, users, savedWishlists } from "@/lib/db";
 import SharePageContent from "./share-page-content";
@@ -38,10 +38,24 @@ const getSharedWishlistData = cache(async (token: string) => {
   const isLoggedIn = !!session?.user;
   const currentUserId = session?.user?.id;
 
+  let isEditor = false;
+
   if (isLoggedIn && !isOwner) {
     await db.insert(savedWishlists)
       .values({ userId: currentUserId!, wishlistId: wishlist.id })
       .onConflictDoNothing();
+
+    const [editorCheck] = await db
+      .select({ role: savedWishlists.role })
+      .from(savedWishlists)
+      .where(
+        and(
+          eq(savedWishlists.wishlistId, wishlist.id),
+          eq(savedWishlists.userId, currentUserId!),
+          eq(savedWishlists.role, "editor")
+        )
+      );
+    isEditor = !!editorCheck;
   }
 
   const wishlistProducts = await db
@@ -83,6 +97,7 @@ const getSharedWishlistData = cache(async (token: string) => {
       eventDate: wishlist.eventDate?.toISOString() ?? null,
       ownerVisibility: wishlist.ownerVisibility as "full" | "partial" | "surprise",
       isOwner,
+      isEditor,
       isLoggedIn,
       claimedCount: productReservations.length,
       totalCount: wishlistProducts.length,
@@ -106,6 +121,7 @@ const getSharedWishlistData = cache(async (token: string) => {
     eventDate: wishlist.eventDate?.toISOString() ?? null,
     ownerVisibility: wishlist.ownerVisibility as "full" | "partial" | "surprise",
     isOwner,
+    isEditor,
     isLoggedIn,
     products: wishlistProducts.map((product) => {
       const reservation = productReservations.find(

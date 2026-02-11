@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ProductImage } from "@/components/product-image";
 import { AuthDialog } from "@/components/auth-dialog";
-import { Gift, Check, ShoppingBag, Calendar, Undo2, Heart, Bookmark, ExternalLink } from "lucide-react";
+import { Gift, Check, ShoppingBag, Calendar, Undo2, Heart, Bookmark, ExternalLink, PencilLine, ShieldCheck } from "lucide-react";
+import { Link } from "@/i18n/routing";
 import { ChristmasDecorations, ChristmasHeaderStar, ChristmasEmptyState } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
 import { formatPrice } from "@/lib/format";
@@ -37,6 +38,7 @@ interface SharedWishlist {
   eventDate: string | null;
   ownerVisibility: "full" | "partial" | "surprise";
   isOwner: boolean;
+  isEditor: boolean;
   isLoggedIn: boolean;
   claimedCount?: number;
   totalCount?: number;
@@ -198,6 +200,7 @@ export default function SharePageContent({
   }
 
   const isOwner = wishlist.isOwner;
+  const isEditor = wishlist.isEditor;
   const isLoggedIn = wishlist.isLoggedIn;
 
   return (
@@ -228,6 +231,20 @@ export default function SharePageContent({
                 <Badge variant="secondary">{t("eventPassed")}</Badge>
               )}
             </p>
+          )}
+          {isEditor && (
+            <div className="mt-4 flex items-center justify-center gap-3">
+              <Badge variant="secondary">
+                <ShieldCheck className="mr-1 size-3" />
+                {t("coEditor")}
+              </Badge>
+              <Link href={{ pathname: "/wishlist/[id]", params: { id: wishlist.id } }}>
+                <Button variant="outline" size="sm">
+                  <PencilLine className="size-4" />
+                  {t("editWishlist")}
+                </Button>
+              </Link>
+            </div>
           )}
         </div>
 
@@ -280,6 +297,7 @@ export default function SharePageContent({
                 key={product.id}
                 product={product}
                 isOwner={isOwner}
+                isEditor={isEditor}
                 isLoggedIn={isLoggedIn}
                 ownerVisibility={wishlist.ownerVisibility}
                 onClaim={() => openClaimDialog(product)}
@@ -400,6 +418,7 @@ export default function SharePageContent({
 function ProductCard({
   product,
   isOwner,
+  isEditor,
   isLoggedIn,
   ownerVisibility,
   onClaim,
@@ -410,6 +429,7 @@ function ProductCard({
 }: {
   product: Product;
   isOwner: boolean;
+  isEditor: boolean;
   isLoggedIn: boolean;
   ownerVisibility: string;
   onClaim: () => void;
@@ -490,7 +510,7 @@ function ProductCard({
 
       {/* Action buttons */}
       <div className="flex shrink-0 flex-col gap-2">
-        {!isOwner && isLoggedIn && (
+        {!isOwner && !isEditor && isLoggedIn && (
           <>
             {product.status === "available" && (
               <>
@@ -542,7 +562,7 @@ function ProductCard({
           </>
         )}
 
-        {!isOwner && !isLoggedIn && product.status === "available" && (
+        {!isOwner && !isEditor && !isLoggedIn && product.status === "available" && (
           <>
             <Button size="sm" onClick={() => onAuthRequired("buy")}>
               {product.affiliateUrl ? <Heart className="size-4" /> : <ShoppingBag className="size-4" />}

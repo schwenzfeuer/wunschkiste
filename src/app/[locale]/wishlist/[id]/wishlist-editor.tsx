@@ -13,7 +13,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ProductImage } from "@/components/product-image";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, ExternalLink, Share2, Loader2, PencilLine, Calendar as CalendarIcon, X, Check, Bookmark, Users, MoreVertical } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Share2, Loader2, PencilLine, Calendar as CalendarIcon, X, Check, Bookmark, Users, MoreVertical, ShieldCheck } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChristmasDecorations } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
@@ -48,6 +48,7 @@ interface Wishlist {
   shareToken: string;
   eventDate: string | null;
   ownerVisibility: OwnerVisibility;
+  role: "owner" | "editor";
 }
 
 interface ProductData {
@@ -62,6 +63,7 @@ interface Participant {
   id: string;
   name: string | null;
   image: string | null;
+  role: "participant" | "editor";
 }
 
 export default function WishlistEditor({ id }: { id: string }) {
@@ -101,11 +103,11 @@ export default function WishlistEditor({ id }: { id: string }) {
       if (!response.ok) throw new Error("Failed to load participants");
       return response.json();
     },
-    enabled: !!session,
+    enabled: !!session && wishlist?.role === "owner",
     refetchOnWindowFocus: true,
   });
 
-  const loading = wishlistLoading || productsLoading || participantsLoading;
+  const loading = wishlistLoading || productsLoading || (wishlist?.role === "owner" && participantsLoading);
 
   const [participantsOpen, setParticipantsOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -301,6 +303,21 @@ export default function WishlistEditor({ id }: { id: string }) {
     setEditWlSaving(false);
   }
 
+  async function handleToggleRole(participantId: string, currentRole: string) {
+    const newRole = currentRole === "editor" ? "participant" : "editor";
+    const response = await fetch(`/api/wishlists/${id}/participants`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: participantId, role: newRole }),
+    });
+    if (response.ok) {
+      await queryClient.invalidateQueries({ queryKey: ["participants", id] });
+      toast.success(newRole === "editor" ? t("editorAdded") : t("editorRemoved"));
+    }
+  }
+
+  const isOwner = wishlist?.role === "owner";
+
   if (isPending || loading) {
     return (
       <main className="flex min-h-screen items-center justify-center">
@@ -322,19 +339,32 @@ export default function WishlistEditor({ id }: { id: string }) {
       {wishlist.theme === "christmas" && <ChristmasDecorations />}
       <div className="mx-auto max-w-3xl px-4 pt-28 pb-8 sm:px-6 sm:pt-36">
         <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <button
-            type="button"
-            onClick={openEditWishlist}
-            className="group/edit cursor-pointer text-left"
-          >
-            <h1 className="font-serif text-3xl md:text-4xl">
-              {wishlist.title}
-              <PencilLine className="ml-2 inline size-4 align-middle text-foreground/30 opacity-0 transition-opacity group-hover/edit:opacity-100" />
-            </h1>
-            {wishlist.description && (
-              <p className="mt-2 text-foreground/50">{wishlist.description}</p>
-            )}
-          </button>
+          {isOwner ? (
+            <button
+              type="button"
+              onClick={openEditWishlist}
+              className="group/edit cursor-pointer text-left"
+            >
+              <h1 className="font-serif text-3xl md:text-4xl">
+                {wishlist.title}
+                <PencilLine className="ml-2 inline size-4 align-middle text-foreground/30 opacity-0 transition-opacity group-hover/edit:opacity-100" />
+              </h1>
+              {wishlist.description && (
+                <p className="mt-2 text-foreground/50">{wishlist.description}</p>
+              )}
+            </button>
+          ) : (
+            <div>
+              <h1 className="font-serif text-3xl md:text-4xl">{wishlist.title}</h1>
+              {wishlist.description && (
+                <p className="mt-2 text-foreground/50">{wishlist.description}</p>
+              )}
+              <Badge variant="secondary" className="mt-2">
+                <ShieldCheck className="mr-1 size-3" />
+                {t("coEditor")}
+              </Badge>
+            </div>
+          )}
           <div className="flex gap-2">
             <Button
               variant="outline"
@@ -437,8 +467,8 @@ export default function WishlistEditor({ id }: { id: string }) {
           </div>
         </div>
 
-        {/* Settings: Event Date + Visibility */}
-        <div className="mb-8 space-y-4 rounded-xl border-2 border-border bg-card/50 p-4">
+        {/* Settings: Event Date + Visibility (owner only) */}
+        {isOwner && <div className="mb-8 space-y-4 rounded-xl border-2 border-border bg-card/50 p-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
               <Label className="text-xs text-foreground/50">{t("eventDate")}</Label>
@@ -504,9 +534,9 @@ export default function WishlistEditor({ id }: { id: string }) {
               </div>
             </div>
           </div>
-        </div>
+        </div>}
 
-        {participants.length > 0 && (
+        {isOwner && participants.length > 0 && (
           <div className="mb-8 flex items-center gap-3">
             <div className="flex -space-x-2">
               {participants.slice(0, 5).map((p) => (
@@ -758,7 +788,23 @@ export default function WishlistEditor({ id }: { id: string }) {
             {participants.map((p) => (
               <div key={p.id} className="flex items-center gap-3">
                 <UserAvatar name={p.name} imageUrl={p.image} size="sm" />
-                <span className="text-sm font-medium">{p.name || t("unknown")}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm font-medium">{p.name || t("unknown")}</span>
+                  {p.role === "editor" && (
+                    <Badge variant="secondary" className="ml-2 text-xs">
+                      <ShieldCheck className="mr-1 size-3" />
+                      {t("coEditor")}
+                    </Badge>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  onClick={() => handleToggleRole(p.id, p.role)}
+                  title={p.role === "editor" ? t("removeEditor") : t("makeEditor")}
+                >
+                  <ShieldCheck className={cn("size-4", p.role === "editor" ? "text-primary" : "text-foreground/30")} />
+                </Button>
               </div>
             ))}
           </div>

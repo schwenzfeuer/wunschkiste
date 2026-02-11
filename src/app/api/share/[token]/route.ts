@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq, inArray } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db, wishlists, products, reservations, users, savedWishlists } from "@/lib/db";
 
@@ -39,10 +39,24 @@ export async function GET(
   const isLoggedIn = !!session?.user;
   const currentUserId = session?.user?.id;
 
+  let isEditor = false;
+
   if (isLoggedIn && !isOwner) {
     await db.insert(savedWishlists)
       .values({ userId: currentUserId!, wishlistId: wishlist.id })
       .onConflictDoNothing();
+
+    const [editorCheck] = await db
+      .select({ role: savedWishlists.role })
+      .from(savedWishlists)
+      .where(
+        and(
+          eq(savedWishlists.wishlistId, wishlist.id),
+          eq(savedWishlists.userId, currentUserId!),
+          eq(savedWishlists.role, "editor")
+        )
+      );
+    isEditor = !!editorCheck;
   }
 
   const wishlistProducts = await db
@@ -92,6 +106,7 @@ export async function GET(
       eventDate: wishlist.eventDate,
       ownerVisibility: wishlist.ownerVisibility,
       isOwner,
+      isEditor,
       isLoggedIn,
       claimedCount,
       totalCount: wishlistProducts.length,
@@ -132,6 +147,7 @@ export async function GET(
     eventDate: wishlist.eventDate,
     ownerVisibility: wishlist.ownerVisibility,
     isOwner,
+    isEditor,
     isLoggedIn,
     products: productsWithReservation,
   });

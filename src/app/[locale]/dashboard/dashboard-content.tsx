@@ -6,7 +6,7 @@ import { useRouter, Link } from "@/i18n/routing";
 import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Gift, Share2, Trash2, Eye, PencilLine, Check, Calendar, Users } from "lucide-react";
+import { Plus, Gift, Share2, Trash2, Eye, PencilLine, Check, Calendar, Users, ShieldCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,6 +43,7 @@ interface SharedWishlist {
   shareToken: string;
   ownerName: string | null;
   eventDate: string | null;
+  role: "participant" | "editor";
   myReservedCount: number;
   myBoughtCount: number;
 }
@@ -294,11 +295,22 @@ export default function DashboardContent() {
               {sharedWishlists.map((sw) => (
                 <Link
                   key={sw.id}
-                  href={{ pathname: "/share/[token]", params: { token: sw.shareToken } }}
+                  href={sw.role === "editor"
+                    ? { pathname: "/wishlist/[id]", params: { id: sw.id } }
+                    : { pathname: "/share/[token]", params: { token: sw.shareToken } }
+                  }
                   className="group flex flex-col gap-3 rounded-xl border-2 border-border bg-card px-4 py-4 transition-colors hover:border-primary/20 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5"
                 >
                   <div>
-                    <h3 className="font-medium">{sw.title}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium">{sw.title}</h3>
+                      {sw.role === "editor" && (
+                        <Badge variant="secondary" className="text-xs">
+                          <ShieldCheck className="mr-1 size-3" />
+                          {t("coEditor")}
+                        </Badge>
+                      )}
+                    </div>
                     <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm text-foreground/50">
                       {sw.ownerName && <span>{tCommon("from", { name: sw.ownerName })}</span>}
                       {sw.eventDate && (

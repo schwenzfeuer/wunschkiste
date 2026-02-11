@@ -3,6 +3,7 @@ import { z } from "zod";
 import { eq, and } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db, wishlists, wishlistThemeEnum, ownerVisibilityEnum } from "@/lib/db";
+import { verifyWishlistAccess } from "@/lib/wishlist-access";
 
 const updateWishlistSchema = z.object({
   title: z.string().min(1).max(100).optional(),
@@ -28,16 +29,21 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const { role } = await verifyWishlistAccess(id, session.user.id);
+  if (!role) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
   const [wishlist] = await db
     .select()
     .from(wishlists)
-    .where(and(eq(wishlists.id, id), eq(wishlists.userId, session.user.id)));
+    .where(eq(wishlists.id, id));
 
   if (!wishlist) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  return NextResponse.json(wishlist);
+  return NextResponse.json({ ...wishlist, role });
 }
 
 export async function PATCH(

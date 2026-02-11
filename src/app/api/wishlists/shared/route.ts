@@ -19,6 +19,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       shareToken: wishlists.shareToken,
       ownerName: users.name,
       eventDate: wishlists.eventDate,
+      role: savedWishlists.role,
       myReservedCount: sql<number>`cast(count(${reservations.id}) filter (where ${reservations.status} = 'reserved') as int)`.as("my_reserved_count"),
       myBoughtCount: sql<number>`cast(count(${reservations.id}) filter (where ${reservations.status} = 'bought') as int)`.as("my_bought_count"),
     })
@@ -31,7 +32,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       sql`${reservations.productId} = ${products.id} and ${reservations.userId} = ${savedWishlists.userId}`
     )
     .where(eq(savedWishlists.userId, session.user.id))
-    .groupBy(wishlists.id, users.name);
+    .groupBy(wishlists.id, users.name, savedWishlists.role);
 
   return NextResponse.json(result);
 }

@@ -141,7 +141,8 @@
     "editTitleLabel": "Titel",
     "editDescriptionLabel": "Beschreibung",
     "deleteTitle": "Wunschkiste löschen?",
-    "deleteText": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Wünsche und Reservierungen gehen verloren."
+    "deleteText": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Wünsche und Reservierungen gehen verloren.",
+    "coEditor": "Mitverwalter"
   },
   "newWishlist": {
     "title": "Neue Wunschkiste",
@@ -194,7 +195,13 @@
     "shareEmpty": "Füge zuerst Wünsche hinzu, bevor du die Liste teilst",
     "openInShop": "Im Shop ansehen",
     "editWlTitleLabel": "Titel",
-    "editWlDescriptionLabel": "Beschreibung"
+    "editWlDescriptionLabel": "Beschreibung",
+    "coEditor": "Mitverwalter",
+    "makeEditor": "Zum Mitverwalter machen",
+    "removeEditor": "Mitverwalter entfernen",
+    "editorAdded": "Mitverwalter hinzugefuegt",
+    "editorRemoved": "Mitverwalter entfernt",
+    "editWishlist": "Wunschkiste bearbeiten"
   },
   "visibility": {
     "full": "Alles sehen",
@@ -225,7 +232,9 @@
     "unreserve": "Aufheben",
     "undo": "Rückgängig",
     "join": "An Wunschkiste teilnehmen",
-    "joinTitle": "An {title} teilnehmen"
+    "joinTitle": "An {title} teilnehmen",
+    "coEditor": "Mitverwalter",
+    "editWishlist": "Wunschkiste bearbeiten"
   },
   "wishlist": {
     "title": "Wunschkiste",

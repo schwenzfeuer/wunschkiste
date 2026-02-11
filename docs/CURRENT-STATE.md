@@ -1,10 +1,10 @@
 # Current State
 
-> Letzte Aktualisierung: 10.02.2026
+> Letzte Aktualisierung: 11.02.2026
 
 ## Status
 
-**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 67 Tests gruen, Build gruen. Impressum/Datenschutz vollstaendig.
+**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 72 Tests gruen, Build gruen. Impressum/Datenschutz vollstaendig.
 
 ## Was existiert
 
@@ -69,7 +69,7 @@
 - [x] **Passwort vergessen**: Resend Email-Service, Forgot/Reset-Password Seiten
 - [x] **Toasts**: Sonner/Toaster, QueryProvider mit globalem onError, Error/404 Pages
 - [x] **Rate-Limiting**: ArcJet auf /api/scrape, /api/share/[token]/reserve und /api/auth (DRY_RUN in dev)
-- [x] **51 Tests grün**: 38 API (inkl. 20 neue Share-Tests) + 13 E2E
+- [x] **51 Tests gruen**: 38 API (inkl. 20 neue Share-Tests) + 13 E2E
 - [x] **Calendar Fix**: react-day-picker v9 Nav-Buttons korrekt oben positioniert
 - [x] **ConfirmationDialog**: shadcn AlertDialog statt `window.confirm()` für Löschen-Aktionen
 - [x] **Preisformatierung**: `formatPrice()` zeigt "29,99 €" statt "29.99 EUR", Komma-Eingabe
@@ -149,6 +149,14 @@
 - [x] **Datenschutz komplett**: Bot-Schutz (ArcJet), Hosting (Cloudflare + Neon), Kontaktdaten
 - [x] **Email-Reminders Cron**: GitHub Actions Workflow (taeglich 09:00 UTC, CRON_API_KEY Secret)
 - [x] **Web Share API**: Nativer Share-Dialog auf Mobile (Dashboard + Editor), Clipboard-Fallback auf Desktop
+- [x] **Mitverwalter-Rolle (Co-Editor)**: Zwei-Rollen-Modell (participant/editor) in saved_wishlists
+- [x] **verifyWishlistAccess Helper**: Zentrale Zugriffspruefung (owner/editor/null), ersetzt duplizierte Ownership-Checks
+- [x] **Editor Produkt-Zugriff**: Editoren koennen Produkte verwalten (GET/POST/PATCH/DELETE)
+- [x] **Editor Einschraenkungen**: Kein Zugriff auf Wishlist-Settings (PATCH/DELETE), keine Reservierungen (403)
+- [x] **Rollen-Management API**: PATCH /api/wishlists/[id]/participants (Owner kann Rollen aendern)
+- [x] **Share-Seite Editor-Erkennung**: isEditor-Flag, Reserve/Buy-Buttons ausgeblendet, Edit-Link angezeigt
+- [x] **Dashboard Editor-Integration**: Editor-Wishlists verlinken zum Editor, Mitverwalter-Badge
+- [x] **72 Tests gruen**: 59 API (inkl. 18 neue Co-Editor-Tests) + 13 E2E
 
 ## Tech-Stack (installiert)
 
@@ -220,7 +228,8 @@ src/
 │   ├── scraper/                       # Cheerio + OpenGraph + JSON-LD
 │   ├── email/                         # Resend Email-Service
 │   ├── storage/                       # Cloudflare R2 Client
-│   └── security/                      # ArcJet Rate-Limiting
+│   ├── security/                      # ArcJet Rate-Limiting
+│   └── wishlist-access.ts             # Zentraler Owner/Editor Zugriffs-Check
 ├── lib/
 │   └── format.ts                      # Preisformatierung (formatPrice, normalizePrice)
 ├── i18n/                              # next-intl Config + lokalisierte Pathnames
@@ -278,6 +287,23 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 11.02.2026 - Mitverwalter-Rolle (Co-Editor)
+- **DB-Schema**: savedWishlistRoleEnum ("participant"/"editor"), role-Spalte in saved_wishlists
+- **verifyWishlistAccess**: Zentraler Helper ersetzt duplizierte Ownership-Checks in Products/Wishlists API
+- **Products API**: Editoren koennen Produkte verwalten (GET/POST/PATCH/DELETE) via verifyWishlistAccess
+- **Wishlists API**: GET liefert role-Feld, PATCH/DELETE bleiben owner-only
+- **Participants API**: GET liefert role, neuer PATCH-Endpoint fuer Rollen-Management (owner-only)
+- **Reserve-Endpoint**: Editoren werden geblockt (403), wie Owner
+- **Share API + SSR**: isEditor-Flag in Response, Reserve/Buy-Buttons fuer Editoren ausgeblendet
+- **Shared-Wishlists API**: role-Feld in Response fuer Dashboard-Differenzierung
+- **Wishlist-Editor UI**: Bedingte Anzeige (Settings/Titel/Teilnehmer nur Owner), Rollen-Toggle im Teilnehmer-Dialog
+- **Share-Seite**: Edit-Link + Mitverwalter-Badge fuer Editoren
+- **Dashboard**: Editor-Wishlists verlinken zum Editor statt Share-Seite, Mitverwalter-Badge
+- **i18n**: Neue Keys fuer Editor-Feature (de.json + en.json)
+- **18 neue API-Tests**: co-editor.spec.ts (Rollen-Management, Editor-Zugriff, Einschraenkungen)
+- **Bugfix**: Participants-Query nur fuer Owner ausfuehren (404-Fehler fuer Editoren behoben)
+- Deployed auf Production (2x: Initial + Bugfix)
+
 ### 10.02.2026 - React Query, Auth Rate-Limiting, Legal, Cron, Web Share
 - **React Query Migration**: Dashboard (wishlists, sharedWishlists) + Editor (wishlist, products, participants) auf useQuery/invalidateQueries umgestellt
 - **Auth Rate-Limiting**: ajAuth (tokenBucket 5/min + detectBot) auf /api/auth POST-Handler gewrappt
@@ -325,13 +351,6 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **JSON-LD**: WebSite + Organization Schema auf Landing Page
 - Build gruen, 67 Tests gruen
 
-### 08.02.2026 - UI-Polish & Mobile-Optimierung
-- **Badges differenziert**: Reserviert = Outline + Bookmark-Icon, Gekauft = Filled + Check-Icon
-- **Produkt-Sortierung**: Share-Seite zeigt verfuegbare oben, gekaufte unten
-- **Konsistente Cards**: Editor + Share identisch (size-16, truncate+title, p-3/sm:p-4)
-- **Mobile Context-Menu**: DropdownMenu (MoreVertical) statt 3 Icon-Buttons im Editor
-- Build gruen
-
 
 ## Notizen fuer naechste Session
 
@@ -343,3 +362,5 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **Nachrichten-Feature (reservations.message)**: DB-Spalte existiert noch, UI entfernt
 - **AMAZON_AFFILIATE_TAG**: Muss in Cloudflare Env-Vars gesetzt sein
 - en.json: Englische Uebersetzungen sind Platzhalter
+- **Co-Editor Feature live**: Editoren koennen Produkte verwalten, aber keine Settings aendern oder reservieren
+- **Neon-Passwort rotieren**: Production DATABASE_URL war in Session sichtbar (Sicherheitsempfehlung)
