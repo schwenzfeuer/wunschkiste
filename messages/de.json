@@ -142,7 +142,7 @@
     "editDescriptionLabel": "Beschreibung",
     "deleteTitle": "Wunschkiste löschen?",
     "deleteText": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Wünsche und Reservierungen gehen verloren.",
-    "coEditor": "Mitverwalter"
+    "coEditor": "Co-Editor"
   },
   "newWishlist": {
     "title": "Neue Wunschkiste",
@@ -196,11 +196,11 @@
     "openInShop": "Im Shop ansehen",
     "editWlTitleLabel": "Titel",
     "editWlDescriptionLabel": "Beschreibung",
-    "coEditor": "Mitverwalter",
-    "makeEditor": "Zum Mitverwalter machen",
-    "removeEditor": "Mitverwalter entfernen",
-    "editorAdded": "Mitverwalter hinzugefuegt",
-    "editorRemoved": "Mitverwalter entfernt",
+    "coEditor": "Co-Editor",
+    "makeEditor": "Zum Co-Editor machen",
+    "removeEditor": "Co-Editor entfernen",
+    "editorAdded": "Co-Editor hinzugefuegt",
+    "editorRemoved": "Co-Editor entfernt",
     "editWishlist": "Wunschkiste bearbeiten"
   },
   "visibility": {
@@ -233,7 +233,7 @@
     "undo": "Rückgängig",
     "join": "An Wunschkiste teilnehmen",
     "joinTitle": "An {title} teilnehmen",
-    "coEditor": "Mitverwalter",
+    "coEditor": "Co-Editor",
     "editWishlist": "Wunschkiste bearbeiten"
   },
   "wishlist": {
@@ -256,6 +256,11 @@
     "reserved": "Reserviert",
     "price": "Preis",
     "shop": "Shop"
+  },
+  "countdown": {
+    "today": "Heute",
+    "tomorrow": "Morgen",
+    "daysLeft": "noch {days} Tage"
   },
   "footer": {
     "imprint": "Impressum",

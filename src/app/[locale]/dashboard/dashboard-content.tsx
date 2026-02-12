@@ -16,6 +16,7 @@ import { MainNav } from "@/components/main-nav";
 import { ConfirmationDialog } from "@/components/confirmation-dialog";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { getCountdownDays } from "@/lib/format";
 
 interface Participant {
   id: string;
@@ -31,6 +32,7 @@ interface Wishlist {
   shareToken: string;
   isPublic: boolean;
   createdAt: string;
+  eventDate: string | null;
   ownerVisibility: string;
   totalCount: number;
   claimedCount: number;
@@ -57,15 +59,11 @@ function formatEventDate(dateStr: string): string {
   });
 }
 
-const themeEmojis: Record<string, string> = {
-  standard: "",
-  birthday: "\u{1F382}",
-  christmas: "\u{1F384}",
-};
 
 export default function DashboardContent() {
   const t = useTranslations("dashboard");
   const tCommon = useTranslations("common");
+  const tCountdown = useTranslations("countdown");
   const router = useRouter();
   const { data: session, isPending } = useSession();
   const queryClient = useQueryClient();
@@ -199,13 +197,11 @@ export default function DashboardContent() {
                 className="group relative flex flex-col gap-3 rounded-xl border-2 border-border bg-card px-4 py-4 transition-colors hover:border-primary/20 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  {themeEmojis[wishlist.theme] && (
-                    <span className="text-xl shrink-0">{themeEmojis[wishlist.theme]}</span>
-                  )}
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-3">
-                      <h3 className="font-medium truncate">{wishlist.title}</h3>
-                      {wishlist.participants.length > 0 && (
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <h3 className="font-medium truncate">{wishlist.title}</h3>
+                        {wishlist.participants.length > 0 && (
                         <div className="flex shrink-0 -space-x-1.5">
                           {wishlist.participants.slice(0, 3).map((p) => (
                             <UserAvatar
@@ -223,6 +219,20 @@ export default function DashboardContent() {
                           )}
                         </div>
                       )}
+                      </div>
+                      {wishlist.eventDate && (() => {
+                        const days = getCountdownDays(wishlist.eventDate);
+                        if (days === null) return null;
+                        return (
+                          <Badge className="shrink-0 text-xs bg-accent text-accent-foreground">
+                            {days === 0
+                              ? tCountdown("today")
+                              : days === 1
+                                ? tCountdown("tomorrow")
+                                : tCountdown("daysLeft", { days })}
+                          </Badge>
+                        );
+                      })()}
                     </div>
                     {(wishlist.claimedCount > 0 || wishlist.description) && (
                       <p className="mt-0.5 text-sm text-foreground/50 truncate">
@@ -233,6 +243,12 @@ export default function DashboardContent() {
                             : ""}
                         {wishlist.claimedCount > 0 && wishlist.description ? " · " : ""}
                         {wishlist.description ?? ""}
+                      </p>
+                    )}
+                    {wishlist.eventDate && (
+                      <p className="mt-0.5 flex items-center gap-1 text-sm text-foreground/50">
+                        <Calendar className="size-3" />
+                        {formatEventDate(wishlist.eventDate)}
                       </p>
                     )}
                   </div>
@@ -302,14 +318,29 @@ export default function DashboardContent() {
                   className="group flex flex-col gap-3 rounded-xl border-2 border-border bg-card px-4 py-4 transition-colors hover:border-primary/20 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5"
                 >
                   <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-medium">{sw.title}</h3>
-                      {sw.role === "editor" && (
-                        <Badge variant="secondary" className="text-xs">
-                          <ShieldCheck className="mr-1 size-3" />
-                          {t("coEditor")}
-                        </Badge>
-                      )}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <h3 className="font-medium truncate">{sw.title}</h3>
+                        {sw.role === "editor" && (
+                          <Badge variant="secondary" className="text-xs">
+                            <ShieldCheck className="mr-1 size-3" />
+                            {t("coEditor")}
+                          </Badge>
+                        )}
+                      </div>
+                      {sw.eventDate && (() => {
+                        const days = getCountdownDays(sw.eventDate);
+                        if (days === null) return null;
+                        return (
+                          <Badge className="shrink-0 text-xs bg-accent text-accent-foreground">
+                            {days === 0
+                              ? tCountdown("today")
+                              : days === 1
+                                ? tCountdown("tomorrow")
+                                : tCountdown("daysLeft", { days })}
+                          </Badge>
+                        );
+                      })()}
                     </div>
                     <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm text-foreground/50">
                       {sw.ownerName && <span>{tCommon("from", { name: sw.ownerName })}</span>}

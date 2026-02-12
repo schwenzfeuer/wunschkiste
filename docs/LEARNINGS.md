@@ -405,6 +405,10 @@ OpenNext uebernimmt das Bundling. `output: "standalone"` in `next.config.ts` mus
 
 Cloudflare Workers haben keine TCP-Sockets. `postgres.js` funktioniert nicht. Stattdessen `@neondatabase/serverless` mit `drizzle-orm/neon-http` (HTTP-basiert). Keine Code-Aenderungen an Queries noetig, nur der Driver-Import aendert sich.
 
+### Lokaler DB-Driver: neon-http vs postgres (12.02.2026)
+
+`@neondatabase/serverless` (neon-http) verbindet sich ueber HTTPS -- lokales PostgreSQL hat keinen HTTPS-Endpoint. Symptom: `Error: connect ECONNREFUSED 127.0.0.1:443`. Loesung: `db/index.ts` erkennt anhand der DATABASE_URL ob lokal (localhost/127.0.0.1) und nutzt dann `postgres` (TCP via drizzle-orm/postgres-js), sonst `neon-http`. Beide Packages sind installiert. Type-Cast `as unknown as Db` noetig weil die Drizzle-Instanzen unterschiedliche Generics haben, aber identische Query-API bieten.
+
 ### Neon Connection String
 
 - `drizzle-kit push` liest `.env.local` NICHT automatisch. `source .env.local && pnpm db:push` verwenden.

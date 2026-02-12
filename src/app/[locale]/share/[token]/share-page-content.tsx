@@ -12,7 +12,7 @@ import { Gift, Check, ShoppingBag, Calendar, Undo2, Heart, Bookmark, ExternalLin
 import { Link } from "@/i18n/routing";
 import { ChristmasDecorations, ChristmasHeaderStar, ChristmasEmptyState } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, getCountdownDays } from "@/lib/format";
 import { useTranslations } from "next-intl";
 
 interface Product {
@@ -70,6 +70,7 @@ export default function SharePageContent({
 }) {
   const t = useTranslations("share");
   const tCommon = useTranslations("common");
+  const tCountdown = useTranslations("countdown");
   const queryClient = useQueryClient();
   const { data: session } = useSession();
   const [claimDialogOpen, setClaimDialogOpen] = useState(false);
@@ -223,15 +224,26 @@ export default function SharePageContent({
           {wishlist.description && (
             <p className="mt-4 text-lg text-foreground/60">{wishlist.description}</p>
           )}
-          {wishlist.eventDate && (
-            <p className="mt-3 inline-flex items-center gap-2 text-sm text-foreground/50">
-              <Calendar className="size-4" />
-              {formatEventDate(wishlist.eventDate)}
-              {isEventPast(wishlist.eventDate) && (
-                <Badge variant="secondary">{t("eventPassed")}</Badge>
-              )}
-            </p>
-          )}
+          {wishlist.eventDate && (() => {
+            const countdownDays = getCountdownDays(wishlist.eventDate);
+            return (
+              <p className="mt-3 inline-flex items-center gap-2 text-sm text-foreground/50">
+                <Calendar className="size-4" />
+                {formatEventDate(wishlist.eventDate)}
+                {isEventPast(wishlist.eventDate) ? (
+                  <Badge variant="secondary">{t("eventPassed")}</Badge>
+                ) : countdownDays !== null ? (
+                  <Badge className="bg-accent text-accent-foreground">
+                    {countdownDays === 0
+                      ? tCountdown("today")
+                      : countdownDays === 1
+                        ? tCountdown("tomorrow")
+                        : tCountdown("daysLeft", { days: countdownDays })}
+                  </Badge>
+                ) : null}
+              </p>
+            );
+          })()}
           {isEditor && (
             <div className="mt-4 flex items-center justify-center gap-3">
               <Badge variant="secondary">

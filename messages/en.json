@@ -257,6 +257,11 @@
     "price": "Price",
     "shop": "Shop"
   },
+  "countdown": {
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "daysLeft": "{days} days left"
+  },
   "footer": {
     "imprint": "Imprint",
     "privacy": "Privacy Policy",

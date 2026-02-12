@@ -1,6 +1,6 @@
 # Current State
 
-> Letzte Aktualisierung: 11.02.2026
+> Letzte Aktualisierung: 12.02.2026
 
 ## Status
 
@@ -157,6 +157,11 @@
 - [x] **Share-Seite Editor-Erkennung**: isEditor-Flag, Reserve/Buy-Buttons ausgeblendet, Edit-Link angezeigt
 - [x] **Dashboard Editor-Integration**: Editor-Wishlists verlinken zum Editor, Mitverwalter-Badge
 - [x] **72 Tests gruen**: 59 API (inkl. 18 neue Co-Editor-Tests) + 13 E2E
+- [x] **Countdown-Badge**: "noch X Tage" / "Morgen" / "Heute" neben Wishlist-Titel (Dashboard + Share-Seite)
+- [x] **getCountdownDays**: Hilfsfunktion in format.ts (0-99 Tage oder null)
+- [x] **Countdown i18n**: countdown.today/tomorrow/daysLeft Keys (de + en)
+- [x] **Lokaler DB-Driver**: Auto-Detection localhost → postgres (TCP), Neon → neon-http (HTTPS)
+- [x] **Theme-Emojis entfernt**: Keine Emojis mehr auf Dashboard-Cards
 
 ## Tech-Stack (installiert)
 
@@ -231,7 +236,7 @@ src/
 │   ├── security/                      # ArcJet Rate-Limiting
 │   └── wishlist-access.ts             # Zentraler Owner/Editor Zugriffs-Check
 ├── lib/
-│   └── format.ts                      # Preisformatierung (formatPrice, normalizePrice)
+│   └── format.ts                      # Preisformatierung + Countdown (formatPrice, normalizePrice, getCountdownDays)
 ├── i18n/                              # next-intl Config + lokalisierte Pathnames
 └── middleware.ts                      # Locale Routing
 messages/
@@ -287,6 +292,16 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 12.02.2026 - Countdown-Badge + Lokaler DB-Driver
+- **Countdown-Feature**: getCountdownDays() in format.ts -- berechnet Tage bis eventDate (0-99 oder null)
+- **i18n Keys**: countdown.today/tomorrow/daysLeft in de.json + en.json
+- **Dashboard**: Countdown-Badge (Accent-Farbe) neben Wishlist-Titel (justify-between), Datum als eigene Zeile darunter
+- **Share-Seite**: Countdown-Badge neben formatiertem Datum (oder "Anlass vorbei" Badge bei vergangenem Datum)
+- **Freunde-Wunschkisten**: Gleiche Darstellung wie eigene Kisten
+- **Theme-Emojis entfernt**: themeEmojis Map und Anzeige aus Dashboard-Cards entfernt
+- **Lokaler DB-Driver**: db/index.ts erkennt localhost/127.0.0.1 und nutzt postgres (TCP) statt neon-http (HTTPS)
+- **Test-Daten**: User + Dummy-Wishlists mit verschiedenen eventDate-Szenarien fuer lokales Testing
+
 ### 11.02.2026 - Mitverwalter-Rolle (Co-Editor)
 - **DB-Schema**: savedWishlistRoleEnum ("participant"/"editor"), role-Spalte in saved_wishlists
 - **verifyWishlistAccess**: Zentraler Helper ersetzt duplizierte Ownership-Checks in Products/Wishlists API
@@ -339,17 +354,6 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **Google OAuth**: Redirect URI + JavaScript Origin fuer wunschkiste.app aktualisiert
 - **compatibility_date Fix**: 2025-04-01 → 2025-12-01 (MessagePort-Support fuer Next.js)
 - Build gruen, alle Features funktionieren auf Production
-
-### 08.02.2026 - SEO-Komplett-Durchgang + Share-Seite SSR
-- **robots.txt + sitemap.xml**: Crawler-Regeln, statische Seiten
-- **Root Layout Metadata**: OG-Tags, Twitter-Card, Title-Template (`%s - Wunschkiste`), metadataBase
-- **Statisches OG-Image**: 1200x630, Wunschkiste-Branding (Creme/Blau/Tangerine)
-- **Share-Seite SSR**: Server Component mit `generateMetadata` + volle Daten-Query (Auth via Session-Cookie), `cache()` fuer Request-Deduplizierung, `initialData` an react-query
-- **Dynamisches OG-Image (Share)**: Wishlist-Titel, Owner-Name, Produktanzahl auf Creme-Hintergrund
-- **11 Seiten refactored**: Client-Pages in Server/Client-Split (page.tsx Wrapper + *-form.tsx / *-content.tsx)
-- **Seitenspezifische Titles**: "Anmelden", "Registrieren", "Meine Wunschkisten", etc. + noindex auf geschuetzten Seiten
-- **JSON-LD**: WebSite + Organization Schema auf Landing Page
-- Build gruen, 67 Tests gruen
 
 
 ## Notizen fuer naechste Session
