@@ -69,6 +69,7 @@ export async function GET(
       price: products.price,
       currency: products.currency,
       shopName: products.shopName,
+      priority: products.priority,
     })
     .from(products)
     .where(eq(products.wishlistId, wishlist.id));

@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ProductImage } from "@/components/product-image";
 import { AuthDialog } from "@/components/auth-dialog";
-import { Gift, Check, ShoppingBag, Calendar, Undo2, Heart, Bookmark, ExternalLink, PencilLine, ShieldCheck } from "lucide-react";
+import { Gift, Check, ShoppingBag, Calendar, Undo2, Heart, Bookmark, ExternalLink, PencilLine, ShieldCheck, Star } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { ChristmasDecorations, ChristmasHeaderStar, ChristmasEmptyState } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
@@ -24,6 +24,7 @@ interface Product {
   price: string | null;
   currency: string;
   shopName: string | null;
+  priority: number | null;
   status: "available" | "reserved" | "bought";
   claimedByMe: boolean;
   claimedByName: string | null;
@@ -89,7 +90,6 @@ export default function SharePageContent({
       return response.json();
     },
     initialData: initialData ?? undefined,
-    refetchInterval: 10_000,
     refetchOnWindowFocus: true,
   });
 
@@ -302,6 +302,9 @@ export default function SharePageContent({
         ) : (
           <div className="space-y-3">
             {[...wishlist.products].sort((a, b) => {
+              const prioA = a.priority ?? 4;
+              const prioB = b.priority ?? 4;
+              if (prioA !== prioB) return prioA - prioB;
               const order = { available: 0, reserved: 1, bought: 2 };
               return (order[a.status] ?? 0) - (order[b.status] ?? 0);
             }).map((product) => (
@@ -459,9 +462,9 @@ function ProductCard({
 
   return (
     <div
-      className={`flex items-center gap-3 rounded-xl border-2 border-border bg-card p-3 transition-all sm:gap-4 sm:p-4 ${
-        isClaimed && !isMine ? "opacity-60" : ""
-      }`}
+      className={`flex items-center gap-3 rounded-xl border-2 bg-card p-3 transition-all sm:gap-4 sm:p-4 ${
+        product.priority ? "border-accent/40" : "border-border"
+      } ${isClaimed && !isMine ? "opacity-60" : ""}`}
     >
       <a
         href={productUrl}
@@ -476,17 +479,25 @@ function ProductCard({
         />
       </a>
       <div className="flex-1 min-w-0">
-        <h3 className="font-medium leading-snug truncate" title={product.title}>
-          <a
-            href={productUrl}
-            target="_blank"
-            rel={isAffiliate ? "sponsored nofollow noopener" : "noopener"}
-            className="hover:underline"
-          >
-            {product.title}
-            <ExternalLink className="ml-1 inline size-3 text-foreground/30" />
-          </a>
-        </h3>
+        <div className="flex items-center gap-2">
+          <h3 className="font-medium leading-snug truncate" title={product.title}>
+            <a
+              href={productUrl}
+              target="_blank"
+              rel={isAffiliate ? "sponsored nofollow noopener" : "noopener"}
+              className="hover:underline"
+            >
+              {product.title}
+              <ExternalLink className="ml-1 inline size-3 text-foreground/30" />
+            </a>
+          </h3>
+          {product.priority && (
+            <Badge className="bg-accent text-accent-foreground shrink-0">
+              <Star className="mr-1 size-3" />
+              {t(`priority${product.priority}` as "priority1" | "priority2" | "priority3")}
+            </Badge>
+          )}
+        </div>
         <div className="mt-1 flex items-center gap-3 text-sm text-foreground/50">
           {product.price && (
             <span className="font-semibold text-foreground">

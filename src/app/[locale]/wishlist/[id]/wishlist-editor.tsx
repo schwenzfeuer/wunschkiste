@@ -13,7 +13,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ProductImage } from "@/components/product-image";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, ExternalLink, Share2, Loader2, PencilLine, Calendar as CalendarIcon, X, Check, Bookmark, Users, MoreVertical, ShieldCheck } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Share2, Loader2, PencilLine, Calendar as CalendarIcon, X, Check, Bookmark, Users, MoreVertical, ShieldCheck, Star } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChristmasDecorations } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
@@ -36,6 +36,7 @@ interface Product {
   price: string | null;
   currency: string;
   shopName: string | null;
+  priority: number | null;
   reservationStatus: "reserved" | "bought" | null;
   reservedByName: string | null;
 }
@@ -82,7 +83,6 @@ export default function WishlistEditor({ id }: { id: string }) {
       return response.json();
     },
     enabled: !!session,
-    refetchOnWindowFocus: true,
   });
 
   const { data: products = [], isLoading: productsLoading } = useQuery<Product[]>({
@@ -93,7 +93,6 @@ export default function WishlistEditor({ id }: { id: string }) {
       return response.json();
     },
     enabled: !!session,
-    refetchOnWindowFocus: true,
   });
 
   const { data: participants = [], isLoading: participantsLoading } = useQuery<Participant[]>({
@@ -104,7 +103,6 @@ export default function WishlistEditor({ id }: { id: string }) {
       return response.json();
     },
     enabled: !!session && wishlist?.role === "owner",
-    refetchOnWindowFocus: true,
   });
 
   const loading = wishlistLoading || productsLoading || (wishlist?.role === "owner" && participantsLoading);
@@ -314,6 +312,15 @@ export default function WishlistEditor({ id }: { id: string }) {
       await queryClient.invalidateQueries({ queryKey: ["participants", id] });
       toast.success(newRole === "editor" ? t("editorAdded") : t("editorRemoved"));
     }
+  }
+
+  async function handleSetPriority(productId: string, priority: number | null) {
+    await fetch(`/api/wishlists/${id}/products/${productId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ priority }),
+    });
+    await queryClient.invalidateQueries({ queryKey: ["products", id] });
   }
 
   const isOwner = wishlist?.role === "owner";
@@ -576,7 +583,8 @@ export default function WishlistEditor({ id }: { id: string }) {
             {products.map((product) => (
               <div
                 key={product.id}
-                className="group flex items-center gap-3 rounded-xl border-2 border-border bg-card p-3 transition-colors hover:border-primary/20 sm:gap-4 sm:p-4"
+                className="group flex items-center gap-3 rounded-xl border-2 border-border bg-card p-3 transition-colors hover:border-primary/20 sm:gap-4 sm:p-4 cursor-pointer"
+                onClick={() => openEditDialog(product)}
               >
                 <ProductImage
                   src={product.imageUrl}
@@ -584,7 +592,15 @@ export default function WishlistEditor({ id }: { id: string }) {
                   className="size-16 shrink-0 rounded-lg object-contain"
                 />
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-medium leading-snug truncate" title={product.title}>{product.title}</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-medium leading-snug truncate" title={product.title}>{product.title}</h3>
+                    {product.priority && (
+                      <Badge className="bg-accent text-accent-foreground shrink-0">
+                        <Star className="mr-1 size-3" />
+                        {t(`priority${product.priority}` as "priority1" | "priority2" | "priority3")}
+                      </Badge>
+                    )}
+                  </div>
                   <div className="mt-1 flex items-center gap-3 text-sm text-foreground/50">
                     {product.price && (
                       <span className="font-semibold text-foreground">
@@ -612,7 +628,27 @@ export default function WishlistEditor({ id }: { id: string }) {
                   )}
                 </div>
                 {/* Desktop: Icon-Buttons */}
-                <div className="hidden sm:flex items-center gap-1 shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="hidden sm:flex items-center gap-1 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" onClick={(e) => e.stopPropagation()}>
+                  <DropdownMenu modal={false}>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon-sm" className={product.priority ? "text-accent" : ""}>
+                        <Star className="size-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {[1, 2, 3].map((p) => (
+                        <DropdownMenuItem key={p} onClick={() => handleSetPriority(product.id, p)}>
+                          <Star className={cn("mr-2 size-4", product.priority === p && "text-accent")} />
+                          {t(`priority${p}` as "priority1" | "priority2" | "priority3")}
+                          {product.priority === p && <Check className="ml-auto size-4" />}
+                        </DropdownMenuItem>
+                      ))}
+                      <DropdownMenuItem onClick={() => handleSetPriority(product.id, null)}>
+                        <X className="mr-2 size-4" />
+                        {t("priorityNone")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <Button variant="ghost" size="icon-sm" onClick={() => openEditDialog(product)}>
                     <PencilLine className="size-4" />
                   </Button>
@@ -635,8 +671,30 @@ export default function WishlistEditor({ id }: { id: string }) {
                   </Button>
                 </div>
 
-                {/* Mobile: Context Menu */}
-                <div className="sm:hidden shrink-0">
+                {/* Mobile: Star + Context Menu */}
+                <div className="sm:hidden shrink-0 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                  <DropdownMenu modal={false}>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon-sm" className={product.priority ? "text-accent" : ""}>
+                        <Star className="size-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {[1, 2, 3].map((p) => (
+                        <DropdownMenuItem key={p} onClick={() => handleSetPriority(product.id, p)}>
+                          <Star className={cn("mr-2 size-4", product.priority === p && "text-accent")} />
+                          {t(`priority${p}` as "priority1" | "priority2" | "priority3")}
+                          {product.priority === p && <Check className="ml-auto size-4" />}
+                        </DropdownMenuItem>
+                      ))}
+                      {product.priority && (
+                        <DropdownMenuItem onClick={() => handleSetPriority(product.id, null)}>
+                          <X className="mr-2 size-4" />
+                          {t("priorityNone")}
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <DropdownMenu modal={false}>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon-sm">

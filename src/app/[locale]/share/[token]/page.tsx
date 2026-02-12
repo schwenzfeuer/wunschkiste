@@ -68,6 +68,7 @@ const getSharedWishlistData = cache(async (token: string) => {
       price: products.price,
       currency: products.currency,
       shopName: products.shopName,
+      priority: products.priority,
     })
     .from(products)
     .where(eq(products.wishlistId, wishlist.id));
@@ -170,7 +171,7 @@ export async function generateMetadata({
   const productCount = data.products.length;
   const description =
     productCount > 0
-      ? `${productCount} Wuensche von ${ownerName}`
+      ? `${productCount} Wünsche von ${ownerName}`
       : `Wunschliste von ${ownerName}`;
 
   return {

@@ -38,7 +38,7 @@
 - [x] **MainNav Komponente**: Auth-State-Aware Nav (Login/Register vs. Meine Wunschlisten/Logout)
 - [x] **HeroCta Komponente**: Dynamischer CTA basierend auf Auth-State
 - [x] **Playwright Tests**: 38 API-Tests + 13 E2E-Tests (Auth, Wishlists, Products, Share, Reserve/Buy, Visibility, Landing, Wishlist-Flow)
-- [x] **TanStack Query**: QueryClientProvider + Share-Page Polling (10s refetch + refetchOnWindowFocus)
+- [x] **TanStack Query**: QueryClientProvider + Share-Page refetchOnWindowFocus
 - [x] **ProductImage**: Wiederverwendbare Komponente mit onError Fallback (Gift-Icon)
 - [x] **Immersive Themes**: CSS-Animationen (Schneeflocken, Konfetti, Shimmer, Wolken) + prefers-reduced-motion
 - [x] **ThemeCard**: Vorschaukarten mit echtem Theme-Hintergrund + Mini-Animationen
@@ -162,6 +162,10 @@
 - [x] **Countdown i18n**: countdown.today/tomorrow/daysLeft Keys (de + en)
 - [x] **Lokaler DB-Driver**: Auto-Detection localhost → postgres (TCP), Neon → neon-http (HTTPS)
 - [x] **Theme-Emojis entfernt**: Keine Emojis mehr auf Dashboard-Cards
+- [x] **Top 1/2/3 Prioritaet**: priority-Spalte in products, PATCH API mit Swap-Logik, Star-Dropdown im Editor (Desktop + Mobile), Badge + Sortierung auf Share-Seite
+- [x] **Refetch-Fix**: refetchOnWindowFocus aus Editor-Queries entfernt, 10s-Polling von Share-Seite entfernt (nur refetchOnWindowFocus bleibt)
+- [x] **Umlaute korrigiert**: ae/oe/ue durch echte Umlaute in de.json, Email-Templates, SEO-Texten, OG-Image
+- [x] **Editor UX**: Card-Klick oeffnet Edit-Dialog, Stern-Button auf Mobile als eigener Button neben Context-Menu, stopPropagation auf Action-Bereiche
 
 ## Tech-Stack (installiert)
 
@@ -251,6 +255,7 @@ messages/
 - [ ] Link Builder API integrieren → Affiliate-Links fuer AWIN-Shops generieren
 
 ### Sonstiges
+- [ ] Frontend-Validierung (alle Formulare: Login, Register, Passwort-Reset, Wunschkiste erstellen, Wunsch hinzufuegen/bearbeiten)
 - [ ] Cloudflare Rate Limiting als Ersatz/Ergaenzung fuer ArcJet evaluieren
 - [ ] en.json: Englische Uebersetzungen fertigstellen (aktuell Platzhalter)
 - [ ] Facebook OAuth Credentials einrichten
@@ -291,6 +296,13 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - [x] Cloudflare Workers Deployment (wunschkiste.app)
 
 ## Letzte Sessions
+
+### 12.02.2026 (Abend) - Top-Prioritaet, Refetch-Fix, Umlaute, Editor UX
+- **Top 1/2/3 Prioritaet**: priority-Spalte (integer, nullable) in products, PATCH API mit Swap-Logik (ne Import), Star-Dropdown im Editor (Desktop hover + Mobile eigener Button), Badge (accent) + Priority-first Sortierung auf Share-Seite
+- **Refetch/Polling Fix**: refetchOnWindowFocus aus allen 3 Editor-Queries entfernt (wishlist, products, participants), 10s-Polling (refetchInterval) von Share-Seite entfernt -- nur noch refetchOnWindowFocus + manuelle Invalidation nach Mutationen
+- **Umlaute korrigiert**: ae/oe/ue in de.json (hinzugefuegt, Prioritaet, affiliateDisclosure), Email-Templates (Wuensche, spaet, erhaeltst, Schoen, zuruecksetzen, gueltig), SEO meta-title, OG-Image
+- **Editor UX**: Card-Klick oeffnet Edit-Dialog, stopPropagation auf Desktop/Mobile Action-Bereiche
+- **Share-Page page.tsx**: priority auch im server-side SELECT ergaenzt (SSR-Typ-Kompatibilitaet)
 
 ### 12.02.2026 - Countdown-Badge + Lokaler DB-Driver
 - **Countdown-Feature**: getCountdownDays() in format.ts -- berechnet Tage bis eventDate (0-99 oder null)
@@ -341,20 +353,6 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **Wrangler Custom Domain**: routes-Config in wrangler.jsonc ergaenzt
 - **LEARNINGS**: pnpm run deploy vs pnpm deploy, Custom Domain Config dokumentiert
 
-### 09.02.2026 - Cloudflare Workers + Neon Deployment
-- **Neon PostgreSQL**: Account erstellt, Projekt "wunschkiste" in Frankfurt, Schema gepusht
-- **Database Driver**: postgres.js → @neondatabase/serverless (neon-http), Drizzle Adapter gewechselt
-- **OpenNext Cloudflare**: @opennextjs/cloudflare + wrangler als Build-Pipeline
-- **next.config.ts**: output:standalone entfernt, initOpenNextCloudflareForDev() hinzugefuegt
-- **wrangler.jsonc**: Worker Config mit nodejs_compat, keep_names: false, compatibility_date 2025-12-01
-- **open-next.config.ts**: defineCloudflareConfig()
-- **runtime="edge" entfernt**: OG-Image Route (OpenNext unterstuetzt kein Edge Runtime)
-- **Workers Paid Plan**: Bundle > 3 MiB Free-Limit (gzip ~5.2 MiB, Paid erlaubt 10 MiB)
-- **Custom Domain**: wunschkiste.app auf Cloudflare Worker
-- **Google OAuth**: Redirect URI + JavaScript Origin fuer wunschkiste.app aktualisiert
-- **compatibility_date Fix**: 2025-04-01 → 2025-12-01 (MessagePort-Support fuer Next.js)
-- Build gruen, alle Features funktionieren auf Production
-
 
 ## Notizen fuer naechste Session
 
@@ -367,4 +365,6 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **AMAZON_AFFILIATE_TAG**: Muss in Cloudflare Env-Vars gesetzt sein
 - en.json: Englische Uebersetzungen sind Platzhalter
 - **Co-Editor Feature live**: Editoren koennen Produkte verwalten, aber keine Settings aendern oder reservieren
+- **Frontend-Validierung fehlt**: Alle Formulare haben keine clientseitige Validierung -- naechstes Feature
+- **Priority-Feature**: DB-Schema hat neue priority-Spalte -- muss auch auf Production gepusht werden (pnpm db:push mit Neon URL)
 - **Neon-Passwort rotieren**: Production DATABASE_URL war in Session sichtbar (Sicherheitsempfehlung)

@@ -95,7 +95,7 @@ export default async function OgImage({
               fontWeight: 600,
             }}
           >
-            {wishCount} {wishCount === 1 ? "Wunsch" : "Wuensche"}
+            {wishCount} {wishCount === 1 ? "Wunsch" : "Wünsche"}
           </div>
         )}
       </div>

@@ -201,7 +201,12 @@
     "removeEditor": "Remove co-editor",
     "editorAdded": "Co-editor added",
     "editorRemoved": "Co-editor removed",
-    "editWishlist": "Edit wishbox"
+    "editWishlist": "Edit wishbox",
+    "priority": "Priority",
+    "priority1": "Top 1",
+    "priority2": "Top 2",
+    "priority3": "Top 3",
+    "priorityNone": "No priority"
   },
   "visibility": {
     "full": "See everything",
@@ -234,7 +239,10 @@
     "join": "Join wishbox",
     "joinTitle": "Join {title}",
     "coEditor": "Co-editor",
-    "editWishlist": "Edit wishbox"
+    "editWishlist": "Edit wishbox",
+    "priority1": "Top 1",
+    "priority2": "Top 2",
+    "priority3": "Top 3"
   },
   "wishlist": {
     "title": "Wishbox",

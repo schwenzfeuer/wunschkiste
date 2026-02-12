@@ -78,14 +78,14 @@ export async function sendReminderEmail(opts: {
       Noch ${daysLeft} Tage -- ${formattedDate}
     </p>
     <p style="color: #555; line-height: 1.6; margin: 0 0 8px;">
-      Es gibt noch <strong>${openWishesCount}</strong> offene ${openWishesCount === 1 ? "Wunsch" : "Wuensche"} auf der Wunschkiste.
+      Es gibt noch <strong>${openWishesCount}</strong> offene ${openWishesCount === 1 ? "Wunsch" : "Wünsche"} auf der Wunschkiste.
     </p>
     <p style="color: #555; line-height: 1.6; margin: 0;">
-      Schau vorbei und sichere dir einen Wunsch, bevor es zu spaet ist!
+      Schau vorbei und sichere dir einen Wunsch, bevor es zu spät ist!
     </p>
     ${ctaButton(shareUrl, "Wunschkiste ansehen", "accent")}`;
 
-  const footer = "Du erhaeltst diese E-Mail, weil du an einer geteilten Wunschkiste teilnimmst.";
+  const footer = "Du erhältst diese E-Mail, weil du an einer geteilten Wunschkiste teilnimmst.";
 
   await getResend().emails.send({
     from: FROM,
@@ -102,11 +102,11 @@ export async function sendWelcomeEmail(to: string, name: string) {
   const content = `
     <h1 style="font-size: 22px; color: #0042AF; margin: 0 0 16px; font-family: 'Playfair Display', Georgia, serif;">Willkommen, ${firstName}!</h1>
     <p style="color: #555; line-height: 1.6; margin: 0 0 4px;">
-      Schoen, dass du dabei bist! Mit Wunschkiste kannst du Wunschlisten erstellen und mit Familie und Freunden teilen.
+      Schön, dass du dabei bist! Mit Wunschkiste kannst du Wunschlisten erstellen und mit Familie und Freunden teilen.
     </p>
     ${ctaButton(dashboardUrl, "Erste Wunschkiste erstellen", "accent")}`;
 
-  const footer = "Du erhaeltst diese E-Mail, weil du dich bei Wunschkiste registriert hast.";
+  const footer = "Du erhältst diese E-Mail, weil du dich bei Wunschkiste registriert hast.";
 
   await getResend().emails.send({
     from: FROM,
@@ -118,13 +118,13 @@ export async function sendWelcomeEmail(to: string, name: string) {
 
 export async function sendPasswordResetEmail(to: string, url: string) {
   const content = `
-    <h1 style="font-size: 22px; color: #0042AF; margin: 0 0 16px; font-family: 'Playfair Display', Georgia, serif;">Passwort zuruecksetzen</h1>
+    <h1 style="font-size: 22px; color: #0042AF; margin: 0 0 16px; font-family: 'Playfair Display', Georgia, serif;">Passwort zurücksetzen</h1>
     <p style="color: #555; line-height: 1.6; margin: 0 0 4px;">
-      Du hast angefordert, dein Passwort zurueckzusetzen. Klicke auf den Button um ein neues Passwort zu vergeben.
+      Du hast angefordert, dein Passwort zurückzusetzen. Klicke auf den Button um ein neues Passwort zu vergeben.
     </p>
     ${ctaButton(url, "Neues Passwort vergeben")}
     <p style="color: #6B7A99; font-size: 13px; line-height: 1.5; margin: 8px 0 0;">
-      Der Link ist 1 Stunde gueltig.
+      Der Link ist 1 Stunde gültig.
     </p>`;
 
   const footer = "Falls du kein neues Passwort angefordert hast, kannst du diese E-Mail ignorieren.";
@@ -132,7 +132,7 @@ export async function sendPasswordResetEmail(to: string, url: string) {
   await getResend().emails.send({
     from: FROM,
     to,
-    subject: "Passwort zuruecksetzen",
+    subject: "Passwort zurücksetzen",
     html: emailLayout(content, footer),
   });
 }

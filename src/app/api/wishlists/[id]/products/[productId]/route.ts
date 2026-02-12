@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { eq, and } from "drizzle-orm";
+import { eq, and, ne } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db, products } from "@/lib/db";
 import { verifyWishlistAccess } from "@/lib/wishlist-access";
@@ -11,6 +11,7 @@ const updateProductSchema = z.object({
   price: z.string().optional().nullable(),
   currency: z.string().optional(),
   shopName: z.string().optional().nullable(),
+  priority: z.number().int().min(1).max(3).nullable().optional(),
 });
 
 type RouteParams = { params: Promise<{ id: string; productId: string }> };
@@ -71,6 +72,20 @@ export async function PATCH(
       { error: "Invalid input", details: parsed.error.flatten() },
       { status: 400 }
     );
+  }
+
+  // Swap logic: if setting a priority, clear it from any other product in same wishlist
+  if (parsed.data.priority != null) {
+    await db
+      .update(products)
+      .set({ priority: null, updatedAt: new Date() })
+      .where(
+        and(
+          eq(products.wishlistId, id),
+          eq(products.priority, parsed.data.priority),
+          ne(products.id, productId)
+        )
+      );
   }
 
   const [product] = await db

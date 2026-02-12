@@ -199,9 +199,14 @@
     "coEditor": "Co-Editor",
     "makeEditor": "Zum Co-Editor machen",
     "removeEditor": "Co-Editor entfernen",
-    "editorAdded": "Co-Editor hinzugefuegt",
+    "editorAdded": "Co-Editor hinzugefügt",
     "editorRemoved": "Co-Editor entfernt",
-    "editWishlist": "Wunschkiste bearbeiten"
+    "editWishlist": "Wunschkiste bearbeiten",
+    "priority": "Priorität",
+    "priority1": "Top 1",
+    "priority2": "Top 2",
+    "priority3": "Top 3",
+    "priorityNone": "Keine Priorität"
   },
   "visibility": {
     "full": "Alles sehen",
@@ -234,7 +239,10 @@
     "join": "An Wunschkiste teilnehmen",
     "joinTitle": "An {title} teilnehmen",
     "coEditor": "Co-Editor",
-    "editWishlist": "Wunschkiste bearbeiten"
+    "editWishlist": "Wunschkiste bearbeiten",
+    "priority1": "Top 1",
+    "priority2": "Top 2",
+    "priority3": "Top 3"
   },
   "wishlist": {
     "title": "Wunschkiste",
@@ -265,7 +273,7 @@
   "footer": {
     "imprint": "Impressum",
     "privacy": "Datenschutz",
-    "affiliateDisclosure": "Links mit einem Herz sind Affiliate-Links. Bei einem Kauf darueber erhalten wir eine kleine Provision - fuer dich aendert sich nichts."
+    "affiliateDisclosure": "Links mit einem Herz sind Affiliate-Links. Bei einem Kauf darüber erhalten wir eine kleine Provision - für dich ändert sich nichts."
   },
   "legal": {
     "backToHome": "Zurück zur Startseite",

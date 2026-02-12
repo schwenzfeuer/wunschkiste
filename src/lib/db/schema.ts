@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, boolean, decimal, pgEnum, unique } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, boolean, decimal, integer, pgEnum, unique } from "drizzle-orm/pg-core";
 
 export const wishlistThemeEnum = pgEnum("wishlist_theme", [
   "standard",
@@ -108,6 +108,7 @@ export const products = pgTable("products", {
   price: decimal("price", { precision: 10, scale: 2 }),
   currency: text("currency").default("EUR"),
   shopName: text("shop_name"),
+  priority: integer("priority"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
