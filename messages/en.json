@@ -142,7 +142,11 @@
     "editDescriptionLabel": "Description",
     "deleteTitle": "Delete wishbox?",
     "deleteText": "This action cannot be undone. All wishes and reservations will be lost.",
-    "coEditor": "Co-editor"
+    "coEditor": "Co-editor",
+    "leaveTitle": "Leave wishbox?",
+    "leaveDescription": "Your reservations for this wishbox will be deleted.",
+    "leave": "Leave",
+    "leftSuccess": "Wishbox left"
   },
   "newWishlist": {
     "title": "New Wishbox",

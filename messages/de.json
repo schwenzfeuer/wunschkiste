@@ -142,7 +142,11 @@
     "editDescriptionLabel": "Beschreibung",
     "deleteTitle": "Wunschkiste löschen?",
     "deleteText": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Wünsche und Reservierungen gehen verloren.",
-    "coEditor": "Co-Editor"
+    "coEditor": "Co-Editor",
+    "leaveTitle": "Wunschkiste verlassen?",
+    "leaveDescription": "Deine Reservierungen fuer diese Wunschkiste werden geloescht.",
+    "leave": "Verlassen",
+    "leftSuccess": "Wunschkiste verlassen"
   },
   "newWishlist": {
     "title": "Neue Wunschkiste",

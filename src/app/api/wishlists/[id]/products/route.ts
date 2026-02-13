@@ -8,6 +8,7 @@ import { verifyWishlistAccess } from "@/lib/wishlist-access";
 
 const createProductSchema = z.object({
   originalUrl: z.string().url(),
+  resolvedUrl: z.string().url().optional().nullable(),
   title: z.string().min(1).max(200),
   imageUrl: z.string().url().optional().nullable(),
   price: z.string().optional().nullable(),
@@ -105,7 +106,8 @@ export async function POST(
     );
   }
 
-  const affiliateUrl = createAffiliateUrl(parsed.data.originalUrl);
+  const urlForAffiliate = parsed.data.resolvedUrl || parsed.data.originalUrl;
+  const affiliateUrl = createAffiliateUrl(urlForAffiliate);
 
   const [product] = await db
     .insert(products)

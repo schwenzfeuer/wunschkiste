@@ -6,6 +6,7 @@ export interface ProductData {
   price: string | null;
   currency: string | null;
   shopName: string | null;
+  resolvedUrl: string | null;
 }
 
 export async function extractProductData(url: string): Promise<ProductData> {
@@ -25,6 +26,7 @@ export async function extractProductData(url: string): Promise<ProductData> {
       return getEmptyProductData(url);
     }
 
+    const resolvedUrl = response.url;
     const html = await response.text();
     const $ = cheerio.load(html);
 
@@ -69,10 +71,11 @@ export async function extractProductData(url: string): Promise<ProductData> {
 
     return {
       title: cleanText(title),
-      image: makeAbsoluteUrl(image, url),
+      image: makeAbsoluteUrl(image, resolvedUrl),
       price: cleanPrice(price),
       currency,
-      shopName: extractShopName(url),
+      shopName: extractShopName(resolvedUrl),
+      resolvedUrl: resolvedUrl !== url ? resolvedUrl : null,
     };
   } catch (error) {
     console.error("Failed to extract product data:", error);
@@ -165,5 +168,6 @@ function getEmptyProductData(url: string): ProductData {
     price: null,
     currency: "EUR",
     shopName: extractShopName(url),
+    resolvedUrl: null,
   };
 }
