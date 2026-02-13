@@ -45,6 +45,9 @@ yarn-error.log*
 .open-next
 .wrangler
 
+# data exports
+docs/advertiser-directory.csv
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

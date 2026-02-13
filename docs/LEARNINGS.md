@@ -375,6 +375,31 @@ Amazon ist NICHT bei AWIN (eigenes PartnerNet).
 - Kein laufender Kostenpunkt für Publisher
 - Bei jedem Advertiser einzeln bewerben
 
+### Deep-Link-Format (kein API-Call noetig)
+
+**Recherche-Datum:** 13.02.2026
+
+Statt der Link Builder API (20 Calls/min Rate Limit, async) kann man AWIN Deep-Links direkt bauen:
+```
+https://www.awin1.com/cread.php?awinmid={advertiserId}&awinaffid={publisherId}&ued={encodedDestinationUrl}
+```
+
+- `awinmid`: Advertiser-ID (aus dem AWIN-Programm)
+- `awinaffid`: Publisher-ID (eigene ID, hier 2771080)
+- `ued`: URL-encoded Ziel-URL
+
+Vorteile gegenueber Link Builder API: synchron, kein Rate Limit, kein API-Token noetig. Nur Publisher-ID + Advertiser-ID reichen.
+
+### Advertiser-Directory Export (13.02.2026)
+
+AWIN bietet einen CSV-Export aller verfuegbaren Programme (Advertiser Directory). Nuetzliche Spalten fuer Filterung:
+- `primaryRegion` (DE/AT/GB/...)
+- `primarySector` / `subSectors` (Toys & Games, Baby & Toddler, etc.)
+- `awinIndex` (Qualitaetsscore 0-100)
+- `feedEnabled` (yes/no -- ob Produktdaten-Feed verfuegbar)
+- `paymentStatus` (green/amber)
+- `conversionRate`, `epc` (Earnings per Click)
+
 ---
 
 ## Cloudflare Workers + OpenNext Deployment

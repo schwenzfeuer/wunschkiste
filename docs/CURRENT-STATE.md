@@ -1,6 +1,6 @@
 # Current State
 
-> Letzte Aktualisierung: 12.02.2026
+> Letzte Aktualisierung: 13.02.2026
 
 ## Status
 
@@ -45,6 +45,7 @@
 - [x] **Theme-Picker im Editor**: Theme nach Erstellung änderbar (PATCH API)
 - [x] **Dashboard Theme-Cards**: Wunschlisten-Cards zeigen Theme-Hintergrund + Animation
 - [x] **Amazon Affiliate**: ASIN-Extraktion, clean URLs, Tag `wunschkiste-21`
+- [x] **AWIN Affiliate**: Domain-Mapping (73 Shops), Deep-Links via cread.php, Publisher-ID 2771080
 - [x] **Affiliate SEO**: `rel="sponsored nofollow"` auf Affiliate-Links
 - [x] **Locale-aware Navigation**: next-intl `Link`/`useRouter` in allen Seiten (kein Locale-Verlust mehr)
 - [x] **Locale Detection aus**: `localeDetection: false` – kein Browser-basierter Redirect auf `/en` (SEO: Googlebot indexiert DE-Version)
@@ -166,6 +167,8 @@
 - [x] **Refetch-Fix**: refetchOnWindowFocus aus Editor-Queries entfernt, 10s-Polling von Share-Seite entfernt (nur refetchOnWindowFocus bleibt)
 - [x] **Umlaute korrigiert**: ae/oe/ue durch echte Umlaute in de.json, Email-Templates, SEO-Texten, OG-Image
 - [x] **Editor UX**: Card-Klick oeffnet Edit-Dialog, Stern-Button auf Mobile als eigener Button neben Context-Menu, stopPropagation auf Action-Bereiche
+- [x] **AWIN Affiliate-Integration**: Domain-zu-AdvertiserID Mapping (73 Shops), Deep-Link-Generierung via cread.php, Publisher-ID konfiguriert
+- [x] **Co-Editor Icon**: ShieldCheck durch UserCog ersetzt (Dashboard, Editor, Share-Seite)
 
 ## Tech-Stack (installiert)
 
@@ -233,7 +236,7 @@ src/
 ├── lib/
 │   ├── auth/                          # better-auth Config (UUID-Mode)
 │   ├── db/                            # Drizzle Schema & Connection (neon-http)
-│   ├── affiliate/                     # Amazon Tag Integration
+│   ├── affiliate/                     # Amazon + AWIN Affiliate Links
 │   ├── scraper/                       # Cheerio + OpenGraph + JSON-LD
 │   ├── email/                         # Resend Email-Service
 │   ├── storage/                       # Cloudflare R2 Client
@@ -249,10 +252,6 @@ messages/
 ```
 
 ## Naechste Schritte
-
-### AWIN Integration (nach Account-Freischaltung)
-- [ ] Programmes API abrufen → Domain-Mapping aufbauen
-- [ ] Link Builder API integrieren → Affiliate-Links fuer AWIN-Shops generieren
 
 ### Sonstiges
 - [ ] Frontend-Validierung (alle Formulare: Login, Register, Passwort-Reset, Wunschkiste erstellen, Wunsch hinzufuegen/bearbeiten)
@@ -289,13 +288,21 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 - [x] Finaler Projektname: Wunschkiste (Domain: wunschkiste.app)
 - [x] Amazon Associates Account (Tag: `wunschkiste-21`, in .env.local gesetzt)
-- [ ] AWIN Publisher Account (beantragt, warte auf Freischaltung)
+- [x] AWIN Publisher Account (Publisher-ID: 2771080, Programme-Bewerbungen laufen)
 - [x] Google OAuth Credentials (Production: wunschkiste.app)
 - [ ] Facebook App Credentials
 - [x] Neon PostgreSQL (Frankfurt Region, Passwort rotiert 10.02.)
 - [x] Cloudflare Workers Deployment (wunschkiste.app)
 
 ## Letzte Sessions
+
+### 13.02.2026 - AWIN Affiliate-Integration + Icon-Fix
+- **AWIN Advertiser-Analyse**: 2032 Advertiser aus CSV analysiert, 73 relevante Shops fuer Wunschlisten-App identifiziert (Baby/Kinder, Spielzeug, Buecher, Elektronik, Schmuck, Geschenke, Mode)
+- **awin-advertisers.ts**: Domain-zu-AdvertiserID Mapping fuer alle empfohlenen Shops (Etsy, Thalia, babymarkt, Schleich, Samsung, Nike, Jochen Schweizer, etc.)
+- **affiliate/index.ts erweitert**: findAwinAdvertiserId() mit www-Strip + Subdomain-Matching, buildAwinDeepLink() via cread.php-Format
+- **AWIN_PUBLISHER_ID**: 2771080 in .env.local konfiguriert
+- **Build-Fix**: Non-null Assertion in scripts/fix-affiliate-links.ts (AMAZON_TAG Typfehler)
+- **Co-Editor Icon**: ShieldCheck durch UserCog in Dashboard, Editor, Share-Seite ersetzt
 
 ### 12.02.2026 (Abend) - Top-Prioritaet, Refetch-Fix, Umlaute, Editor UX
 - **Top 1/2/3 Prioritaet**: priority-Spalte (integer, nullable) in products, PATCH API mit Swap-Logik (ne Import), Star-Dropdown im Editor (Desktop hover + Mobile eigener Button), Badge (accent) + Priority-first Sortierung auf Share-Seite
@@ -340,31 +347,15 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **Web Share API**: Teilen-Button nutzt navigator.share() auf Mobile (nativer Share-Dialog), Clipboard-Fallback auf Desktop
 - **ESLint-Fix**: `as const` statt `as "/dashboard"` in main-nav.tsx
 
-### 09.02.2026 (Abend) - Share Auth-Flow, Edit-Features, UI-Polish
-- **Share Auto-Save SSR**: Eingeloggte Nicht-Owner werden beim SSR automatisch in saved_wishlists gespeichert (onConflictDoNothing)
-- **Share Auth-Flow**: AuthDialog oeffnet sich automatisch fuer nicht-eingeloggte User, Titel "An [Name] teilnehmen", authDismissed-State, Join-Button nach Dismiss
-- **AuthDialog title-Prop**: Optionales title-Prop, faellt auf t("welcome") zurueck
-- **Toast-Styling**: Brandfarben (--primary/--primary-foreground), Position top-center statt bottom-right
-- **Dashboard Wishlist-Edit**: PencilLine-Icon zwischen Eye und Share, Dialog fuer Titel + Beschreibung
-- **Editor Wishlist-Edit**: Inline-PencilLine am Titel (on hover nach letztem Buchstaben), klickbare Flaeche oeffnet Dialog mit Titel + Beschreibung
-- **PencilLine Icon**: Alle Pencil-Icons durch PencilLine ersetzt (Dashboard + Editor)
-- **Teilnehmer-Button**: Oranger 3D-Button (accent, xs) mit Users-Icon statt plain text
-- **Mobile Badge-Layout**: Badge + "von Name" flex-col auf Mobile, flex-row ab sm (Share + Editor)
-- **Wrangler Custom Domain**: routes-Config in wrangler.jsonc ergaenzt
-- **LEARNINGS**: pnpm run deploy vs pnpm deploy, Custom Domain Config dokumentiert
-
 
 ## Notizen fuer naechste Session
 
 - **App ist LIVE** auf https://wunschkiste.app (Cloudflare Workers + Neon)
 - **Deploy-Command**: `pnpm run deploy` (NICHT `pnpm deploy` -- das ist ein pnpm-eigener Befehl)
 - **Env-Vars**: Im Cloudflare Dashboard unter Workers → wunschkiste → Settings → Variables and Secrets
-- **ArcJet funktioniert** auf Cloudflare Workers (mit compatibility_date >= 2025-12-01)
+- **AWIN deployen**: `AWIN_PUBLISHER_ID=2771080` muss als Cloudflare Secret gesetzt werden, dann neu deployen
+- **AWIN Programme**: Bewerbungen bei ~73 Shops laufen, nach Annahme testen (Produkt mit Partner-URL hinzufuegen, affiliateUrl in DB pruefen)
 - **Email-Reminders**: GitHub Actions Cron taeglich 09:00 UTC, CRON_API_KEY als GitHub Secret + Cloudflare Env-Var
-- **Nachrichten-Feature (reservations.message)**: DB-Spalte existiert noch, UI entfernt
-- **AMAZON_AFFILIATE_TAG**: Muss in Cloudflare Env-Vars gesetzt sein
-- en.json: Englische Uebersetzungen sind Platzhalter
-- **Co-Editor Feature live**: Editoren koennen Produkte verwalten, aber keine Settings aendern oder reservieren
 - **Frontend-Validierung fehlt**: Alle Formulare haben keine clientseitige Validierung -- naechstes Feature
 - **Priority-Feature**: DB-Schema hat neue priority-Spalte -- muss auch auf Production gepusht werden (pnpm db:push mit Neon URL)
-- **Neon-Passwort rotieren**: Production DATABASE_URL war in Session sichtbar (Sicherheitsempfehlung)
+- en.json: Englische Uebersetzungen sind Platzhalter

@@ -6,7 +6,7 @@ import { useRouter, Link } from "@/i18n/routing";
 import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Gift, Share2, Trash2, Eye, PencilLine, Check, Calendar, Users, ShieldCheck } from "lucide-react";
+import { Plus, Gift, Share2, Trash2, Eye, PencilLine, Check, Calendar, Users, UserCog, LogOut } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -93,6 +93,7 @@ export default function DashboardContent() {
   const loading = wishlistsLoading || sharedLoading;
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [leaveId, setLeaveId] = useState<string | null>(null);
   const [editWishlist, setEditWishlist] = useState<Wishlist | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
@@ -112,6 +113,20 @@ export default function DashboardContent() {
       toast.success(t("deleted"));
     }
     setDeleteId(null);
+  }
+
+  async function handleLeave() {
+    if (!leaveId) return;
+    const response = await fetch("/api/wishlists/shared/leave", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ wishlistId: leaveId }),
+    });
+    if (response.ok) {
+      await queryClient.invalidateQueries({ queryKey: ["wishlists", "shared"] });
+      toast.success(t("leftSuccess"));
+    }
+    setLeaveId(null);
   }
 
   function openEditWishlist(wishlist: Wishlist) {
@@ -323,7 +338,7 @@ export default function DashboardContent() {
                         <h3 className="font-medium truncate">{sw.title}</h3>
                         {sw.role === "editor" && (
                           <Badge variant="secondary" className="text-xs">
-                            <ShieldCheck className="mr-1 size-3" />
+                            <UserCog className="mr-1 size-3" />
                             {t("coEditor")}
                           </Badge>
                         )}
@@ -364,6 +379,14 @@ export default function DashboardContent() {
                         {t("bought", { count: sw.myBoughtCount })}
                       </Badge>
                     )}
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={(e) => { e.preventDefault(); setLeaveId(sw.id); }}
+                      className="text-foreground/40 hover:text-destructive sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100"
+                    >
+                      <LogOut className="size-4" />
+                    </Button>
                   </div>
                 </Link>
               ))}
@@ -419,6 +442,17 @@ export default function DashboardContent() {
         cancelLabel={tCommon("cancel")}
         variant="destructive"
         onConfirm={handleDelete}
+      />
+
+      <ConfirmationDialog
+        open={leaveId !== null}
+        onOpenChange={(open) => { if (!open) setLeaveId(null); }}
+        title={t("leaveTitle")}
+        description={t("leaveDescription")}
+        confirmLabel={t("leave")}
+        cancelLabel={tCommon("cancel")}
+        variant="destructive"
+        onConfirm={handleLeave}
       />
     </main>
   );

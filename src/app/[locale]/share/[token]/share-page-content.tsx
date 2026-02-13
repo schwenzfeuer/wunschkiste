@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ProductImage } from "@/components/product-image";
 import { AuthDialog } from "@/components/auth-dialog";
-import { Gift, Check, ShoppingBag, Calendar, Undo2, Heart, Bookmark, ExternalLink, PencilLine, ShieldCheck, Star } from "lucide-react";
+import { Gift, Check, ShoppingBag, Calendar, Undo2, Heart, Bookmark, ExternalLink, PencilLine, UserCog, Star } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { ChristmasDecorations, ChristmasHeaderStar, ChristmasEmptyState } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
@@ -247,7 +247,7 @@ export default function SharePageContent({
           {isEditor && (
             <div className="mt-4 flex items-center justify-center gap-3">
               <Badge variant="secondary">
-                <ShieldCheck className="mr-1 size-3" />
+                <UserCog className="mr-1 size-3" />
                 {t("coEditor")}
               </Badge>
               <Link href={{ pathname: "/wishlist/[id]", params: { id: wishlist.id } }}>

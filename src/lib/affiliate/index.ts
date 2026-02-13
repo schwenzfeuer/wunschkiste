@@ -1,16 +1,56 @@
+import { AWIN_ADVERTISERS } from "./awin-advertisers";
+
 const AMAZON_TAG = process.env.AMAZON_AFFILIATE_TAG;
+const AWIN_PUBLISHER_ID = process.env.AWIN_PUBLISHER_ID;
 
 export type AffiliateNetwork = "amazon" | "awin" | null;
+
+function isAmazonHost(hostname: string): boolean {
+  return (
+    /^(www\.)?amazon\.[a-z.]+$/.test(hostname) ||
+    /^amzn\.(to|eu)$/.test(hostname)
+  );
+}
+
+/**
+ * Finds the AWIN advertiser ID for a given hostname.
+ * Tries exact match first, then strips "www." prefix,
+ * then checks if any registered domain is a suffix of the hostname
+ * (handles subdomains like "de.schleich-s.com").
+ */
+function findAwinAdvertiserId(hostname: string): number | null {
+  // Exact match
+  if (hostname in AWIN_ADVERTISERS) {
+    return AWIN_ADVERTISERS[hostname];
+  }
+
+  // Strip www.
+  const withoutWww = hostname.replace(/^www\./, "");
+  if (withoutWww in AWIN_ADVERTISERS) {
+    return AWIN_ADVERTISERS[withoutWww];
+  }
+
+  // Subdomain match: check if hostname ends with a registered domain
+  for (const [domain, advertiserId] of Object.entries(AWIN_ADVERTISERS)) {
+    if (hostname.endsWith(`.${domain}`) || hostname === domain) {
+      return advertiserId;
+    }
+  }
+
+  return null;
+}
 
 export function detectAffiliateNetwork(url: string): AffiliateNetwork {
   try {
     const hostname = new URL(url).hostname.toLowerCase();
 
-    if (/amazon\.(de|com|co\.uk|fr|it|es)|amzn\.to/.test(hostname)) {
+    if (isAmazonHost(hostname)) {
       return "amazon";
     }
 
-    // TODO: Add AWIN partner domains (after account approval)
+    if (findAwinAdvertiserId(hostname) !== null) {
+      return "awin";
+    }
 
     return null;
   } catch {
@@ -19,28 +59,52 @@ export function detectAffiliateNetwork(url: string): AffiliateNetwork {
 }
 
 export function createAffiliateUrl(url: string): string {
-  const network = detectAffiliateNetwork(url);
+  try {
+    const hostname = new URL(url).hostname.toLowerCase();
 
-  if (network === "amazon" && AMAZON_TAG) {
-    return buildCleanAmazonUrl(url, AMAZON_TAG);
+    // Amazon
+    if (isAmazonHost(hostname) && AMAZON_TAG) {
+      return buildCleanAmazonUrl(url, AMAZON_TAG);
+    }
+
+    // AWIN deep link
+    const advertiserId = findAwinAdvertiserId(hostname);
+    if (advertiserId && AWIN_PUBLISHER_ID) {
+      return buildAwinDeepLink(url, advertiserId, AWIN_PUBLISHER_ID);
+    }
+
+    return url;
+  } catch {
+    return url;
   }
+}
 
-  // TODO: Implement AWIN Link Builder API
-
-  return url;
+/**
+ * Builds an AWIN deep link using the cread.php redirect.
+ * Format: https://www.awin1.com/cread.php?awinmid={advertiserId}&awinaffid={publisherId}&ued={encodedUrl}
+ */
+function buildAwinDeepLink(
+  destinationUrl: string,
+  advertiserId: number,
+  publisherId: string
+): string {
+  const encoded = encodeURIComponent(destinationUrl);
+  return `https://www.awin1.com/cread.php?awinmid=${advertiserId}&awinaffid=${publisherId}&ued=${encoded}`;
 }
 
 /**
  * Extracts ASIN from Amazon URL and builds a clean affiliate link.
  * Handles: /dp/ASIN, /gp/product/ASIN, /gp/aw/d/ASIN
- * For amzn.to short links: just appends tag (no ASIN to extract).
+ * For short links (amzn.to, amzn.eu): just appends tag (no ASIN to extract).
+ * Short links should ideally be resolved before calling this function.
  */
 function buildCleanAmazonUrl(url: string, tag: string): string {
   try {
     const parsed = new URL(url);
+    const hostname = parsed.hostname.toLowerCase();
 
-    // amzn.to short links — can't extract ASIN, just append tag
-    if (parsed.hostname === "amzn.to") {
+    // Short link domains — can't extract ASIN, just append tag
+    if (/^amzn\.(to|eu)$/.test(hostname)) {
       parsed.searchParams.set("tag", tag);
       return parsed.toString();
     }
@@ -52,9 +116,6 @@ function buildCleanAmazonUrl(url: string, tag: string): string {
       parsed.searchParams.set("tag", tag);
       return parsed.toString();
     }
-
-    // Extract TLD from hostname (amazon.de, amazon.com, etc.)
-    const hostname = parsed.hostname;
 
     // Build clean URL with only the ASIN and tag
     return `https://${hostname}/dp/${asin}?tag=${encodeURIComponent(tag)}`;
@@ -69,6 +130,8 @@ function buildCleanAmazonUrl(url: string, tag: string): string {
  */
 function extractAsin(pathname: string): string | null {
   // Match /dp/ASIN, /gp/product/ASIN, /gp/aw/d/ASIN
-  const match = pathname.match(/\/(?:dp|gp\/product|gp\/aw\/d)\/([A-Z0-9]{10})/i);
+  const match = pathname.match(
+    /\/(?:dp|gp\/product|gp\/aw\/d)\/([A-Z0-9]{10})/i
+  );
   return match ? match[1] : null;
 }

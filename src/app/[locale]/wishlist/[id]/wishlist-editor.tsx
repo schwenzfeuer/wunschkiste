@@ -13,7 +13,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ProductImage } from "@/components/product-image";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, ExternalLink, Share2, Loader2, PencilLine, Calendar as CalendarIcon, X, Check, Bookmark, Users, MoreVertical, ShieldCheck, Star } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Share2, Loader2, PencilLine, Calendar as CalendarIcon, X, Check, Bookmark, Users, MoreVertical, UserCog, Star } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChristmasDecorations } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
@@ -58,6 +58,7 @@ interface ProductData {
   price: string | null;
   currency: string | null;
   shopName: string | null;
+  resolvedUrl: string | null;
 }
 
 interface Participant {
@@ -181,6 +182,7 @@ export default function WishlistEditor({ id }: { id: string }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         originalUrl: newUrl,
+        resolvedUrl: scrapedData?.resolvedUrl,
         title: productTitle,
         imageUrl: scrapedData?.image,
         price: scrapedData?.price,
@@ -367,7 +369,7 @@ export default function WishlistEditor({ id }: { id: string }) {
                 <p className="mt-2 text-foreground/50">{wishlist.description}</p>
               )}
               <Badge variant="secondary" className="mt-2">
-                <ShieldCheck className="mr-1 size-3" />
+                <UserCog className="mr-1 size-3" />
                 {t("coEditor")}
               </Badge>
             </div>
@@ -850,7 +852,7 @@ export default function WishlistEditor({ id }: { id: string }) {
                   <span className="text-sm font-medium">{p.name || t("unknown")}</span>
                   {p.role === "editor" && (
                     <Badge variant="secondary" className="ml-2 text-xs">
-                      <ShieldCheck className="mr-1 size-3" />
+                      <UserCog className="mr-1 size-3" />
                       {t("coEditor")}
                     </Badge>
                   )}
@@ -861,7 +863,7 @@ export default function WishlistEditor({ id }: { id: string }) {
                   onClick={() => handleToggleRole(p.id, p.role)}
                   title={p.role === "editor" ? t("removeEditor") : t("makeEditor")}
                 >
-                  <ShieldCheck className={cn("size-4", p.role === "editor" ? "text-primary" : "text-foreground/30")} />
+                  <UserCog className={cn("size-4", p.role === "editor" ? "text-primary" : "text-foreground/30")} />
                 </Button>
               </div>
             ))}
