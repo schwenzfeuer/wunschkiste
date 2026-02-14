@@ -22,6 +22,26 @@ function getPageType(pathname: string): PageType {
   return "default";
 }
 
+function ToolbarButton({ icon: Icon, label, onClick, active }: {
+  icon: typeof Gift;
+  label: string;
+  onClick: () => void;
+  active?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors whitespace-nowrap",
+        active ? "text-accent" : "text-foreground/60 hover:text-foreground"
+      )}
+    >
+      <Icon className="size-5" />
+      <span className="text-[10px] leading-tight">{label}</span>
+    </button>
+  );
+}
+
 export function MobileToolbar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -90,127 +110,62 @@ export function MobileToolbar() {
     window.dispatchEvent(new CustomEvent("toolbar:dashboard-tab", { detail: tab }));
   }
 
-  const buttons: React.ReactNode[] = [];
+  const navButtons: React.ReactNode[] = [];
+  let actionButton: React.ReactNode = null;
 
   switch (pageType) {
     case "landing":
-      buttons.push(
-        <button
-          key="my-wishlists"
-          onClick={() => router.push("/dashboard")}
-          className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-foreground/60 hover:text-foreground transition-colors"
-          title={t("myWishlists")}
-        >
-          <Gift className="size-5" />
-          <span className="text-[10px] leading-tight">{t("myWishlists")}</span>
-        </button>
+      navButtons.push(
+        <ToolbarButton key="my-wishlists" icon={Gift} label={t("myWishlists")} onClick={() => router.push("/dashboard")} />
       );
       break;
 
     case "dashboard":
-      buttons.push(
-        <button
-          key="mine"
-          onClick={() => handleDashboardTab("mine")}
-          className={cn(
-            "flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors",
-            dashboardTab === "mine" ? "text-accent" : "text-foreground/60 hover:text-foreground"
-          )}
-          title={t("myWishlists")}
-        >
-          <Gift className="size-5" />
-          <span className="text-[10px] leading-tight">{t("myWishlists")}</span>
-        </button>,
-        <button
-          key="friends"
-          onClick={() => handleDashboardTab("friends")}
-          className={cn(
-            "flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors",
-            dashboardTab === "friends" ? "text-accent" : "text-foreground/60 hover:text-foreground"
-          )}
-          title={t("friends")}
-        >
-          <Users className="size-5" />
-          <span className="text-[10px] leading-tight">{t("friends")}</span>
-        </button>,
-        <button
+      navButtons.push(
+        <ToolbarButton key="mine" icon={Gift} label={t("myWishlists")} onClick={() => handleDashboardTab("mine")} active={dashboardTab === "mine"} />,
+        <ToolbarButton key="friends" icon={Users} label={t("friends")} onClick={() => handleDashboardTab("friends")} active={dashboardTab === "friends"} />
+      );
+      actionButton = (
+        <Button
           key="new"
+          variant="accent"
+          size="xs"
           onClick={() => router.push("/wishlist/new")}
-          className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-foreground/60 hover:text-foreground transition-colors"
-          title={t("newWishlist")}
         >
-          <Plus className="size-5" />
-          <span className="text-[10px] leading-tight">{t("newWishlist")}</span>
-        </button>
+          <Plus className="size-3.5" />
+          {t("newWishlist")}
+        </Button>
       );
       break;
 
     case "editor":
-      buttons.push(
-        <button
-          key="my-wishlists"
-          onClick={() => router.push("/dashboard")}
-          className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-foreground/60 hover:text-foreground transition-colors"
-          title={t("myWishlists")}
-        >
-          <Gift className="size-5" />
-          <span className="text-[10px] leading-tight">{t("myWishlists")}</span>
-        </button>,
-        <button
+      navButtons.push(
+        <ToolbarButton key="my-wishlists" icon={Gift} label={t("myWishlists")} onClick={() => router.push("/dashboard")} />
+      );
+      actionButton = (
+        <Button
           key="add-wish"
+          variant="accent"
+          size="xs"
           onClick={() => window.dispatchEvent(new Event("toolbar:add-product"))}
-          className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-foreground/60 hover:text-foreground transition-colors"
-          title={t("addWish")}
         >
-          <Plus className="size-5" />
-          <span className="text-[10px] leading-tight">{t("addWish")}</span>
-        </button>
+          <Plus className="size-3.5" />
+          {t("addWish")}
+        </Button>
       );
       break;
 
     case "share":
-      buttons.push(
-        <button
-          key="home"
-          onClick={() => router.push("/")}
-          className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-foreground/60 hover:text-foreground transition-colors"
-          title={t("home")}
-        >
-          <House className="size-5" />
-          <span className="text-[10px] leading-tight">{t("home")}</span>
-        </button>,
-        <button
-          key="my-wishlists"
-          onClick={() => router.push("/dashboard")}
-          className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-foreground/60 hover:text-foreground transition-colors"
-          title={t("myWishlists")}
-        >
-          <Gift className="size-5" />
-          <span className="text-[10px] leading-tight">{t("myWishlists")}</span>
-        </button>
+      navButtons.push(
+        <ToolbarButton key="home" icon={House} label={t("home")} onClick={() => router.push("/")} />,
+        <ToolbarButton key="my-wishlists" icon={Gift} label={t("myWishlists")} onClick={() => router.push("/dashboard")} />
       );
       break;
 
     default:
-      buttons.push(
-        <button
-          key="home"
-          onClick={() => router.push("/")}
-          className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-foreground/60 hover:text-foreground transition-colors"
-          title={t("home")}
-        >
-          <House className="size-5" />
-          <span className="text-[10px] leading-tight">{t("home")}</span>
-        </button>,
-        <button
-          key="my-wishlists"
-          onClick={() => router.push("/dashboard")}
-          className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-foreground/60 hover:text-foreground transition-colors"
-          title={t("myWishlists")}
-        >
-          <Gift className="size-5" />
-          <span className="text-[10px] leading-tight">{t("myWishlists")}</span>
-        </button>
+      navButtons.push(
+        <ToolbarButton key="home" icon={House} label={t("home")} onClick={() => router.push("/")} />,
+        <ToolbarButton key="my-wishlists" icon={Gift} label={t("myWishlists")} onClick={() => router.push("/dashboard")} />
       );
       break;
   }
@@ -221,12 +176,14 @@ export function MobileToolbar() {
     </div>
   );
 
-  const items = leftHanded ? [avatar, ...buttons] : [...buttons, avatar];
+  const items = leftHanded
+    ? [avatar, ...navButtons, actionButton].filter(Boolean)
+    : [...navButtons, actionButton, avatar].filter(Boolean);
 
   return (
     <div className="sm:hidden">
       <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
-        <div className="flex items-center gap-1 rounded-full border border-border bg-card/95 px-2 py-1 shadow-lg backdrop-blur-sm">
+        <div className="flex items-center gap-1 whitespace-nowrap rounded-full border border-border bg-card/95 px-2 py-1.5 shadow-lg backdrop-blur-sm">
           {items}
         </div>
       </div>
