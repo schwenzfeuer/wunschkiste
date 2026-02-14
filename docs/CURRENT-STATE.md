@@ -1,6 +1,6 @@
 # Current State
 
-> Letzte Aktualisierung: 13.02.2026
+> Letzte Aktualisierung: 14.02.2026
 
 ## Status
 
@@ -169,6 +169,14 @@
 - [x] **Editor UX**: Card-Klick oeffnet Edit-Dialog, Stern-Button auf Mobile als eigener Button neben Context-Menu, stopPropagation auf Action-Bereiche
 - [x] **AWIN Affiliate-Integration**: Domain-zu-AdvertiserID Mapping (73 Shops), Deep-Link-Generierung via cread.php, Publisher-ID konfiguriert
 - [x] **Co-Editor Icon**: ShieldCheck durch UserCog ersetzt (Dashboard, Editor, Share-Seite)
+- [x] **Mobile Toolbar**: Schwebende Pill-Bar am unteren Bildschirmrand (sm:hidden) mit seitenspezifischen Buttons
+- [x] **ProfileMenu**: Aus MainNav extrahiert, wiederverwendbar in Toolbar + Desktop Nav
+- [x] **Linkshänder-Modus**: Toggle im ProfileMenu, spiegelt Toolbar-Reihenfolge (localStorage)
+- [x] **Dashboard Mobile Tabs**: Meine/Freunde-Toggle via Toolbar, bedingte Anzeige der Sektionen
+- [x] **Toolbar Footer-Erkennung**: IntersectionObserver blendet Toolbar aus wenn Footer sichtbar
+- [x] **Scroll-Schutz Editor**: Pointer-Distanz-Check (10px) verhindert versehentliche Taps beim Scrollen
+- [x] **Toolbar Context-Buttons**: 3D accent Buttons fuer Aktionen (Neue Kiste, Wunsch hinzufügen)
+- [x] **Auth-Buttons Mobile hidden**: Login/Register in NavBar auf Mobile ausgeblendet (Toolbar uebernimmt)
 
 ## Tech-Stack (installiert)
 
@@ -296,6 +304,16 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 14.02.2026 - Mobile Toolbar (Pill-Bar)
+- **Mobile Toolbar**: Schwebende Pill-Bar mit seitenspezifischen Buttons (Landing, Dashboard, Editor, Share)
+- **ProfileMenu**: Aus MainNav extrahiert mit Linkshänder-Modus Toggle (localStorage)
+- **Dashboard Mobile Tabs**: Meine/Freunde-Toggle, Header passt sich aktivem Tab an
+- **3D Accent Buttons**: Aktionen (Neue Kiste, Wunsch hinzufügen) als 3D-Buttons
+- **Footer-Erkennung**: IntersectionObserver blendet Toolbar aus wenn Footer sichtbar
+- **Scroll-Schutz**: Pointer-Distanz-Check verhindert versehentliche Taps beim Scrollen
+- **Auth Mobile hidden**: Login/Register-Buttons in NavBar auf Mobile ausgeblendet
+- **Geplant**: Wünsche verbergen (hidden flag) -- Plan fertig, noch nicht implementiert
+
 ### 13.02.2026 - AWIN Affiliate-Integration + Icon-Fix
 - **AWIN Advertiser-Analyse**: 2032 Advertiser aus CSV analysiert, 73 relevante Shops fuer Wunschlisten-App identifiziert (Baby/Kinder, Spielzeug, Buecher, Elektronik, Schmuck, Geschenke, Mode)
 - **awin-advertisers.ts**: Domain-zu-AdvertiserID Mapping fuer alle empfohlenen Shops (Etsy, Thalia, babymarkt, Schleich, Samsung, Nike, Jochen Schweizer, etc.)
@@ -350,12 +368,8 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Notizen fuer naechste Session
 
+- **Wünsche verbergen**: Plan fertig in `/home/kai/.claude/plans/lazy-dazzling-matsumoto.md` -- hidden boolean auf products, Share filtert, Editor dimmt
+- **Noch nicht deployed**: Letzte 3 Commits (Footer-Erkennung, Scroll-Schutz, Dashboard-Tab-Reset) sind pushed aber nicht deployed
 - **App ist LIVE** auf https://wunschkiste.app (Cloudflare Workers + Neon)
-- **Deploy-Command**: `pnpm run deploy` (NICHT `pnpm deploy` -- das ist ein pnpm-eigener Befehl)
-- **Env-Vars**: Im Cloudflare Dashboard unter Workers → wunschkiste → Settings → Variables and Secrets
-- **AWIN deployen**: `AWIN_PUBLISHER_ID=2771080` muss als Cloudflare Secret gesetzt werden, dann neu deployen
-- **AWIN Programme**: Bewerbungen bei ~73 Shops laufen, nach Annahme testen (Produkt mit Partner-URL hinzufuegen, affiliateUrl in DB pruefen)
-- **Email-Reminders**: GitHub Actions Cron taeglich 09:00 UTC, CRON_API_KEY als GitHub Secret + Cloudflare Env-Var
-- **Frontend-Validierung fehlt**: Alle Formulare haben keine clientseitige Validierung -- naechstes Feature
-- **Priority-Feature**: DB-Schema hat neue priority-Spalte -- muss auch auf Production gepusht werden (pnpm db:push mit Neon URL)
+- **Deploy-Command**: `pnpm run deploy` (NICHT `pnpm deploy`)
 - en.json: Englische Uebersetzungen sind Platzhalter
