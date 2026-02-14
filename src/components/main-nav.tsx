@@ -31,7 +31,7 @@ export function MainNav() {
               </div>
             </>
           ) : (
-            <>
+            <div className="hidden sm:flex items-center gap-4">
               <Link
                 href="/login"
                 className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
@@ -41,7 +41,7 @@ export function MainNav() {
               <Link href="/register">
                 <Button size="sm">{t("getStarted")}</Button>
               </Link>
-            </>
+            </div>
           )}
         </div>
       </div>

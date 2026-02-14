@@ -172,7 +172,7 @@ export function MobileToolbar() {
 
   const avatar = (
     <div key="avatar" className="flex items-center px-2">
-      <ProfileMenu session={session} size="xs" />
+      <ProfileMenu session={session} size="sm" />
     </div>
   );
 
