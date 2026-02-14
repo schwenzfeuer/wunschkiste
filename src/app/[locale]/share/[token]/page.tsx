@@ -71,7 +71,7 @@ const getSharedWishlistData = cache(async (token: string) => {
       priority: products.priority,
     })
     .from(products)
-    .where(eq(products.wishlistId, wishlist.id));
+    .where(and(eq(products.wishlistId, wishlist.id), eq(products.hidden, false)));
 
   const productIds = wishlistProducts.map((p) => p.id);
 

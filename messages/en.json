@@ -220,7 +220,10 @@
     "priority1": "Top 1",
     "priority2": "Top 2",
     "priority3": "Top 3",
-    "priorityNone": "No priority"
+    "priorityNone": "No priority",
+    "hide": "Hide",
+    "unhide": "Show",
+    "hiddenBadge": "Hidden"
   },
   "visibility": {
     "full": "See everything",

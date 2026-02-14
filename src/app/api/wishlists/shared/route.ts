@@ -26,7 +26,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .from(savedWishlists)
     .innerJoin(wishlists, eq(savedWishlists.wishlistId, wishlists.id))
     .innerJoin(users, eq(wishlists.userId, users.id))
-    .leftJoin(products, eq(products.wishlistId, wishlists.id))
+    .leftJoin(products, sql`${products.wishlistId} = ${wishlists.id} and ${products.hidden} = false`)
     .leftJoin(
       reservations,
       sql`${reservations.productId} = ${products.id} and ${reservations.userId} = ${savedWishlists.userId}`

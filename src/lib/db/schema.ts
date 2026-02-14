@@ -109,6 +109,7 @@ export const products = pgTable("products", {
   currency: text("currency").default("EUR"),
   shopName: text("shop_name"),
   priority: integer("priority"),
+  hidden: boolean("hidden").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

@@ -12,6 +12,7 @@ const updateProductSchema = z.object({
   currency: z.string().optional(),
   shopName: z.string().optional().nullable(),
   priority: z.number().int().min(1).max(3).nullable().optional(),
+  hidden: z.boolean().optional(),
 });
 
 type RouteParams = { params: Promise<{ id: string; productId: string }> };

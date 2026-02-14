@@ -111,6 +111,7 @@ export default function DashboardContent() {
     function handleTabEvent(e: Event) {
       const detail = (e as CustomEvent<"mine" | "friends">).detail;
       setActiveTab(detail);
+      window.scrollTo({ top: 0 });
     }
     window.addEventListener("toolbar:dashboard-tab", handleTabEvent);
     return () => window.removeEventListener("toolbar:dashboard-tab", handleTabEvent);

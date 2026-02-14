@@ -13,7 +13,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ProductImage } from "@/components/product-image";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, ExternalLink, Share2, Loader2, PencilLine, Calendar as CalendarIcon, X, Check, Bookmark, Users, MoreVertical, UserCog, Star } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Share2, Loader2, PencilLine, Calendar as CalendarIcon, X, Check, Bookmark, Users, MoreVertical, UserCog, Star, EyeOff, Eye } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChristmasDecorations } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
@@ -37,6 +37,7 @@ interface Product {
   currency: string;
   shopName: string | null;
   priority: number | null;
+  hidden: boolean;
   reservationStatus: "reserved" | "bought" | null;
   reservedByName: string | null;
 }
@@ -138,6 +139,7 @@ export default function WishlistEditor({ id }: { id: string }) {
   const [surpriseSpoiled, setSurpriseSpoiled] = useState(false);
   const [eventDate, setEventDate] = useState<Date | undefined>();
   const [ownerVisibility, setOwnerVisibility] = useState<OwnerVisibility>("partial");
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [editWlOpen, setEditWlOpen] = useState(false);
   const [editWlTitle, setEditWlTitle] = useState("");
   const [editWlDescription, setEditWlDescription] = useState("");
@@ -343,6 +345,15 @@ export default function WishlistEditor({ id }: { id: string }) {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ priority }),
+    });
+    await queryClient.invalidateQueries({ queryKey: ["products", id] });
+  }
+
+  async function handleToggleHidden(productId: string, currentHidden: boolean) {
+    await fetch(`/api/wishlists/${id}/products/${productId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hidden: !currentHidden }),
     });
     await queryClient.invalidateQueries({ queryKey: ["products", id] });
   }
@@ -607,7 +618,7 @@ export default function WishlistEditor({ id }: { id: string }) {
             {products.map((product) => (
               <div
                 key={product.id}
-                className="group flex items-center gap-3 rounded-xl border-2 border-border bg-card p-3 transition-colors hover:border-primary/20 sm:gap-4 sm:p-4 cursor-pointer"
+                className={cn("group flex items-center gap-3 rounded-xl border-2 border-border bg-card p-3 transition-colors hover:border-primary/20 sm:gap-4 sm:p-4 cursor-pointer", product.hidden && "opacity-50")}
                 onPointerDown={handlePointerDown}
                 onClick={(e) => handleTapClick(e, () => openEditDialog(product))}
               >
@@ -623,6 +634,12 @@ export default function WishlistEditor({ id }: { id: string }) {
                       <Badge className="bg-accent text-accent-foreground shrink-0">
                         <Star className="mr-1 size-3" />
                         {t(`priority${product.priority}` as "priority1" | "priority2" | "priority3")}
+                      </Badge>
+                    )}
+                    {product.hidden && (
+                      <Badge variant="outline" className="shrink-0">
+                        <EyeOff className="mr-1 size-3" />
+                        {t("hiddenBadge")}
                       </Badge>
                     )}
                   </div>
@@ -674,6 +691,9 @@ export default function WishlistEditor({ id }: { id: string }) {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                  <Button variant="ghost" size="icon-sm" onClick={() => handleToggleHidden(product.id, product.hidden)}>
+                    {product.hidden ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
+                  </Button>
                   <Button variant="ghost" size="icon-sm" onClick={() => openEditDialog(product)}>
                     <PencilLine className="size-4" />
                   </Button>
@@ -696,11 +716,20 @@ export default function WishlistEditor({ id }: { id: string }) {
                   </Button>
                 </div>
 
-                {/* Mobile: Star + Context Menu */}
+                {/* Mobile: Star + Context Menu (controlled, opens on click not pointerdown) */}
                 <div className="sm:hidden shrink-0 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                  <DropdownMenu modal={false}>
+                  <DropdownMenu
+                    modal={false}
+                    open={openMenu === `star-${product.id}`}
+                    onOpenChange={(open) => { if (!open) setOpenMenu(null); }}
+                  >
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon-sm" className={product.priority ? "text-accent" : ""}>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className={product.priority ? "text-accent" : ""}
+                        onClick={() => setOpenMenu(prev => prev === `star-${product.id}` ? null : `star-${product.id}`)}
+                      >
                         <Star className="size-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -720,9 +749,17 @@ export default function WishlistEditor({ id }: { id: string }) {
                       )}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <DropdownMenu modal={false}>
+                  <DropdownMenu
+                    modal={false}
+                    open={openMenu === `ctx-${product.id}`}
+                    onOpenChange={(open) => { if (!open) setOpenMenu(null); }}
+                  >
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon-sm">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => setOpenMenu(prev => prev === `ctx-${product.id}` ? null : `ctx-${product.id}`)}
+                      >
                         <MoreVertical className="size-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -730,6 +767,10 @@ export default function WishlistEditor({ id }: { id: string }) {
                       <DropdownMenuItem onClick={() => openEditDialog(product)}>
                         <PencilLine className="mr-2 size-4" />
                         {tCommon("edit")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleToggleHidden(product.id, product.hidden)}>
+                        {product.hidden ? <Eye className="mr-2 size-4" /> : <EyeOff className="mr-2 size-4" />}
+                        {product.hidden ? t("unhide") : t("hide")}
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <a

@@ -1,10 +1,10 @@
 # Current State
 
-> Letzte Aktualisierung: 14.02.2026
+> Letzte Aktualisierung: 14.02.2026 (Abend)
 
 ## Status
 
-**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 72 Tests gruen, Build gruen. Impressum/Datenschutz vollstaendig.
+**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 72 Tests gruen, Build gruen. Impressum/Datenschutz vollstaendig. Hidden-Flag fuer Wuensche live.
 
 ## Was existiert
 
@@ -177,6 +177,9 @@
 - [x] **Scroll-Schutz Editor**: Pointer-Distanz-Check (10px) verhindert versehentliche Taps beim Scrollen
 - [x] **Toolbar Context-Buttons**: 3D accent Buttons fuer Aktionen (Neue Kiste, Wunsch hinzufügen)
 - [x] **Auth-Buttons Mobile hidden**: Login/Register in NavBar auf Mobile ausgeblendet (Toolbar uebernimmt)
+- [x] **Wuensche verbergen (hidden flag)**: hidden-Spalte in products, PATCH API, Share-API + SSR filtern hidden, Dashboard-Counts schliessen hidden aus, Editor: opacity-50 + "Verborgen"-Badge + EyeOff/Eye Toggle (Desktop hover + Mobile ContextMenu)
+- [x] **Mobile Dropdown Scroll-Fix**: Kontrollierte Dropdowns (open/onOpenChange) mit onClick statt pointerdown -- verhindert ungewolltes Oeffnen beim Scrollen
+- [x] **Dashboard Tab-Wechsel Scroll-Reset**: window.scrollTo({top: 0}) beim Wechsel zwischen Meine/Freunde
 
 ## Tech-Stack (installiert)
 
@@ -304,6 +307,17 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 14.02.2026 (Abend) - Hidden-Flag + Mobile Dropdown Fix
+- **Hidden-Flag fuer Wuensche**: hidden boolean in products-Tabelle, PATCH API erlaubt hidden-Toggle
+- **Share-API + SSR filtern hidden**: eq(products.hidden, false) in API-Route und Server Component
+- **Dashboard-Counts hidden-aware**: totalCount + claimedCount schliessen verborgene Wuensche aus
+- **Freunde-Dashboard hidden-aware**: LEFT JOIN filtert hidden Products
+- **Editor UI**: Verborgene Karten opacity-50 + "Verborgen"-Badge (EyeOff-Icon), Desktop Eye/EyeOff hover-Button, Mobile ContextMenu "Verbergen"/"Sichtbar machen"
+- **Mobile Dropdown Scroll-Fix**: Kontrollierte Dropdowns (open/onOpenChange + onClick) statt Radix pointerdown -- Star + 3-Punkte-Menues oeffnen sich nicht mehr beim Scrollen
+- **Dashboard Tab-Wechsel Scroll-Reset**: window.scrollTo({top: 0}) beim Meine/Freunde-Wechsel
+- **Mehrere Production-Deploys** auf wunschkiste.app
+- **Learning**: Radix DropdownMenu oeffnet auf pointerdown, nicht click -- kontrollierte Dropdowns mit onClick sind der Fix fuer Mobile-Scroll-Probleme
+
 ### 14.02.2026 - Mobile Toolbar (Pill-Bar)
 - **Mobile Toolbar**: Schwebende Pill-Bar mit seitenspezifischen Buttons (Landing, Dashboard, Editor, Share)
 - **ProfileMenu**: Aus MainNav extrahiert mit Linkshänder-Modus Toggle (localStorage)
@@ -312,7 +326,6 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **Footer-Erkennung**: IntersectionObserver blendet Toolbar aus wenn Footer sichtbar
 - **Scroll-Schutz**: Pointer-Distanz-Check verhindert versehentliche Taps beim Scrollen
 - **Auth Mobile hidden**: Login/Register-Buttons in NavBar auf Mobile ausgeblendet
-- **Geplant**: Wünsche verbergen (hidden flag) -- Plan fertig, noch nicht implementiert
 
 ### 13.02.2026 - AWIN Affiliate-Integration + Icon-Fix
 - **AWIN Advertiser-Analyse**: 2032 Advertiser aus CSV analysiert, 73 relevante Shops fuer Wunschlisten-App identifiziert (Baby/Kinder, Spielzeug, Buecher, Elektronik, Schmuck, Geschenke, Mode)
@@ -368,8 +381,8 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Notizen fuer naechste Session
 
-- **Wünsche verbergen**: Plan fertig in `/home/kai/.claude/plans/lazy-dazzling-matsumoto.md` -- hidden boolean auf products, Share filtert, Editor dimmt
-- **Noch nicht deployed**: Letzte 3 Commits (Footer-Erkennung, Scroll-Schutz, Dashboard-Tab-Reset) sind pushed aber nicht deployed
+- **Hidden-Flag live**: Wuensche verbergen ist implementiert und deployed. DB-Schema muss noch auf Neon gepusht werden (Passwort rotiert, lokal gepusht)
 - **App ist LIVE** auf https://wunschkiste.app (Cloudflare Workers + Neon)
 - **Deploy-Command**: `pnpm run deploy` (NICHT `pnpm deploy`)
+- **Radix Dropdown Pitfall**: pointerdown statt click -- kontrollierte Dropdowns mit onClick verwenden (siehe LEARNINGS.md)
 - en.json: Englische Uebersetzungen sind Platzhalter

@@ -687,3 +687,36 @@ classNames={{
   button_next: cn(buttonVariants({ variant: "outline" }), "size-7 bg-transparent p-0 opacity-50 hover:opacity-100"),  // KEIN absolute
 }}
 ```
+
+---
+
+## Radix DropdownMenu auf Mobile
+
+**Recherche-Datum:** 14.02.2026
+
+### Problem: pointerdown statt click
+
+Radix DropdownMenu oeffnet auf `pointerdown`, nicht auf `click`. Auf Mobile feuert `pointerdown` sofort bei Beruehrung -- auch beim Scrollen. Das fuehrt dazu, dass Menues sich beim Wischen ueber Buttons oeffnen.
+
+### Fix: Kontrollierte Dropdowns mit onClick
+
+```typescript
+const [openMenu, setOpenMenu] = useState<string | null>(null);
+
+<DropdownMenu
+  modal={false}
+  open={openMenu === `ctx-${product.id}`}
+  onOpenChange={(open) => { if (!open) setOpenMenu(null); }}
+>
+  <DropdownMenuTrigger asChild>
+    <Button onClick={() => setOpenMenu(prev =>
+      prev === `ctx-${product.id}` ? null : `ctx-${product.id}`
+    )}>
+      <MoreVertical />
+    </Button>
+  </DropdownMenuTrigger>
+  ...
+</DropdownMenu>
+```
+
+Wichtig: `onOpenChange` wird nur zum Schliessen verwendet (Klick ausserhalb, Escape, Item-Auswahl). Das Oeffnen passiert ausschliesslich ueber `onClick` auf dem Button. Mobile Browser feuern `click` nicht bei Scroll-Gesten, daher oeffnen sich die Menues nicht mehr beim Scrollen.

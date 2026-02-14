@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { nanoid } from "nanoid";
-import { eq, inArray, sql, count } from "drizzle-orm";
+import { eq, and, inArray, sql, count } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db, wishlists, products, reservations, savedWishlists, users, wishlistThemeEnum, ownerVisibilityEnum } from "@/lib/db";
 
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             claimedCount: count(reservations.id),
           })
           .from(reservations)
-          .innerJoin(products, eq(products.id, reservations.productId))
+          .innerJoin(products, and(eq(products.id, reservations.productId), eq(products.hidden, false)))
           .where(inArray(products.wishlistId, wishlistIds))
           .groupBy(products.wishlistId)
       : [];
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             totalCount: count(products.id),
           })
           .from(products)
-          .where(inArray(products.wishlistId, wishlistIds))
+          .where(and(inArray(products.wishlistId, wishlistIds), eq(products.hidden, false)))
           .groupBy(products.wishlistId)
       : [];
 
