@@ -89,6 +89,12 @@ export function MobileToolbar() {
     return () => window.removeEventListener("toolbar:dashboard-tab-changed", handleTabEvent);
   }, []);
 
+  useEffect(() => {
+    if (getPageType(pathname) === "dashboard") {
+      setDashboardTab("mine");
+    }
+  }, [pathname]);
+
   const handleAuthSuccess = useCallback(() => {
     setAuthOpen(false);
     window.location.reload();
