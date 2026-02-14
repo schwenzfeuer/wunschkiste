@@ -177,8 +177,8 @@ export function MobileToolbar() {
   );
 
   const items = leftHanded
-    ? [avatar, ...navButtons, actionButton].filter(Boolean)
-    : [...navButtons, actionButton, avatar].filter(Boolean);
+    ? [actionButton, ...navButtons, avatar].filter(Boolean)
+    : [avatar, ...navButtons, actionButton].filter(Boolean);
 
   return (
     <div className="sm:hidden">
