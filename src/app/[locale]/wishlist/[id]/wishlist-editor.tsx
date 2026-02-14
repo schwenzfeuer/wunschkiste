@@ -68,6 +68,20 @@ interface Participant {
   role: "participant" | "editor";
 }
 
+const pointerStart = { x: 0, y: 0 };
+
+function handlePointerDown(e: React.PointerEvent) {
+  pointerStart.x = e.clientX;
+  pointerStart.y = e.clientY;
+}
+
+function handleTapClick(e: React.MouseEvent, handler: () => void) {
+  const dx = Math.abs(e.clientX - pointerStart.x);
+  const dy = Math.abs(e.clientY - pointerStart.y);
+  if (dx > 10 || dy > 10) return;
+  handler();
+}
+
 export default function WishlistEditor({ id }: { id: string }) {
   const t = useTranslations("editor");
   const tVis = useTranslations("visibility");
@@ -594,7 +608,8 @@ export default function WishlistEditor({ id }: { id: string }) {
               <div
                 key={product.id}
                 className="group flex items-center gap-3 rounded-xl border-2 border-border bg-card p-3 transition-colors hover:border-primary/20 sm:gap-4 sm:p-4 cursor-pointer"
-                onClick={() => openEditDialog(product)}
+                onPointerDown={handlePointerDown}
+                onClick={(e) => handleTapClick(e, () => openEditDialog(product))}
               >
                 <ProductImage
                   src={product.imageUrl}

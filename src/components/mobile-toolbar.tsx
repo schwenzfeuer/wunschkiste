@@ -42,6 +42,24 @@ function ToolbarButton({ icon: Icon, label, onClick, active }: {
   );
 }
 
+function useFooterVisible() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const footer = document.querySelector("footer");
+    if (!footer) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setVisible(entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
+
+  return visible;
+}
+
 export function MobileToolbar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -50,6 +68,7 @@ export function MobileToolbar() {
   const [authOpen, setAuthOpen] = useState(false);
   const [leftHanded, setLeftHanded] = useState(false);
   const [dashboardTab, setDashboardTab] = useState<"mine" | "friends">("mine");
+  const footerVisible = useFooterVisible();
 
   useEffect(() => {
     setLeftHanded(localStorage.getItem(HAND_PREFERENCE_KEY) === "left");
@@ -79,13 +98,13 @@ export function MobileToolbar() {
 
   const pageType = getPageType(pathname);
 
-  // Not authenticated: floating "Loslegen" button
   if (!session) {
     return (
       <div className="sm:hidden">
         <div className={cn(
-          "fixed bottom-6 z-50",
-          leftHanded ? "left-6" : "right-6"
+          "fixed bottom-6 z-50 transition-opacity duration-200",
+          leftHanded ? "left-6" : "right-6",
+          footerVisible && "opacity-0 pointer-events-none"
         )}>
           <Button
             variant="accent"
@@ -181,7 +200,10 @@ export function MobileToolbar() {
 
   return (
     <div className="sm:hidden">
-      <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
+      <div className={cn(
+        "fixed bottom-6 left-1/2 z-50 -translate-x-1/2 transition-opacity duration-200",
+        footerVisible && "opacity-0 pointer-events-none"
+      )}>
         <div className="flex items-center gap-1 whitespace-nowrap rounded-full border border-border bg-card/95 px-2 py-1.5 shadow-lg backdrop-blur-sm">
           {items}
         </div>
