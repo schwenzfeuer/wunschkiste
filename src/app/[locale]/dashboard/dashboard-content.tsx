@@ -190,7 +190,7 @@ export default function DashboardContent() {
       <MainNav />
 
       <div className="mx-auto max-w-3xl px-4 pt-28 pb-12 sm:px-6 sm:pt-36">
-        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className={cn("mb-10 flex flex-col gap-4 sm:flex sm:flex-row sm:items-start sm:justify-between", activeTab !== "mine" && "hidden sm:flex")}>
           <div>
             <h1 className="font-serif text-3xl md:text-4xl">{t("title")}</h1>
             <p className="mt-2 text-foreground/50">
@@ -340,7 +340,7 @@ export default function DashboardContent() {
         </div>
         <div className={cn(activeTab !== "friends" && "hidden sm:block")}>
         {sharedWishlists.length > 0 && (
-          <div className="mt-16 sm:mt-16">
+          <div className={cn(activeTab === "friends" ? "mt-0" : "mt-16", "sm:mt-16")}>
             <h2 className="font-serif text-2xl md:text-3xl">{t("friendsTitle")}</h2>
             <p className="mt-2 mb-6 text-foreground/50">
               {t("friendsSubtitle")}
