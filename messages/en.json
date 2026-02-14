@@ -78,7 +78,16 @@
     "changeImage": "Change image",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "toggleDarkMode": "Toggle dark mode"
+    "toggleDarkMode": "Toggle dark mode",
+    "leftHanded": "Left-handed mode"
+  },
+  "toolbar": {
+    "getStarted": "Get Started",
+    "myWishlists": "My Boxes",
+    "friends": "Friends",
+    "newWishlist": "New Box",
+    "addWish": "Add Wish",
+    "home": "Home"
   },
   "landing": {
     "hero": {

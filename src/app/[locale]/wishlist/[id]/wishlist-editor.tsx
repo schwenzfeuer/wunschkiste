@@ -129,6 +129,14 @@ export default function WishlistEditor({ id }: { id: string }) {
   const [editWlDescription, setEditWlDescription] = useState("");
   const [editWlSaving, setEditWlSaving] = useState(false);
 
+  useEffect(() => {
+    function handleToolbarAdd() {
+      setAddDialogOpen(true);
+    }
+    window.addEventListener("toolbar:add-product", handleToolbarAdd);
+    return () => window.removeEventListener("toolbar:add-product", handleToolbarAdd);
+  }, []);
+
   const visibilityOptions: { value: OwnerVisibility; label: string; description: string }[] = [
     { value: "full", label: tVis("full"), description: tVis("fullDescription") },
     { value: "partial", label: tVis("partial"), description: tVis("partialDescription") },
@@ -386,7 +394,7 @@ export default function WishlistEditor({ id }: { id: string }) {
             </Button>
             <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="accent" size="sm">
+                <Button variant="accent" size="sm" className="hidden sm:flex">
                   <Plus className="size-4" />
                   {t("addWish")}
                 </Button>

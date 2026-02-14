@@ -16,6 +16,7 @@ import { MainNav } from "@/components/main-nav";
 import { ConfirmationDialog } from "@/components/confirmation-dialog";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 import { getCountdownDays } from "@/lib/format";
 
 interface Participant {
@@ -94,6 +95,7 @@ export default function DashboardContent() {
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [leaveId, setLeaveId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"mine" | "friends">("mine");
   const [editWishlist, setEditWishlist] = useState<Wishlist | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
@@ -104,6 +106,24 @@ export default function DashboardContent() {
       router.push("/login");
     }
   }, [session, isPending, router]);
+
+  useEffect(() => {
+    function handleTabEvent(e: Event) {
+      const detail = (e as CustomEvent<"mine" | "friends">).detail;
+      setActiveTab(detail);
+    }
+    window.addEventListener("toolbar:dashboard-tab", handleTabEvent);
+    return () => window.removeEventListener("toolbar:dashboard-tab", handleTabEvent);
+  }, []);
+
+  useEffect(() => {
+    if (!wishlistsLoading && !sharedLoading) {
+      if (wishlists.length === 0 && sharedWishlists.length > 0) {
+        setActiveTab("friends");
+        window.dispatchEvent(new CustomEvent("toolbar:dashboard-tab-changed", { detail: "friends" }));
+      }
+    }
+  }, [wishlistsLoading, sharedLoading, wishlists.length, sharedWishlists.length]);
 
   async function handleDelete() {
     if (!deleteId) return;
@@ -178,7 +198,7 @@ export default function DashboardContent() {
             </p>
           </div>
           {wishlists.length > 0 && (
-            <Link href="/wishlist/new" className="shrink-0">
+            <Link href="/wishlist/new" className="hidden shrink-0 sm:block">
               <Button variant="accent">
                 <Plus className="size-4" />
                 {t("newBox")}
@@ -187,6 +207,7 @@ export default function DashboardContent() {
           )}
         </div>
 
+        <div className={cn(activeTab !== "mine" && "hidden sm:block")}>
         {wishlists.length === 0 ? (
           <div className="py-20 text-center">
             <Gift className="mx-auto size-12 text-foreground/20" />
@@ -316,8 +337,10 @@ export default function DashboardContent() {
             ))}
           </div>
         )}
+        </div>
+        <div className={cn(activeTab !== "friends" && "hidden sm:block")}>
         {sharedWishlists.length > 0 && (
-          <div className="mt-16">
+          <div className="mt-16 sm:mt-16">
             <h2 className="font-serif text-2xl md:text-3xl">{t("friendsTitle")}</h2>
             <p className="mt-2 mb-6 text-foreground/50">
               {t("friendsSubtitle")}
@@ -393,6 +416,7 @@ export default function DashboardContent() {
             </div>
           </div>
         )}
+        </div>
       </div>
 
       <Dialog open={!!editWishlist} onOpenChange={(open) => { if (!open) setEditWishlist(null); }}>

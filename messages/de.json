@@ -78,7 +78,16 @@
     "changeImage": "Bild ändern",
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
-    "toggleDarkMode": "Dark Mode umschalten"
+    "toggleDarkMode": "Dark Mode umschalten",
+    "leftHanded": "Linkshaender-Modus"
+  },
+  "toolbar": {
+    "getStarted": "Loslegen",
+    "myWishlists": "Meine Kisten",
+    "friends": "Freunde",
+    "newWishlist": "Neue Kiste",
+    "addWish": "Wunsch hinzufuegen",
+    "home": "Startseite"
   },
   "landing": {
     "hero": {
