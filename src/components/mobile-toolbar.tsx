@@ -7,7 +7,7 @@ import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { ProfileMenu } from "@/components/profile-menu";
 import { AuthDialog } from "@/components/auth-dialog";
-import { Gift, Users, Plus, House } from "lucide-react";
+import { Gift, Users, Plus, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type PageType = "landing" | "dashboard" | "editor" | "share" | "default";
@@ -157,14 +157,13 @@ export function MobileToolbar() {
 
     case "share":
       navButtons.push(
-        <ToolbarButton key="home" icon={House} label={t("home")} onClick={() => router.push("/")} />,
-        <ToolbarButton key="my-wishlists" icon={Gift} label={t("myWishlists")} onClick={() => router.push("/dashboard")} />
+        <ToolbarButton key="my-wishlists" icon={Gift} label={t("myWishlists")} onClick={() => router.push("/dashboard")} />,
+        <ToolbarButton key="leave" icon={LogOut} label={t("leave")} onClick={() => router.push("/dashboard")} />
       );
       break;
 
     default:
       navButtons.push(
-        <ToolbarButton key="home" icon={House} label={t("home")} onClick={() => router.push("/")} />,
         <ToolbarButton key="my-wishlists" icon={Gift} label={t("myWishlists")} onClick={() => router.push("/dashboard")} />
       );
       break;
