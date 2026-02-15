@@ -14,11 +14,13 @@ import "../globals.css";
 const dmSans = DM_Sans({
   subsets: ["latin"],
   variable: "--font-sans-value",
+  display: "swap",
 });
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-serif-value",
+  display: "swap",
 });
 
 const baseUrl = process.env.BETTER_AUTH_URL || "http://localhost:3000";
