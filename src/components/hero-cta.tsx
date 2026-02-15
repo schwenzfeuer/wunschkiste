@@ -1,6 +1,8 @@
+"use client";
+
 import { Link } from "@/i18n/routing";
+import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
-import { HeroCtaUpgrade } from "@/components/hero-cta-upgrade";
 
 interface HeroCtaProps {
   ctaNew: string;
@@ -8,13 +10,23 @@ interface HeroCtaProps {
 }
 
 export function HeroCta({ ctaNew, ctaExisting }: HeroCtaProps) {
-  return (
-    <HeroCtaUpgrade ctaExisting={ctaExisting}>
-      <Link href="/register">
+  const { data: session } = useSession();
+
+  if (session) {
+    return (
+      <Link href="/dashboard">
         <Button variant="accent" size="xl">
-          {ctaNew}
+          {ctaExisting}
         </Button>
       </Link>
-    </HeroCtaUpgrade>
+    );
+  }
+
+  return (
+    <Link href="/register">
+      <Button variant="accent" size="xl">
+        {ctaNew}
+      </Button>
+    </Link>
   );
 }

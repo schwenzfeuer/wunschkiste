@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { AnimateOnScroll } from "@/components/animate-on-scroll";
-import { LandingNav } from "@/components/landing-nav";
+import { MainNav } from "@/components/main-nav";
 import { HeroCta } from "@/components/hero-cta";
 import { ArrowDown } from "lucide-react";
 import { WunschkisteLogo } from "@/components/wunschkiste-logo";
@@ -64,7 +64,7 @@ function HomeContent() {
   return (
     <main className="min-h-screen">
       {/* Nav */}
-      <LandingNav />
+      <MainNav />
 
       {/* Hero */}
       <section className="flex min-h-[85vh] flex-col items-center justify-center px-4 pt-20 sm:min-h-screen sm:px-6 sm:pt-16">

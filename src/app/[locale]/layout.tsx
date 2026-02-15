@@ -8,7 +8,7 @@ import { QueryProvider } from "@/components/providers/query-provider";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import { SiteFooter } from "@/components/site-footer";
-import { MobileToolbarLazy } from "@/components/mobile-toolbar-lazy";
+import { MobileToolbar } from "@/components/mobile-toolbar";
 import "../globals.css";
 
 const dmSans = DM_Sans({
@@ -106,7 +106,7 @@ export default async function LocaleLayout({
           <NextIntlClientProvider messages={messages}>
             <QueryProvider>
               {children}
-              <MobileToolbarLazy />
+              <MobileToolbar />
               <SiteFooter />
             </QueryProvider>
             <Toaster />
