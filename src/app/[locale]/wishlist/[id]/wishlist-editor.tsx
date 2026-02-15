@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@/i18n/routing";
 import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
@@ -129,11 +129,9 @@ export default function WishlistEditor({ id }: { id: string }) {
   const [scraping, setScraping] = useState(false);
   const [scrapedData, setScrapedData] = useState<ProductData | null>(null);
   const [productTitle, setProductTitle] = useState("");
-  const [adding, setAdding] = useState(false);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editPrice, setEditPrice] = useState("");
-  const [saving, setSaving] = useState(false);
   const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
   const [pendingVisibility, setPendingVisibility] = useState<OwnerVisibility | null>(null);
   const [surpriseSpoiled, setSurpriseSpoiled] = useState(false);
@@ -143,7 +141,6 @@ export default function WishlistEditor({ id }: { id: string }) {
   const [editWlOpen, setEditWlOpen] = useState(false);
   const [editWlTitle, setEditWlTitle] = useState("");
   const [editWlDescription, setEditWlDescription] = useState("");
-  const [editWlSaving, setEditWlSaving] = useState(false);
 
   useEffect(() => {
     function handleToolbarAdd() {
@@ -197,45 +194,50 @@ export default function WishlistEditor({ id }: { id: string }) {
     setScraping(false);
   }
 
-  async function handleAddProduct() {
-    if (!productTitle || !newUrl) return;
-    setAdding(true);
-
-    const response = await fetch(`/api/wishlists/${id}/products`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        originalUrl: newUrl,
-        resolvedUrl: scrapedData?.resolvedUrl,
-        title: productTitle,
-        imageUrl: scrapedData?.image,
-        price: scrapedData?.price,
-        currency: scrapedData?.currency || "EUR",
-        shopName: scrapedData?.shopName,
-      }),
-    });
-
-    if (response.ok) {
+  const addProductMutation = useMutation({
+    mutationFn: async (data: { originalUrl: string; resolvedUrl?: string | null; title: string; imageUrl?: string | null; price?: string | null; currency: string; shopName?: string | null }) => {
+      const response = await fetch(`/api/wishlists/${id}/products`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error("Failed to add product");
+    },
+    onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["products", id] });
       setAddDialogOpen(false);
       setNewUrl("");
       setScrapedData(null);
       setProductTitle("");
-    }
-    setAdding(false);
-  }
+    },
+  });
 
-  async function handleDeleteProduct() {
-    if (!deleteProductId) return;
-    const response = await fetch(`/api/wishlists/${id}/products/${deleteProductId}`, {
-      method: "DELETE",
-    });
-    if (response.ok) {
+  const deleteProductMutation = useMutation({
+    mutationFn: async (productId: string) => {
+      const response = await fetch(`/api/wishlists/${id}/products/${productId}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("Failed to delete product");
+    },
+    onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["products", id] });
       toast.success(t("wishDeleted"));
-    }
-    setDeleteProductId(null);
-  }
+    },
+    onSettled: () => setDeleteProductId(null),
+  });
+
+  const editProductMutation = useMutation({
+    mutationFn: async ({ productId, title, price }: { productId: string; title: string; price: string | null }) => {
+      const response = await fetch(`/api/wishlists/${id}/products/${productId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, price }),
+      });
+      if (!response.ok) throw new Error("Failed to update product");
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["products", id] });
+      setEditProduct(null);
+    },
+  });
 
   function openEditDialog(product: Product) {
     setEditProduct(product);
@@ -243,24 +245,31 @@ export default function WishlistEditor({ id }: { id: string }) {
     setEditPrice(product.price ? product.price.replace(".", ",") : "");
   }
 
-  async function handleEditProduct() {
-    if (!editProduct || !editTitle) return;
-    setSaving(true);
-
-    const response = await fetch(`/api/wishlists/${id}/products/${editProduct.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: editTitle,
-        price: editPrice ? normalizePrice(editPrice) : null,
-      }),
+  function handleAddProduct() {
+    if (!productTitle || !newUrl) return;
+    addProductMutation.mutate({
+      originalUrl: newUrl,
+      resolvedUrl: scrapedData?.resolvedUrl,
+      title: productTitle,
+      imageUrl: scrapedData?.image,
+      price: scrapedData?.price,
+      currency: scrapedData?.currency || "EUR",
+      shopName: scrapedData?.shopName,
     });
+  }
 
-    if (response.ok) {
-      await queryClient.invalidateQueries({ queryKey: ["products", id] });
-      setEditProduct(null);
-    }
-    setSaving(false);
+  function handleDeleteProduct() {
+    if (!deleteProductId) return;
+    deleteProductMutation.mutate(deleteProductId);
+  }
+
+  function handleEditProduct() {
+    if (!editProduct || !editTitle) return;
+    editProductMutation.mutate({
+      productId: editProduct.id,
+      title: editTitle,
+      price: editPrice ? normalizePrice(editPrice) : null,
+    });
   }
 
   async function handleShare() {
@@ -282,25 +291,66 @@ export default function WishlistEditor({ id }: { id: string }) {
     }
   }
 
-  async function handleEventDateChange(date: Date | undefined) {
+  const patchWishlistMutation = useMutation({
+    mutationFn: async (data: Record<string, unknown>) => {
+      const response = await fetch(`/api/wishlists/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error("Failed to update wishlist");
+    },
+  });
+
+  function handleEventDateChange(date: Date | undefined) {
+    const previousDate = eventDate;
     setEventDate(date);
-    await fetch(`/api/wishlists/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ eventDate: date?.toISOString() ?? null }),
-    });
-    await queryClient.invalidateQueries({ queryKey: ["wishlist", id] });
+    patchWishlistMutation.mutate(
+      { eventDate: date?.toISOString() ?? null },
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({ queryKey: ["wishlist", id] });
+        },
+        onError: () => {
+          setEventDate(previousDate);
+          toast.error(t("saveFailed"));
+        },
+      }
+    );
   }
 
-  async function handleVisibilityChange(visibility: OwnerVisibility) {
+  function handleVisibilityChange(visibility: OwnerVisibility) {
+    const previousVisibility = ownerVisibility;
     setOwnerVisibility(visibility);
-    await fetch(`/api/wishlists/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ownerVisibility: visibility }),
-    });
-    await queryClient.invalidateQueries({ queryKey: ["products", id] });
+    patchWishlistMutation.mutate(
+      { ownerVisibility: visibility },
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({ queryKey: ["wishlist", id] });
+          await queryClient.invalidateQueries({ queryKey: ["products", id] });
+        },
+        onError: () => {
+          setOwnerVisibility(previousVisibility);
+          toast.error(t("saveFailed"));
+        },
+      }
+    );
   }
+
+  const editWishlistMutation = useMutation({
+    mutationFn: async ({ title, description }: { title: string; description: string | null }) => {
+      const response = await fetch(`/api/wishlists/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, description }),
+      });
+      if (!response.ok) throw new Error("Failed to update wishlist");
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["wishlist", id] });
+      setEditWlOpen(false);
+    },
+  });
 
   function openEditWishlist() {
     if (!wishlist) return;
@@ -309,53 +359,93 @@ export default function WishlistEditor({ id }: { id: string }) {
     setEditWlOpen(true);
   }
 
-  async function handleEditWishlist() {
+  function handleEditWishlist() {
     if (!wishlist || !editWlTitle.trim()) return;
-    setEditWlSaving(true);
-    const response = await fetch(`/api/wishlists/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: editWlTitle.trim(),
-        description: editWlDescription.trim() || null,
-      }),
+    editWishlistMutation.mutate({
+      title: editWlTitle.trim(),
+      description: editWlDescription.trim() || null,
     });
-    if (response.ok) {
-      await queryClient.invalidateQueries({ queryKey: ["wishlist", id] });
-      setEditWlOpen(false);
-    }
-    setEditWlSaving(false);
   }
 
-  async function handleToggleRole(participantId: string, currentRole: string) {
-    const newRole = currentRole === "editor" ? "participant" : "editor";
-    const response = await fetch(`/api/wishlists/${id}/participants`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: participantId, role: newRole }),
-    });
-    if (response.ok) {
+  const toggleRoleMutation = useMutation({
+    mutationFn: async ({ userId, role }: { userId: string; role: string }) => {
+      const response = await fetch(`/api/wishlists/${id}/participants`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, role }),
+      });
+      if (!response.ok) throw new Error("Failed to toggle role");
+      return role;
+    },
+    onSuccess: async (role) => {
       await queryClient.invalidateQueries({ queryKey: ["participants", id] });
-      toast.success(newRole === "editor" ? t("editorAdded") : t("editorRemoved"));
-    }
+      toast.success(role === "editor" ? t("editorAdded") : t("editorRemoved"));
+    },
+  });
+
+  function handleToggleRole(participantId: string, currentRole: string) {
+    const newRole = currentRole === "editor" ? "participant" : "editor";
+    toggleRoleMutation.mutate({ userId: participantId, role: newRole });
   }
 
-  async function handleSetPriority(productId: string, priority: number | null) {
-    await fetch(`/api/wishlists/${id}/products/${productId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ priority }),
-    });
-    await queryClient.invalidateQueries({ queryKey: ["products", id] });
+  // Optimistic update: Priority
+  const setPriorityMutation = useMutation({
+    mutationFn: async ({ productId, priority }: { productId: string; priority: number | null }) => {
+      const response = await fetch(`/api/wishlists/${id}/products/${productId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priority }),
+      });
+      if (!response.ok) throw new Error("Failed to set priority");
+    },
+    onMutate: async ({ productId, priority }) => {
+      await queryClient.cancelQueries({ queryKey: ["products", id] });
+      const previous = queryClient.getQueryData<Product[]>(["products", id]);
+      queryClient.setQueryData<Product[]>(["products", id], (old) =>
+        old?.map((p) => {
+          if (p.id === productId) return { ...p, priority };
+          if (priority !== null && p.priority === priority) return { ...p, priority: null };
+          return p;
+        })
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(["products", id], context.previous);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["products", id] }),
+  });
+
+  function handleSetPriority(productId: string, priority: number | null) {
+    setPriorityMutation.mutate({ productId, priority });
   }
 
-  async function handleToggleHidden(productId: string, currentHidden: boolean) {
-    await fetch(`/api/wishlists/${id}/products/${productId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ hidden: !currentHidden }),
-    });
-    await queryClient.invalidateQueries({ queryKey: ["products", id] });
+  // Optimistic update: Hidden
+  const toggleHiddenMutation = useMutation({
+    mutationFn: async ({ productId, hidden }: { productId: string; hidden: boolean }) => {
+      const response = await fetch(`/api/wishlists/${id}/products/${productId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hidden }),
+      });
+      if (!response.ok) throw new Error("Failed to toggle hidden");
+    },
+    onMutate: async ({ productId, hidden }) => {
+      await queryClient.cancelQueries({ queryKey: ["products", id] });
+      const previous = queryClient.getQueryData<Product[]>(["products", id]);
+      queryClient.setQueryData<Product[]>(["products", id], (old) =>
+        old?.map((p) => p.id === productId ? { ...p, hidden } : p)
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(["products", id], context.previous);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["products", id] }),
+  });
+
+  function handleToggleHidden(productId: string, currentHidden: boolean) {
+    toggleHiddenMutation.mutate({ productId, hidden: !currentHidden });
   }
 
   const isOwner = wishlist?.role === "owner";
@@ -499,9 +589,9 @@ export default function WishlistEditor({ id }: { id: string }) {
                   </Button>
                   <Button
                     onClick={handleAddProduct}
-                    disabled={!productTitle || !newUrl || adding}
+                    disabled={!productTitle || !newUrl || addProductMutation.isPending}
                   >
-                    {adding ? t("adding") : t("add")}
+                    {addProductMutation.isPending ? t("adding") : t("add")}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -828,8 +918,8 @@ export default function WishlistEditor({ id }: { id: string }) {
               <Button variant="ghost" onClick={() => setEditWlOpen(false)}>
                 {tCommon("cancel")}
               </Button>
-              <Button onClick={handleEditWishlist} disabled={!editWlTitle.trim() || editWlSaving}>
-                {editWlSaving ? tCommon("saving") : tCommon("save")}
+              <Button onClick={handleEditWishlist} disabled={!editWlTitle.trim() || editWishlistMutation.isPending}>
+                {editWishlistMutation.isPending ? tCommon("saving") : tCommon("save")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -868,8 +958,8 @@ export default function WishlistEditor({ id }: { id: string }) {
               <Button variant="ghost" onClick={() => setEditProduct(null)}>
                 {tCommon("cancel")}
               </Button>
-              <Button onClick={handleEditProduct} disabled={!editTitle || saving}>
-                {saving ? tCommon("saving") : tCommon("save")}
+              <Button onClick={handleEditProduct} disabled={!editTitle || editProductMutation.isPending}>
+                {editProductMutation.isPending ? tCommon("saving") : tCommon("save")}
               </Button>
             </DialogFooter>
           </DialogContent>

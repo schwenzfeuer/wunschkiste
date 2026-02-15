@@ -226,7 +226,8 @@
     "priorityNone": "No priority",
     "hide": "Hide",
     "unhide": "Show",
-    "hiddenBadge": "Hidden"
+    "hiddenBadge": "Hidden",
+    "saveFailed": "Failed to save changes"
   },
   "visibility": {
     "full": "See everything",

@@ -1,10 +1,10 @@
 # Current State
 
-> Letzte Aktualisierung: 15.02.2026 (Abend)
+> Letzte Aktualisierung: 15.02.2026 (Nacht)
 
 ## Status
 
-**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 72 Tests gruen, Build gruen. Landing Page Redesign mit PhoneMockups, ConnectedParticipants-Animation und Storytelling-Flow.
+**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 72 Tests gruen, Build gruen. Sync-System komplett ueberarbeitet (useMutation, Optimistic Updates, Race Condition Fix). Live-Sync via Durable Objects WebSocket geplant.
 
 ## Was existiert
 
@@ -38,7 +38,7 @@
 - [x] **MainNav Komponente**: Auth-State-Aware Nav (Login/Register vs. Meine Wunschlisten/Logout)
 - [x] **HeroCta Komponente**: Dynamischer CTA basierend auf Auth-State
 - [x] **Playwright Tests**: 38 API-Tests + 13 E2E-Tests (Auth, Wishlists, Products, Share, Reserve/Buy, Visibility, Landing, Wishlist-Flow)
-- [x] **TanStack Query**: QueryClientProvider + Share-Page refetchOnWindowFocus
+- [x] **TanStack Query**: QueryClientProvider, useMutation mit Optimistic Updates auf allen Seiten
 - [x] **ProductImage**: Wiederverwendbare Komponente mit onError Fallback (Gift-Icon)
 - [x] **Immersive Themes**: CSS-Animationen (Schneeflocken, Konfetti, Shimmer, Wolken) + prefers-reduced-motion
 - [x] **ThemeCard**: Vorschaukarten mit echtem Theme-Hintergrund + Mini-Animationen
@@ -188,6 +188,12 @@
 - [x] **Mobile Sektions-Navigation**: ArrowDown-Buttons am Ende von Problem/Solution/Collect die zur naechsten Sektion scrollen (md:hidden)
 - [x] **wunschkiste-box.svg**: Neues Geschenk-SVG als Zentrum der ConnectedParticipants-Animation
 - [x] **Teilnehmerliste auf Share-Seite**: Gestapelte Avatare + Accent-Button oeffnet Dialog mit Teilnehmerliste (nur fuer eingeloggte User sichtbar)
+- [x] **Race Condition Fix**: UNIQUE Constraint auf reservations.productId + onConflictDoNothing (atomarer Insert)
+- [x] **useMutation Migration**: Alle Mutationen auf allen 3 Seiten (Dashboard, Editor, Share) auf useMutation umgestellt
+- [x] **Optimistic Updates**: Priority/Hidden Toggle (Editor), Reserve/Buy/Unclaim/Upgrade (Share) mit Rollback bei Fehler
+- [x] **Error Handling**: Alle Mutationen mit Toast-Fehlermeldung + Rollback statt Fire-and-Forget
+- [x] **Cache Invalidation Fix**: Visibility-Wechsel invalidiert jetzt beide Cache-Keys (wishlist + products)
+- [x] **Cross-Screen Cache**: refetchOnMount: "always" auf Dashboard, refetchOnWindowFocus global deaktiviert
 
 ## Tech-Stack (installiert)
 
@@ -317,6 +323,16 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 15.02.2026 (Nacht) - Sync-System Ueberarbeitung
+- **Tiefgehende Sync-Analyse**: Race Conditions, Fire-and-Forget, Cache-Isolation, falsche Cache-Keys identifiziert
+- **Race Condition Fix**: UNIQUE Constraint auf reservations.productId + onConflictDoNothing (atomarer Insert statt check-then-insert)
+- **useMutation Migration**: 15 Mutationen auf 3 Seiten (Dashboard: 3, Editor: 9, Share: 3) von manuellem fetch auf useMutation umgestellt
+- **Optimistic Updates**: Priority/Hidden Toggle im Editor, Reserve/Buy/Unclaim/Upgrade auf Share-Seite mit onMutate/onError Rollback
+- **Cache Fixes**: Visibility invalidiert ["wishlist", id] + ["products", id], Dashboard invalidiert ["wishlists", "shared"] bei Edit
+- **refetchOnWindowFocus entfernt**: Global deaktiviert (verursachte ungewollte Reloads beim Tab-Wechsel)
+- **refetchOnMount: "always"**: Dashboard-Queries laden immer frisch (Cross-Screen Konsistenz)
+- **Live-Sync Plan**: Durable Objects WebSocket Architektur geplant (separater Worker rt.wunschkiste.app)
+
 ### 15.02.2026 (Abend) - Teilnehmerliste auf Share-Seite
 - **Participants-Query**: DB-Query (savedWishlists JOIN users) in SSR page.tsx + API route.ts
 - **Nur fuer Eingeloggte**: Nicht-eingeloggte User bekommen leeres participants-Array
@@ -354,27 +370,13 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **Scroll-Schutz**: Pointer-Distanz-Check verhindert versehentliche Taps beim Scrollen
 - **Auth Mobile hidden**: Login/Register-Buttons in NavBar auf Mobile ausgeblendet
 
-### 13.02.2026 - AWIN Affiliate-Integration + Icon-Fix
-- **AWIN Advertiser-Analyse**: 2032 Advertiser aus CSV analysiert, 73 relevante Shops fuer Wunschlisten-App identifiziert (Baby/Kinder, Spielzeug, Buecher, Elektronik, Schmuck, Geschenke, Mode)
-- **awin-advertisers.ts**: Domain-zu-AdvertiserID Mapping fuer alle empfohlenen Shops (Etsy, Thalia, babymarkt, Schleich, Samsung, Nike, Jochen Schweizer, etc.)
-- **affiliate/index.ts erweitert**: findAwinAdvertiserId() mit www-Strip + Subdomain-Matching, buildAwinDeepLink() via cread.php-Format
-- **AWIN_PUBLISHER_ID**: 2771080 in .env.local konfiguriert
-- **Build-Fix**: Non-null Assertion in scripts/fix-affiliate-links.ts (AMAZON_TAG Typfehler)
-- **Co-Editor Icon**: ShieldCheck durch UserCog in Dashboard, Editor, Share-Seite ersetzt
-
-### 12.02.2026 (Abend) - Top-Prioritaet, Refetch-Fix, Umlaute, Editor UX
-- **Top 1/2/3 Prioritaet**: priority-Spalte (integer, nullable) in products, PATCH API mit Swap-Logik (ne Import), Star-Dropdown im Editor (Desktop hover + Mobile eigener Button), Badge (accent) + Priority-first Sortierung auf Share-Seite
-- **Refetch/Polling Fix**: refetchOnWindowFocus aus allen 3 Editor-Queries entfernt (wishlist, products, participants), 10s-Polling (refetchInterval) von Share-Seite entfernt -- nur noch refetchOnWindowFocus + manuelle Invalidation nach Mutationen
-- **Umlaute korrigiert**: ae/oe/ue in de.json (hinzugefuegt, Prioritaet, affiliateDisclosure), Email-Templates (Wuensche, spaet, erhaeltst, Schoen, zuruecksetzen, gueltig), SEO meta-title, OG-Image
-- **Editor UX**: Card-Klick oeffnet Edit-Dialog, stopPropagation auf Desktop/Mobile Action-Bereiche
-- **Share-Page page.tsx**: priority auch im server-side SELECT ergaenzt (SSR-Typ-Kompatibilitaet)
-
 
 
 ## Notizen fuer naechste Session
 
 - **App ist LIVE** auf https://wunschkiste.app (Cloudflare Workers + Neon)
 - **Deploy-Command**: `pnpm run deploy` (NICHT `pnpm deploy`)
-- **Landing Redesign nicht deployed**: Neue Landing Page inkl. ConnectedParticipants + PhoneMockups muss noch deployed werden
-- **Session-Doku**: Details zum Landing-Redesign in `docs/SESSION-2026-02-14-LANDING-REDESIGN.md`
+- **Sync-Aenderungen nicht deployed**: useMutation + Optimistic Updates + Race Condition Fix muessen noch deployed werden
+- **Live-Sync Plan fertig**: Durable Objects WebSocket in `/home/kai/.claude/plans/replicated-napping-key.md` -- bereit zur Implementierung
+- **Live-Sync Architektur**: Separater Worker `wunschkiste-realtime` auf `rt.wunschkiste.app`, WishlistRoom DO mit WebSocket Hibernation, invalidate-Signal an React Query
 - en.json: Englische Uebersetzungen sind Platzhalter

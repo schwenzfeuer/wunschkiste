@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter, Link } from "@/i18n/routing";
 import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
@@ -77,7 +77,7 @@ export default function DashboardContent() {
       return response.json();
     },
     enabled: !!session,
-    refetchOnWindowFocus: true,
+    refetchOnMount: "always",
   });
 
   const { data: sharedWishlists = [], isLoading: sharedLoading } = useQuery<SharedWishlist[]>({
@@ -88,7 +88,7 @@ export default function DashboardContent() {
       return response.json();
     },
     enabled: !!session,
-    refetchOnWindowFocus: true,
+    refetchOnMount: "always",
   });
 
   const loading = wishlistsLoading || sharedLoading;
@@ -99,7 +99,6 @@ export default function DashboardContent() {
   const [editWishlist, setEditWishlist] = useState<Wishlist | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
-  const [editSaving, setEditSaving] = useState(false);
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -126,29 +125,49 @@ export default function DashboardContent() {
     }
   }, [wishlistsLoading, sharedLoading, wishlists.length, sharedWishlists.length]);
 
-  async function handleDelete() {
-    if (!deleteId) return;
-    const response = await fetch(`/api/wishlists/${deleteId}`, { method: "DELETE" });
-    if (response.ok) {
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/wishlists/${id}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("Failed to delete");
+    },
+    onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["wishlists"] });
       toast.success(t("deleted"));
-    }
-    setDeleteId(null);
-  }
+    },
+    onSettled: () => setDeleteId(null),
+  });
 
-  async function handleLeave() {
-    if (!leaveId) return;
-    const response = await fetch("/api/wishlists/shared/leave", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ wishlistId: leaveId }),
-    });
-    if (response.ok) {
+  const leaveMutation = useMutation({
+    mutationFn: async (wishlistId: string) => {
+      const response = await fetch("/api/wishlists/shared/leave", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wishlistId }),
+      });
+      if (!response.ok) throw new Error("Failed to leave");
+    },
+    onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["wishlists", "shared"] });
       toast.success(t("leftSuccess"));
-    }
-    setLeaveId(null);
-  }
+    },
+    onSettled: () => setLeaveId(null),
+  });
+
+  const editMutation = useMutation({
+    mutationFn: async ({ id, title, description }: { id: string; title: string; description: string | null }) => {
+      const response = await fetch(`/api/wishlists/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, description }),
+      });
+      if (!response.ok) throw new Error("Failed to update");
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["wishlists"] });
+      await queryClient.invalidateQueries({ queryKey: ["wishlists", "shared"] });
+      setEditWishlist(null);
+    },
+  });
 
   function openEditWishlist(wishlist: Wishlist) {
     setEditWishlist(wishlist);
@@ -156,22 +175,23 @@ export default function DashboardContent() {
     setEditDescription(wishlist.description || "");
   }
 
-  async function handleEditWishlist() {
+  function handleDelete() {
+    if (!deleteId) return;
+    deleteMutation.mutate(deleteId);
+  }
+
+  function handleLeave() {
+    if (!leaveId) return;
+    leaveMutation.mutate(leaveId);
+  }
+
+  function handleEditWishlist() {
     if (!editWishlist || !editTitle.trim()) return;
-    setEditSaving(true);
-    const response = await fetch(`/api/wishlists/${editWishlist.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: editTitle.trim(),
-        description: editDescription.trim() || null,
-      }),
+    editMutation.mutate({
+      id: editWishlist.id,
+      title: editTitle.trim(),
+      description: editDescription.trim() || null,
     });
-    if (response.ok) {
-      await queryClient.invalidateQueries({ queryKey: ["wishlists"] });
-      setEditWishlist(null);
-    }
-    setEditSaving(false);
   }
 
   if (isPending || loading) {
@@ -451,8 +471,8 @@ export default function DashboardContent() {
             <Button variant="ghost" onClick={() => setEditWishlist(null)}>
               {tCommon("cancel")}
             </Button>
-            <Button onClick={handleEditWishlist} disabled={!editTitle.trim() || editSaving}>
-              {editSaving ? tCommon("saving") : tCommon("save")}
+            <Button onClick={handleEditWishlist} disabled={!editTitle.trim() || editMutation.isPending}>
+              {editMutation.isPending ? tCommon("saving") : tCommon("save")}
             </Button>
           </DialogFooter>
         </DialogContent>

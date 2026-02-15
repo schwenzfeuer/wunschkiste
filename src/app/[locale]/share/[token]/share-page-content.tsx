@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -79,7 +79,6 @@ export default function SharePageContent({
   const [claimDialogOpen, setClaimDialogOpen] = useState(false);
   const [reserveDialogOpen, setReserveDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [submitting, setSubmitting] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [authDismissed, setAuthDismissed] = useState(false);
   const [participantsOpen, setParticipantsOpen] = useState(false);
@@ -93,7 +92,6 @@ export default function SharePageContent({
       return response.json();
     },
     initialData: initialData ?? undefined,
-    refetchOnWindowFocus: true,
   });
 
   useEffect(() => {
@@ -137,56 +135,122 @@ export default function SharePageContent({
     }
   }
 
-  async function handleClaim(status: "reserved" | "bought") {
-    if (!selectedProduct) return;
-    setSubmitting(true);
-
-    const response = await fetch(`/api/share/${token}/reserve`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        productId: selectedProduct.id,
-        status,
-      }),
-    });
-
-    if (response.ok) {
-      await queryClient.invalidateQueries({ queryKey: ["share", token] });
+  // Optimistic update: Claim (reserve/buy)
+  const claimMutation = useMutation({
+    mutationFn: async ({ productId, status }: { productId: string; status: "reserved" | "bought" }) => {
+      const response = await fetch(`/api/share/${token}/reserve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, status }),
+      });
+      if (!response.ok) throw new Error("Failed to reserve");
+      return { productId, status };
+    },
+    onMutate: async ({ productId, status }) => {
+      await queryClient.cancelQueries({ queryKey: ["share", token] });
+      const previous = queryClient.getQueryData<SharedWishlist>(["share", token]);
+      queryClient.setQueryData<SharedWishlist>(["share", token], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          products: old.products.map((p) =>
+            p.id === productId ? { ...p, status, claimedByMe: true, claimedByName: session?.user?.name ?? null } : p
+          ),
+        };
+      });
+      return { previous };
+    },
+    onSuccess: ({ productId, status }) => {
       setClaimDialogOpen(false);
       setReserveDialogOpen(false);
-      setSelectedProduct(null);
-
       if (status === "bought") {
-        const shopUrl = selectedProduct.affiliateUrl || selectedProduct.originalUrl;
-        window.open(shopUrl, "_blank", "noopener");
+        const product = wishlist?.products.find((p) => p.id === productId);
+        if (product) {
+          window.open(product.affiliateUrl || product.originalUrl, "_blank", "noopener");
+        }
       }
-    }
-    setSubmitting(false);
+      setSelectedProduct(null);
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(["share", token], context.previous);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["share", token] }),
+  });
+
+  // Optimistic update: Unclaim
+  const unclaimMutation = useMutation({
+    mutationFn: async (productId: string) => {
+      const response = await fetch(
+        `/api/share/${token}/reserve?productId=${productId}`,
+        { method: "DELETE" }
+      );
+      if (!response.ok) throw new Error("Failed to unclaim");
+    },
+    onMutate: async (productId) => {
+      await queryClient.cancelQueries({ queryKey: ["share", token] });
+      const previous = queryClient.getQueryData<SharedWishlist>(["share", token]);
+      queryClient.setQueryData<SharedWishlist>(["share", token], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          products: old.products.map((p) =>
+            p.id === productId ? { ...p, status: "available" as const, claimedByMe: false, claimedByName: null } : p
+          ),
+        };
+      });
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(["share", token], context.previous);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["share", token] }),
+  });
+
+  // Optimistic update: Upgrade reserved → bought
+  const upgradeMutation = useMutation({
+    mutationFn: async (product: Product) => {
+      const response = await fetch(`/api/share/${token}/reserve`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: product.id }),
+      });
+      if (!response.ok) throw new Error("Failed to upgrade");
+      return product;
+    },
+    onMutate: async (product) => {
+      await queryClient.cancelQueries({ queryKey: ["share", token] });
+      const previous = queryClient.getQueryData<SharedWishlist>(["share", token]);
+      queryClient.setQueryData<SharedWishlist>(["share", token], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          products: old.products.map((p) =>
+            p.id === product.id ? { ...p, status: "bought" as const } : p
+          ),
+        };
+      });
+      return { previous };
+    },
+    onSuccess: (product) => {
+      window.open(product.affiliateUrl || product.originalUrl, "_blank", "noopener");
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(["share", token], context.previous);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["share", token] }),
+  });
+
+  function handleClaim(status: "reserved" | "bought") {
+    if (!selectedProduct) return;
+    claimMutation.mutate({ productId: selectedProduct.id, status });
   }
 
-  async function handleUnclaim(productId: string) {
-    const response = await fetch(
-      `/api/share/${token}/reserve?productId=${productId}`,
-      { method: "DELETE" }
-    );
-
-    if (response.ok) {
-      await queryClient.invalidateQueries({ queryKey: ["share", token] });
-    }
+  function handleUnclaim(productId: string) {
+    unclaimMutation.mutate(productId);
   }
 
-  async function handleUpgradeToBought(product: Product) {
-    const response = await fetch(`/api/share/${token}/reserve`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId: product.id }),
-    });
-
-    if (response.ok) {
-      await queryClient.invalidateQueries({ queryKey: ["share", token] });
-      const shopUrl = product.affiliateUrl || product.originalUrl;
-      window.open(shopUrl, "_blank", "noopener");
-    }
+  function handleUpgradeToBought(product: Product) {
+    upgradeMutation.mutate(product);
   }
 
   if (isLoading) {
@@ -380,11 +444,11 @@ export default function SharePageContent({
                 <DialogFooter className="flex-col gap-2 sm:flex-col">
                   <Button
                     onClick={() => handleClaim("bought")}
-                    disabled={submitting}
+                    disabled={claimMutation.isPending}
                     className="w-full"
                   >
                     {selectedProduct?.affiliateUrl ? <Heart className="size-4" /> : <ShoppingBag className="size-4" />}
-                    {submitting ? "..." : t("buyAndMark")}
+                    {claimMutation.isPending ? "..." : t("buyAndMark")}
                   </Button>
                   <Button
                     variant="ghost"
@@ -425,10 +489,10 @@ export default function SharePageContent({
                 <DialogFooter className="flex-col gap-2 sm:flex-col">
                   <Button
                     onClick={() => handleClaim("reserved")}
-                    disabled={submitting}
+                    disabled={claimMutation.isPending}
                     className="w-full"
                   >
-                    {submitting ? "..." : t("reserve")}
+                    {claimMutation.isPending ? "..." : t("reserve")}
                   </Button>
                   <Button
                     variant="ghost"

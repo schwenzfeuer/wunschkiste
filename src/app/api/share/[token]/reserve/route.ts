@@ -93,18 +93,6 @@ export async function POST(
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
   }
 
-  const [existingReservation] = await db
-    .select({ id: reservations.id })
-    .from(reservations)
-    .where(eq(reservations.productId, parsed.data.productId));
-
-  if (existingReservation) {
-    return NextResponse.json(
-      { error: "Product already reserved" },
-      { status: 409 }
-    );
-  }
-
   const [reservation] = await db
     .insert(reservations)
     .values({
@@ -114,7 +102,15 @@ export async function POST(
       status: parsed.data.status,
       message: parsed.data.message,
     })
+    .onConflictDoNothing({ target: reservations.productId })
     .returning();
+
+  if (!reservation) {
+    return NextResponse.json(
+      { error: "Product already reserved" },
+      { status: 409 }
+    );
+  }
 
   return NextResponse.json(reservation, { status: 201 });
 }

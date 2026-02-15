@@ -118,7 +118,8 @@ export const reservations = pgTable("reservations", {
   id: uuid("id").primaryKey().defaultRandom(),
   productId: uuid("product_id")
     .notNull()
-    .references(() => products.id, { onDelete: "cascade" }),
+    .references(() => products.id, { onDelete: "cascade" })
+    .unique(),
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
