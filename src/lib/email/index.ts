@@ -2,6 +2,10 @@ import { Resend } from "resend";
 
 const FROM = "Wunschkiste <noreply@wunschkiste.app>";
 
+function isTestEmail(to: string) {
+  return to.endsWith("@example.com");
+}
+
 function getResend() {
   const key = process.env.RESEND_API_KEY;
   if (!key) throw new Error("RESEND_API_KEY is not set");
@@ -58,6 +62,7 @@ export async function sendReminderEmail(opts: {
   openWishesCount: number;
   shareUrl: string;
 }) {
+  if (isTestEmail(opts.to)) return;
   const { to, wishlistTitle, eventDate, daysLeft, openWishesCount, shareUrl } = opts;
 
   const formattedDate = eventDate.toLocaleDateString("de-DE", {
@@ -96,6 +101,7 @@ export async function sendReminderEmail(opts: {
 }
 
 export async function sendWelcomeEmail(to: string, name: string) {
+  if (isTestEmail(to)) return;
   const firstName = name.split(" ")[0] || name;
   const dashboardUrl = `${getBaseUrl()}/dashboard`;
 
@@ -117,6 +123,7 @@ export async function sendWelcomeEmail(to: string, name: string) {
 }
 
 export async function sendPasswordResetEmail(to: string, url: string) {
+  if (isTestEmail(to)) return;
   const content = `
     <h1 style="font-size: 22px; color: #0042AF; margin: 0 0 16px; font-family: 'Playfair Display', Georgia, serif;">Passwort zurücksetzen</h1>
     <p style="color: #555; line-height: 1.6; margin: 0 0 4px;">

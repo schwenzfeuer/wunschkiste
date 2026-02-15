@@ -690,6 +690,78 @@ classNames={{
 
 ---
 
+## Cloudflare Workers: Async nach Response
+
+**Recherche-Datum:** 15.02.2026
+
+### Problem
+
+Fire-and-forget Calls (`notifyWishlistRoom(id).catch(() => {})`) werden in Cloudflare Workers nach dem Senden der Response terminiert. Der DO-Aufruf kommt nie an.
+
+### Fix
+
+Alle async Aufrufe die nach dem DB-Write aber vor der Response passieren muessen, MUESSEN awaited werden:
+```typescript
+// FALSCH - wird nach Response terminiert
+notifyWishlistRoom(id).catch(() => {});
+return NextResponse.json(product);
+
+// RICHTIG
+await notifyWishlistRoom(id);
+return NextResponse.json(product);
+```
+
+---
+
+## Affiliate-URL Vergleich bei Resolved URLs
+
+**Recherche-Datum:** 15.02.2026
+
+### Problem
+
+Wenn der Scraper eine URL aufloest (z.B. Redirect), ist `resolvedUrl !== originalUrl`. `createAffiliateUrl` wird mit `resolvedUrl` aufgerufen. Wenn der Shop kein Affiliate-Partner ist, gibt die Funktion die `resolvedUrl` unveraendert zurueck. Der Vergleich `affiliateUrl !== originalUrl` ist dann `true`, obwohl keine Affiliate-Transformation stattfand.
+
+### Fix
+
+```typescript
+const urlForAffiliate = parsed.data.resolvedUrl || parsed.data.originalUrl;
+const affiliateUrl = createAffiliateUrl(urlForAffiliate);
+
+// FALSCH - vergleicht gegen originalUrl
+affiliateUrl: affiliateUrl !== parsed.data.originalUrl ? affiliateUrl : null,
+
+// RICHTIG - vergleicht gegen die URL die an createAffiliateUrl uebergeben wurde
+affiliateUrl: affiliateUrl !== urlForAffiliate ? affiliateUrl : null,
+```
+
+---
+
+## Resend: Test-Emails verbrauchen Quota
+
+**Recherche-Datum:** 15.02.2026
+
+### Problem
+
+Playwright-Tests registrieren pro Testlauf dutzende User (`test-{timestamp}@example.com`). better-auth triggert bei jedem signup die Welcome-Email via Resend. Free Tier hat nur 100 Emails/Tag -- ein voller Testlauf verbraucht das gesamte Kontingent.
+
+### Fix
+
+Guard in allen Email-Funktionen:
+```typescript
+function isTestEmail(to: string) {
+  return to.endsWith("@example.com");
+}
+
+export async function sendWelcomeEmail(to: string, name: string) {
+  if (isTestEmail(to)) return;
+  // ...
+}
+```
+
+`@example.com` ist per RFC 2606 reserviert und nie zustellbar -- sicherer als env-basierte Guards (die bei `reuseExistingServer` nicht greifen).
+
+---
+
 ## Radix DropdownMenu auf Mobile
 
 **Recherche-Datum:** 14.02.2026

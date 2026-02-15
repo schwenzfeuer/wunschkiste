@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { db, products, wishlists, reservations } from "@/lib/db";
 import { createAffiliateUrl } from "@/lib/affiliate";
 import { verifyWishlistAccess } from "@/lib/wishlist-access";
+import { notifyWishlistRoom } from "@/lib/realtime/notify";
 
 const createProductSchema = z.object({
   originalUrl: z.string().url(),
@@ -114,7 +115,7 @@ export async function POST(
     .values({
       wishlistId: id,
       originalUrl: parsed.data.originalUrl,
-      affiliateUrl: affiliateUrl !== parsed.data.originalUrl ? affiliateUrl : null,
+      affiliateUrl: affiliateUrl !== urlForAffiliate ? affiliateUrl : null,
       title: parsed.data.title,
       imageUrl: parsed.data.imageUrl,
       imageUrlOriginal: parsed.data.imageUrl,
@@ -123,6 +124,8 @@ export async function POST(
       shopName: parsed.data.shopName,
     })
     .returning();
+
+  await notifyWishlistRoom(id);
 
   return NextResponse.json(product, { status: 201 });
 }

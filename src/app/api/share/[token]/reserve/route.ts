@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { db, wishlists, products, reservations, savedWishlists } from "@/lib/db";
 import { reservationStatusEnum } from "@/lib/db/schema";
 import { ajReserve } from "@/lib/security/arcjet";
+import { notifyWishlistRoom } from "@/lib/realtime/notify";
 
 const reserveSchema = z.object({
   productId: z.string().uuid(),
@@ -112,6 +113,8 @@ export async function POST(
     );
   }
 
+  await notifyWishlistRoom(wishlist.id);
+
   return NextResponse.json(reservation, { status: 201 });
 }
 
@@ -161,6 +164,8 @@ export async function DELETE(
   }
 
   await db.delete(reservations).where(eq(reservations.id, reservation.id));
+
+  await notifyWishlistRoom(wishlist.id);
 
   return new NextResponse(null, { status: 204 });
 }
@@ -222,6 +227,8 @@ export async function PATCH(
     .set({ status: "bought" })
     .where(eq(reservations.id, reservation.id))
     .returning();
+
+  await notifyWishlistRoom(wishlist.id);
 
   return NextResponse.json(updated);
 }

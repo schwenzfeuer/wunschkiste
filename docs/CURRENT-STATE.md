@@ -1,10 +1,10 @@
 # Current State
 
-> Letzte Aktualisierung: 15.02.2026 (Nacht)
+> Letzte Aktualisierung: 15.02.2026 (Spaet)
 
 ## Status
 
-**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 72 Tests gruen, Build gruen. Sync-System komplett ueberarbeitet (useMutation, Optimistic Updates, Race Condition Fix). Live-Sync via Durable Objects WebSocket geplant.
+**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 72 Tests gruen, Build gruen. Live-Sync via Durable Objects WebSocket implementiert und deployed (Editor + Share-Seite).
 
 ## Was existiert
 
@@ -194,6 +194,10 @@
 - [x] **Error Handling**: Alle Mutationen mit Toast-Fehlermeldung + Rollback statt Fire-and-Forget
 - [x] **Cache Invalidation Fix**: Visibility-Wechsel invalidiert jetzt beide Cache-Keys (wishlist + products)
 - [x] **Cross-Screen Cache**: refetchOnMount: "always" auf Dashboard, refetchOnWindowFocus global deaktiviert
+- [x] **Live-Sync (Durable Objects)**: Separater Worker `wunschkiste-realtime` auf `rt.wunschkiste.app`, WishlistRoom DO mit WebSocket Hibernation, invalidate-Signal an React Query
+- [x] **Live-Sync Editor + Share**: useWishlistSync Hook in Editor (wishlist/products/participants) und Share-Seite (share), notifyWishlistRoom in allen relevanten API-Routes (Products CRUD, Wishlists PATCH/DELETE, Reserve POST/DELETE/PATCH)
+- [x] **Affiliate-URL-Bug gefixt**: Vergleich gegen urlForAffiliate statt originalUrl (eBay-Links bekamen faelschlich Affiliate-Herz)
+- [x] **Resend Quota-Schutz**: isTestEmail() Guard in allen Email-Funktionen -- @example.com Adressen werden nicht an Resend gesendet
 
 ## Tech-Stack (installiert)
 
@@ -323,6 +327,14 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 15.02.2026 (Spaet) - Live-Sync, Affiliate-Fix, Resend-Quota
+- **Live-Sync deployed**: Durable Objects WebSocket Worker auf rt.wunschkiste.app, useWishlistSync Hook in Editor + Share-Seite
+- **Alle API-Routes notifizieren**: Products CRUD, Wishlists PATCH/DELETE, Reserve POST/DELETE/PATCH senden invalidate-Signal via DO
+- **Room-Key = Wishlist ID**: Editor und Share-Seite verbinden sich zum gleichen Room (statt Share Token)
+- **Affiliate-Bug gefixt**: createAffiliateUrl verglich gegen originalUrl statt urlForAffiliate -- eBay-Links (mit resolvedUrl) bekamen faelschlich eine affiliateUrl gesetzt
+- **Resend Quota-Schutz**: isTestEmail(@example.com) Guard in sendWelcomeEmail, sendPasswordResetEmail, sendReminderEmail -- 72 Tests verbrauchten 200% des taeglichen 100-Mail-Kontingents
+- **Cloudflare Workers async**: notifyWishlistRoom muss awaited werden (fire-and-forget wird nach Response terminiert)
+
 ### 15.02.2026 (Nacht) - Sync-System Ueberarbeitung
 - **Tiefgehende Sync-Analyse**: Race Conditions, Fire-and-Forget, Cache-Isolation, falsche Cache-Keys identifiziert
 - **Race Condition Fix**: UNIQUE Constraint auf reservations.productId + onConflictDoNothing (atomarer Insert statt check-then-insert)
@@ -361,22 +373,13 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **Mehrere Production-Deploys** auf wunschkiste.app
 - **Learning**: Radix DropdownMenu oeffnet auf pointerdown, nicht click -- kontrollierte Dropdowns mit onClick sind der Fix fuer Mobile-Scroll-Probleme
 
-### 14.02.2026 - Mobile Toolbar (Pill-Bar)
-- **Mobile Toolbar**: Schwebende Pill-Bar mit seitenspezifischen Buttons (Landing, Dashboard, Editor, Share)
-- **ProfileMenu**: Aus MainNav extrahiert mit Linkshänder-Modus Toggle (localStorage)
-- **Dashboard Mobile Tabs**: Meine/Freunde-Toggle, Header passt sich aktivem Tab an
-- **3D Accent Buttons**: Aktionen (Neue Kiste, Wunsch hinzufügen) als 3D-Buttons
-- **Footer-Erkennung**: IntersectionObserver blendet Toolbar aus wenn Footer sichtbar
-- **Scroll-Schutz**: Pointer-Distanz-Check verhindert versehentliche Taps beim Scrollen
-- **Auth Mobile hidden**: Login/Register-Buttons in NavBar auf Mobile ausgeblendet
-
 
 
 ## Notizen fuer naechste Session
 
 - **App ist LIVE** auf https://wunschkiste.app (Cloudflare Workers + Neon)
 - **Deploy-Command**: `pnpm run deploy` (NICHT `pnpm deploy`)
-- **Sync-Aenderungen nicht deployed**: useMutation + Optimistic Updates + Race Condition Fix muessen noch deployed werden
-- **Live-Sync Plan fertig**: Durable Objects WebSocket in `/home/kai/.claude/plans/replicated-napping-key.md` -- bereit zur Implementierung
-- **Live-Sync Architektur**: Separater Worker `wunschkiste-realtime` auf `rt.wunschkiste.app`, WishlistRoom DO mit WebSocket Hibernation, invalidate-Signal an React Query
+- **Live-Sync ist LIVE**: rt.wunschkiste.app (Durable Objects), Editor + Share-Seite verbunden
+- **Realtime-Worker deployen**: `pnpm run deploy:realtime` (separater Worker, nur bei Aenderungen an realtime/)
+- **1 eBay-Produkt** hat noch falsche affiliateUrl in der DB (manuell loeschen + neu hinzufuegen)
 - en.json: Englische Uebersetzungen sind Platzhalter

@@ -4,6 +4,7 @@ import { eq, and } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db, wishlists, wishlistThemeEnum, ownerVisibilityEnum } from "@/lib/db";
 import { verifyWishlistAccess } from "@/lib/wishlist-access";
+import { notifyWishlistRoom } from "@/lib/realtime/notify";
 
 const updateWishlistSchema = z.object({
   title: z.string().min(1).max(100).optional(),
@@ -88,6 +89,8 @@ export async function PATCH(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  await notifyWishlistRoom(id);
+
   return NextResponse.json(wishlist);
 }
 
@@ -112,6 +115,8 @@ export async function DELETE(
   if (!deleted) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+
+  await notifyWishlistRoom(id);
 
   return new NextResponse(null, { status: 204 });
 }

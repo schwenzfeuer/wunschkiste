@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 import { formatPrice, normalizePrice } from "@/lib/format";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { useWishlistSync } from "@/hooks/use-wishlist-sync";
 import type { OwnerVisibility } from "@/lib/db/schema";
 
 interface Product {
@@ -90,6 +91,8 @@ export default function WishlistEditor({ id }: { id: string }) {
   const router = useRouter();
   const { data: session, isPending } = useSession();
   const queryClient = useQueryClient();
+
+  useWishlistSync(id, [["wishlist", id], ["products", id], ["participants", id]]);
 
   const { data: wishlist, isLoading: wishlistLoading, isError: wishlistError } = useQuery<Wishlist>({
     queryKey: ["wishlist", id],

@@ -1,26 +1,26 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "wunschkiste",
-  "main": ".open-next/worker.js",
+  "name": "wunschkiste-realtime",
+  "main": "src/index.ts",
   "compatibility_date": "2025-12-01",
   "compatibility_flags": ["nodejs_compat"],
-  "assets": {
-    "directory": ".open-next/assets",
-    "binding": "ASSETS"
-  },
   "durable_objects": {
     "bindings": [
       {
         "name": "WISHLIST_ROOM",
-        "class_name": "WishlistRoom",
-        "script_name": "wunschkiste-realtime"
+        "class_name": "WishlistRoom"
       }
     ]
   },
-  "keep_names": false,
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_classes": ["WishlistRoom"]
+    }
+  ],
   "routes": [
     {
-      "pattern": "wunschkiste.app",
+      "pattern": "rt.wunschkiste.app",
       "zone_name": "wunschkiste.app",
       "custom_domain": true
     }

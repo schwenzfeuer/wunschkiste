@@ -14,6 +14,7 @@ import { Link } from "@/i18n/routing";
 import { ChristmasDecorations, ChristmasHeaderStar, ChristmasEmptyState } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
 import { formatPrice, getCountdownDays } from "@/lib/format";
+import { useWishlistSync } from "@/hooks/use-wishlist-sync";
 import { useTranslations } from "next-intl";
 
 interface Product {
@@ -93,6 +94,8 @@ export default function SharePageContent({
     },
     initialData: initialData ?? undefined,
   });
+
+  useWishlistSync(wishlist?.id, [["share", token]]);
 
   useEffect(() => {
     if (wishlist?.id) {
