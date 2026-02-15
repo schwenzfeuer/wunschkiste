@@ -103,6 +103,7 @@ export function MobileToolbar() {
   const pageType = getPageType(pathname);
 
   if (!session) {
+    if (pageType === "landing") return null;
     return (
       <div className="sm:hidden">
         <div className={cn(
@@ -127,6 +128,8 @@ export function MobileToolbar() {
     );
   }
 
+  if (pageType === "landing") return null;
+
   async function handleLeaveWishlist() {
     if (!shareWishlistId) return;
     const response = await fetch("/api/wishlists/shared/leave", {
@@ -150,12 +153,6 @@ export function MobileToolbar() {
   let actionButton: React.ReactNode = null;
 
   switch (pageType) {
-    case "landing":
-      navButtons.push(
-        <ToolbarButton key="my-wishlists" icon={Gift} label={t("myWishlists")} onClick={() => router.push("/dashboard")} />
-      );
-      break;
-
     case "dashboard":
       navButtons.push(
         <ToolbarButton key="mine" icon={Gift} label={t("myWishlists")} onClick={() => handleDashboardTab("mine")} active={dashboardTab === "mine"} />,
