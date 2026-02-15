@@ -1,8 +1,10 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import { Link } from "@/i18n/routing";
 import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
+import { AuthDialog } from "@/components/auth-dialog";
 
 interface HeroCtaProps {
   ctaNew: string;
@@ -11,6 +13,12 @@ interface HeroCtaProps {
 
 export function HeroCta({ ctaNew, ctaExisting }: HeroCtaProps) {
   const { data: session } = useSession();
+  const [authOpen, setAuthOpen] = useState(false);
+
+  const handleAuthSuccess = useCallback(() => {
+    setAuthOpen(false);
+    window.location.reload();
+  }, []);
 
   if (session) {
     return (
@@ -23,10 +31,15 @@ export function HeroCta({ ctaNew, ctaExisting }: HeroCtaProps) {
   }
 
   return (
-    <Link href="/register">
-      <Button variant="accent" size="xl">
+    <>
+      <Button variant="accent" size="xl" onClick={() => setAuthOpen(true)}>
         {ctaNew}
       </Button>
-    </Link>
+      <AuthDialog
+        open={authOpen}
+        onOpenChange={setAuthOpen}
+        onSuccess={handleAuthSuccess}
+      />
+    </>
   );
 }

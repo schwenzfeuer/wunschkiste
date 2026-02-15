@@ -102,8 +102,10 @@ export function MobileToolbar() {
 
   const pageType = getPageType(pathname);
 
+  const isAuthPage = pathname === "/login" || pathname === "/register";
+
   if (!session) {
-    if (pageType === "landing") return null;
+    if (pageType === "landing" || isAuthPage) return null;
     return (
       <div className="sm:hidden">
         <div className={cn(
@@ -128,7 +130,7 @@ export function MobileToolbar() {
     );
   }
 
-  if (pageType === "landing") return null;
+  if (pageType === "landing" || isAuthPage) return null;
 
   async function handleLeaveWishlist() {
     if (!shareWishlistId) return;
