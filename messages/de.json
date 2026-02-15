@@ -260,6 +260,8 @@
     "joinTitle": "An {title} teilnehmen",
     "coEditor": "Co-Editor",
     "editWishlist": "Wunschkiste bearbeiten",
+    "participants": "{count} Teilnehmer",
+    "participantsTitle": "Teilnehmer",
     "priority1": "Top 1",
     "priority2": "Top 2",
     "priority3": "Top 3"

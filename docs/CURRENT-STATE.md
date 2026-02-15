@@ -1,6 +1,6 @@
 # Current State
 
-> Letzte Aktualisierung: 15.02.2026
+> Letzte Aktualisierung: 15.02.2026 (Abend)
 
 ## Status
 
@@ -187,6 +187,7 @@
 - [x] **Landing Storytelling**: Hero -> Problem -> Solution+Animation -> Collect (PhonePair) -> Manage (PhonePair) -> CTA
 - [x] **Mobile Sektions-Navigation**: ArrowDown-Buttons am Ende von Problem/Solution/Collect die zur naechsten Sektion scrollen (md:hidden)
 - [x] **wunschkiste-box.svg**: Neues Geschenk-SVG als Zentrum der ConnectedParticipants-Animation
+- [x] **Teilnehmerliste auf Share-Seite**: Gestapelte Avatare + Accent-Button oeffnet Dialog mit Teilnehmerliste (nur fuer eingeloggte User sichtbar)
 
 ## Tech-Stack (installiert)
 
@@ -316,6 +317,13 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 15.02.2026 (Abend) - Teilnehmerliste auf Share-Seite
+- **Participants-Query**: DB-Query (savedWishlists JOIN users) in SSR page.tsx + API route.ts
+- **Nur fuer Eingeloggte**: Nicht-eingeloggte User bekommen leeres participants-Array
+- **Avatar-Anzeige**: Gestapelte xs-Avatare (max 5) + Accent-Button mit Users-Icon im Share-Header
+- **Teilnehmer-Dialog**: Klick auf Button oeffnet Dialog mit Avatar + Name (wie im Editor, ohne Co-Editor Toggle)
+- **i18n**: participants + participantsTitle Keys im share-Namespace (de + en)
+
 ### 15.02.2026 - Landing Page Redesign + ConnectedParticipants
 - **PhoneMockup/PhonePair**: CSS-only iPhone-Frames fuer Feature-Screenshots (Light + Dark)
 - **6 Landing-Screenshots**: Playwright-generierte WebP-Bilder fuer Collect/Manage/Share Features
@@ -360,33 +368,6 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **Umlaute korrigiert**: ae/oe/ue in de.json (hinzugefuegt, Prioritaet, affiliateDisclosure), Email-Templates (Wuensche, spaet, erhaeltst, Schoen, zuruecksetzen, gueltig), SEO meta-title, OG-Image
 - **Editor UX**: Card-Klick oeffnet Edit-Dialog, stopPropagation auf Desktop/Mobile Action-Bereiche
 - **Share-Page page.tsx**: priority auch im server-side SELECT ergaenzt (SSR-Typ-Kompatibilitaet)
-
-### 12.02.2026 - Countdown-Badge + Lokaler DB-Driver
-- **Countdown-Feature**: getCountdownDays() in format.ts -- berechnet Tage bis eventDate (0-99 oder null)
-- **i18n Keys**: countdown.today/tomorrow/daysLeft in de.json + en.json
-- **Dashboard**: Countdown-Badge (Accent-Farbe) neben Wishlist-Titel (justify-between), Datum als eigene Zeile darunter
-- **Share-Seite**: Countdown-Badge neben formatiertem Datum (oder "Anlass vorbei" Badge bei vergangenem Datum)
-- **Freunde-Wunschkisten**: Gleiche Darstellung wie eigene Kisten
-- **Theme-Emojis entfernt**: themeEmojis Map und Anzeige aus Dashboard-Cards entfernt
-- **Lokaler DB-Driver**: db/index.ts erkennt localhost/127.0.0.1 und nutzt postgres (TCP) statt neon-http (HTTPS)
-- **Test-Daten**: User + Dummy-Wishlists mit verschiedenen eventDate-Szenarien fuer lokales Testing
-
-### 11.02.2026 - Mitverwalter-Rolle (Co-Editor)
-- **DB-Schema**: savedWishlistRoleEnum ("participant"/"editor"), role-Spalte in saved_wishlists
-- **verifyWishlistAccess**: Zentraler Helper ersetzt duplizierte Ownership-Checks in Products/Wishlists API
-- **Products API**: Editoren koennen Produkte verwalten (GET/POST/PATCH/DELETE) via verifyWishlistAccess
-- **Wishlists API**: GET liefert role-Feld, PATCH/DELETE bleiben owner-only
-- **Participants API**: GET liefert role, neuer PATCH-Endpoint fuer Rollen-Management (owner-only)
-- **Reserve-Endpoint**: Editoren werden geblockt (403), wie Owner
-- **Share API + SSR**: isEditor-Flag in Response, Reserve/Buy-Buttons fuer Editoren ausgeblendet
-- **Shared-Wishlists API**: role-Feld in Response fuer Dashboard-Differenzierung
-- **Wishlist-Editor UI**: Bedingte Anzeige (Settings/Titel/Teilnehmer nur Owner), Rollen-Toggle im Teilnehmer-Dialog
-- **Share-Seite**: Edit-Link + Mitverwalter-Badge fuer Editoren
-- **Dashboard**: Editor-Wishlists verlinken zum Editor statt Share-Seite, Mitverwalter-Badge
-- **i18n**: Neue Keys fuer Editor-Feature (de.json + en.json)
-- **18 neue API-Tests**: co-editor.spec.ts (Rollen-Management, Editor-Zugriff, Einschraenkungen)
-- **Bugfix**: Participants-Query nur fuer Owner ausfuehren (404-Fehler fuer Editoren behoben)
-- Deployed auf Production (2x: Initial + Bugfix)
 
 
 

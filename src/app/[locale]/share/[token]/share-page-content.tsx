@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ProductImage } from "@/components/product-image";
 import { AuthDialog } from "@/components/auth-dialog";
-import { Gift, Check, ShoppingBag, Calendar, Undo2, Heart, Bookmark, ExternalLink, PencilLine, UserCog, Star } from "lucide-react";
+import { UserAvatar } from "@/components/user-avatar";
+import { Gift, Check, ShoppingBag, Calendar, Undo2, Heart, Bookmark, ExternalLink, PencilLine, UserCog, Star, Users } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { ChristmasDecorations, ChristmasHeaderStar, ChristmasEmptyState } from "@/components/themes/christmas-decorations";
 import { MainNav } from "@/components/main-nav";
@@ -41,6 +42,7 @@ interface SharedWishlist {
   isOwner: boolean;
   isEditor: boolean;
   isLoggedIn: boolean;
+  participants: { name: string | null; image: string | null }[];
   claimedCount?: number;
   totalCount?: number;
   products: Product[];
@@ -80,6 +82,7 @@ export default function SharePageContent({
   const [submitting, setSubmitting] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [authDismissed, setAuthDismissed] = useState(false);
+  const [participantsOpen, setParticipantsOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<{ product: Product; type: "buy" | "reserve" } | null>(null);
 
   const { data: wishlist, isLoading, isError } = useQuery<SharedWishlist>({
@@ -264,6 +267,29 @@ export default function SharePageContent({
               </Link>
             </div>
           )}
+          {wishlist.participants.length > 0 && (
+            <div className="mt-4 flex items-center justify-center gap-2">
+              <div className="flex -space-x-1.5">
+                {wishlist.participants.slice(0, 5).map((p, i) => (
+                  <UserAvatar
+                    key={i}
+                    name={p.name}
+                    imageUrl={p.image}
+                    size="xs"
+                    className="ring-2 ring-background"
+                  />
+                ))}
+              </div>
+              <Button
+                variant="accent"
+                size="xs"
+                onClick={() => setParticipantsOpen(true)}
+              >
+                <Users className="size-3" />
+                {t("participants", { count: wishlist.participants.length })}
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Join button for unauthenticated users who dismissed the dialog */}
@@ -414,6 +440,23 @@ export default function SharePageContent({
                 </DialogFooter>
               </>
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Participants Dialog */}
+        <Dialog open={participantsOpen} onOpenChange={setParticipantsOpen}>
+          <DialogContent className="sm:max-w-sm">
+            <DialogHeader>
+              <DialogTitle className="font-serif text-xl">{t("participantsTitle")}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3">
+              {wishlist.participants.map((p, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <UserAvatar name={p.name} imageUrl={p.image} size="sm" />
+                  <span className="text-sm font-medium">{p.name || "?"}</span>
+                </div>
+              ))}
+            </div>
           </DialogContent>
         </Dialog>
 

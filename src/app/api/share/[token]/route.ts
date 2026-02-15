@@ -59,6 +59,14 @@ export async function GET(
     isEditor = !!editorCheck;
   }
 
+  const participants = isLoggedIn
+    ? await db
+        .select({ name: users.name, image: users.image })
+        .from(savedWishlists)
+        .innerJoin(users, eq(users.id, savedWishlists.userId))
+        .where(eq(savedWishlists.wishlistId, wishlist.id))
+    : [];
+
   const wishlistProducts = await db
     .select({
       id: products.id,
@@ -109,6 +117,7 @@ export async function GET(
       isOwner,
       isEditor,
       isLoggedIn,
+      participants,
       claimedCount,
       totalCount: wishlistProducts.length,
       products: productsPlain,
@@ -150,6 +159,7 @@ export async function GET(
     isOwner,
     isEditor,
     isLoggedIn,
+    participants,
     products: productsWithReservation,
   });
 }

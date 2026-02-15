@@ -260,6 +260,8 @@
     "joinTitle": "Join {title}",
     "coEditor": "Co-editor",
     "editWishlist": "Edit wishbox",
+    "participants": "{count} participants",
+    "participantsTitle": "Participants",
     "priority1": "Top 1",
     "priority2": "Top 2",
     "priority3": "Top 3"

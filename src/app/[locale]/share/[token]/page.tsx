@@ -58,6 +58,14 @@ const getSharedWishlistData = cache(async (token: string) => {
     isEditor = !!editorCheck;
   }
 
+  const participants = isLoggedIn
+    ? await db
+        .select({ name: users.name, image: users.image })
+        .from(savedWishlists)
+        .innerJoin(users, eq(users.id, savedWishlists.userId))
+        .where(eq(savedWishlists.wishlistId, wishlist.id))
+    : [];
+
   const wishlistProducts = await db
     .select({
       id: products.id,
@@ -100,6 +108,7 @@ const getSharedWishlistData = cache(async (token: string) => {
       isOwner,
       isEditor,
       isLoggedIn,
+      participants,
       claimedCount: productReservations.length,
       totalCount: wishlistProducts.length,
       products: wishlistProducts.map((product) => ({
@@ -124,6 +133,7 @@ const getSharedWishlistData = cache(async (token: string) => {
     isOwner,
     isEditor,
     isLoggedIn,
+    participants,
     products: wishlistProducts.map((product) => {
       const reservation = productReservations.find(
         (r) => r.productId === product.id
