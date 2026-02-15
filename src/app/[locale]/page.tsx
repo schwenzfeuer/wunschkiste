@@ -56,14 +56,6 @@ const features = [
     frontAlt: "Wunsch hinzufuegen Dialog",
     backAlt: "Wunschliste mit Produkten",
   },
-  {
-    key: "manage" as const,
-    frontSrc: "/screenshots/manage-front.webp",
-    backSrc: "/screenshots/manage-back.webp",
-    frontAlt: "Wunschliste verwalten",
-    backAlt: "Wunschliste im Dark Mode",
-    backDark: true,
-  },
 ];
 
 function HomeContent() {
@@ -114,12 +106,14 @@ function HomeContent() {
             <p className="mt-6 text-lg leading-relaxed text-foreground/60">
               {t("landing.problem.text")}
             </p>
-            <a href="#solution" className="mt-8 inline-flex md:hidden">
-              <Button variant="outline" size="lg">
-                <ArrowDown className="size-4" />
-                {t("landing.nextShare")}
-              </Button>
-            </a>
+            <div className="mt-8 flex justify-center md:hidden">
+              <a href="#solution">
+                <Button variant="outline" size="lg">
+                  <ArrowDown className="size-4" />
+                  {t("landing.nextShare")}
+                </Button>
+              </a>
+            </div>
           </div>
         </AnimateOnScroll>
       </section>
@@ -138,24 +132,25 @@ function HomeContent() {
               <p className="mt-6 text-lg leading-relaxed text-foreground/60">
                 {t("landing.solution.text")}
               </p>
-              <a href="#collect" className="mt-8 inline-flex md:hidden">
-                <Button variant="outline" size="lg">
-                  <ArrowDown className="size-4" />
-                  {t("landing.nextCollect")}
-                </Button>
-              </a>
             </div>
             <div className="md:order-2">
               <ConnectedParticipants />
             </div>
           </div>
+          <div className="mt-10 flex justify-center md:hidden">
+            <a href="#collect">
+              <Button variant="outline" size="lg">
+                <ArrowDown className="size-4" />
+                {t("landing.nextCollect")}
+              </Button>
+            </a>
+          </div>
         </AnimateOnScroll>
       </section>
 
-      {/* Features */}
+      {/* Features with images */}
       {features.map((feature, index) => {
         const textFirst = index % 2 === 0;
-        const nextFeature = features[index + 1];
 
         return (
           <section
@@ -176,14 +171,6 @@ function HomeContent() {
                   <p className="mt-6 text-lg leading-relaxed text-foreground/60">
                     {t(`landing.features.${feature.key}.text`)}
                   </p>
-                  {nextFeature && (
-                    <a href={`#${nextFeature.key}`} className="mt-8 inline-flex md:hidden">
-                      <Button variant="outline" size="lg">
-                        <ArrowDown className="size-4" />
-                        {t(`landing.nextManage`)}
-                      </Button>
-                    </a>
-                  )}
                 </div>
 
                 {/* Phone Pair */}
@@ -193,14 +180,38 @@ function HomeContent() {
                     backSrc={feature.backSrc}
                     frontAlt={feature.frontAlt}
                     backAlt={feature.backAlt}
-                    backDark={"backDark" in feature ? feature.backDark : undefined}
                   />
                 </div>
+              </div>
+              <div className="mt-10 flex justify-center md:hidden">
+                <a href="#manage">
+                  <Button variant="outline" size="lg">
+                    <ArrowDown className="size-4" />
+                    {t("landing.nextManage")}
+                  </Button>
+                </a>
               </div>
             </AnimateOnScroll>
           </section>
         );
       })}
+
+      {/* Manage (text-only) */}
+      <section id="manage" className="px-4 py-16 sm:px-6 sm:py-24 md:py-32">
+        <AnimateOnScroll>
+          <div className="mx-auto max-w-2xl">
+            <span className="text-xs font-semibold uppercase tracking-widest text-accent">
+              {t("landing.features.manage.label")}
+            </span>
+            <h2 className="mt-4 font-serif text-3xl leading-snug md:text-5xl md:leading-snug">
+              {t("landing.features.manage.title")}
+            </h2>
+            <p className="mt-6 text-lg leading-relaxed text-foreground/60">
+              {t("landing.features.manage.text")}
+            </p>
+          </div>
+        </AnimateOnScroll>
+      </section>
 
       {/* CTA */}
       <section className="px-4 py-16 sm:px-6 sm:py-24 md:py-32">
