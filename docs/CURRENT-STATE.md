@@ -1,10 +1,10 @@
 # Current State
 
-> Letzte Aktualisierung: 14.02.2026 (Abend)
+> Letzte Aktualisierung: 15.02.2026
 
 ## Status
 
-**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 72 Tests gruen, Build gruen. Impressum/Datenschutz vollstaendig. Hidden-Flag fuer Wuensche live.
+**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 72 Tests gruen, Build gruen. Landing Page Redesign mit PhoneMockups, ConnectedParticipants-Animation und Storytelling-Flow.
 
 ## Was existiert
 
@@ -180,6 +180,13 @@
 - [x] **Wuensche verbergen (hidden flag)**: hidden-Spalte in products, PATCH API, Share-API + SSR filtern hidden, Dashboard-Counts schliessen hidden aus, Editor: opacity-50 + "Verborgen"-Badge + EyeOff/Eye Toggle (Desktop hover + Mobile ContextMenu)
 - [x] **Mobile Dropdown Scroll-Fix**: Kontrollierte Dropdowns (open/onOpenChange) mit onClick statt pointerdown -- verhindert ungewolltes Oeffnen beim Scrollen
 - [x] **Dashboard Tab-Wechsel Scroll-Reset**: window.scrollTo({top: 0}) beim Wechsel zwischen Meine/Freunde
+- [x] **PhoneMockup + PhonePair**: CSS-only iPhone-Frame (Dynamic Island, Bottom Bar) mit versetztem Paar-Layout fuer Feature-Sektionen
+- [x] **Landing Screenshots**: 6 WebP-Screenshots (Playwright) fuer Collect/Manage/Share Features (Light + Dark)
+- [x] **ConnectedParticipants Animation**: 5 schwebende Pill-Profile um zentrales Geschenk-Icon (pomegranate.health inspiriert), 3D-Button-Stil, SVG-Verbindungslinien
+- [x] **Solution + Share fusioniert**: Share-Sektion entfernt, Text in Solution integriert, ConnectedParticipants als Illustration
+- [x] **Landing Storytelling**: Hero -> Problem -> Solution+Animation -> Collect (PhonePair) -> Manage (PhonePair) -> CTA
+- [x] **Mobile Sektions-Navigation**: ArrowDown-Buttons am Ende von Problem/Solution/Collect die zur naechsten Sektion scrollen (md:hidden)
+- [x] **wunschkiste-box.svg**: Neues Geschenk-SVG als Zentrum der ConnectedParticipants-Animation
 
 ## Tech-Stack (installiert)
 
@@ -232,6 +239,8 @@ src/
 │       └── profile/avatar/            # Avatar Upload/Delete (R2)
 ├── components/
 │   ├── animate-on-scroll.tsx          # Scroll-Animation Wrapper
+│   ├── connected-participants.tsx     # Schwebende Pill-Profile Animation (Landing)
+│   ├── phone-mockup.tsx              # CSS-only iPhone Frame + PhonePair
 │   ├── auth-dialog.tsx                # AuthDialog mit optionalem title-Prop
 │   ├── confirmation-dialog.tsx        # Wiederverwendbarer Bestaetigungsdialog
 │   ├── product-image.tsx              # Bild mit Broken-Image-Fallback
@@ -307,6 +316,16 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 15.02.2026 - Landing Page Redesign + ConnectedParticipants
+- **PhoneMockup/PhonePair**: CSS-only iPhone-Frames fuer Feature-Screenshots (Light + Dark)
+- **6 Landing-Screenshots**: Playwright-generierte WebP-Bilder fuer Collect/Manage/Share Features
+- **ConnectedParticipants Animation**: Pomegranate.health-inspirierte Pill-Profile (3D-Button-Stil) um zentrales Geschenk-Icon mit SVG-Linien und Float/Pulse-Animationen
+- **Solution + Share fusioniert**: Share-Sektion entfernt, bester Text aus beiden in Solution zusammengefuehrt
+- **Dark Mode Fixes**: Creme-Hintergrund (fixed #FEF1D0) fuer Geschenk-Icon, Linien-Opacity erhoeht
+- **Mobile Sektions-Navigation**: ArrowDown-Buttons (md:hidden) am Ende von Problem/Solution/Collect die zur naechsten Sektion scrollen
+- **Landing Struktur**: Hero -> Problem -> Solution+Animation -> Collect -> Manage -> CTA (features-Array auf 2 reduziert)
+- **i18n**: 3 neue nextShare/nextCollect/nextManage Keys (de + en)
+
 ### 14.02.2026 (Abend) - Hidden-Flag + Mobile Dropdown Fix
 - **Hidden-Flag fuer Wuensche**: hidden boolean in products-Tabelle, PATCH API erlaubt hidden-Toggle
 - **Share-API + SSR filtern hidden**: eq(products.hidden, false) in API-Route und Server Component
@@ -369,20 +388,12 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **Bugfix**: Participants-Query nur fuer Owner ausfuehren (404-Fehler fuer Editoren behoben)
 - Deployed auf Production (2x: Initial + Bugfix)
 
-### 10.02.2026 - React Query, Auth Rate-Limiting, Legal, Cron, Web Share
-- **React Query Migration**: Dashboard (wishlists, sharedWishlists) + Editor (wishlist, products, participants) auf useQuery/invalidateQueries umgestellt
-- **Auth Rate-Limiting**: ajAuth (tokenBucket 5/min + detectBot) auf /api/auth POST-Handler gewrappt
-- **Datenschutz erweitert**: Bot-Schutz-Sektion (ArcJet, IP-Verarbeitung, Art. 6 Abs. 1 lit. f), Hosting konkretisiert (Cloudflare + Neon)
-- **Impressum/Datenschutz**: Alle TODO-Platzhalter durch echte Kontaktdaten ersetzt (DE + EN)
-- **Email-Reminders Cron**: GitHub Actions Workflow (.github/workflows/reminders.yml), taeglich 09:00 UTC, CRON_API_KEY Secret
-- **Web Share API**: Teilen-Button nutzt navigator.share() auf Mobile (nativer Share-Dialog), Clipboard-Fallback auf Desktop
-- **ESLint-Fix**: `as const` statt `as "/dashboard"` in main-nav.tsx
 
 
 ## Notizen fuer naechste Session
 
-- **Hidden-Flag live**: Wuensche verbergen ist implementiert und deployed. DB-Schema muss noch auf Neon gepusht werden (Passwort rotiert, lokal gepusht)
 - **App ist LIVE** auf https://wunschkiste.app (Cloudflare Workers + Neon)
 - **Deploy-Command**: `pnpm run deploy` (NICHT `pnpm deploy`)
-- **Radix Dropdown Pitfall**: pointerdown statt click -- kontrollierte Dropdowns mit onClick verwenden (siehe LEARNINGS.md)
+- **Landing Redesign nicht deployed**: Neue Landing Page inkl. ConnectedParticipants + PhoneMockups muss noch deployed werden
+- **Session-Doku**: Details zum Landing-Redesign in `docs/SESSION-2026-02-14-LANDING-REDESIGN.md`
 - en.json: Englische Uebersetzungen sind Platzhalter

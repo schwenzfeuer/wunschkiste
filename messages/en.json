@@ -99,32 +99,35 @@
       "ctaSecondary": "How it works"
     },
     "problem": {
-      "label": "The problem",
-      "title": "Everyone asks: What do you want?",
-      "text": "You type the same wishes into five different chats. Aunt Inge asks by text, grandpa calls, and in the end you get the same gift three times."
+      "label": "Sound familiar?",
+      "title": "Lina wants something -- but everyone asks separately.",
+      "text": "Grandma calls, auntie texts on WhatsApp, uncle asks over coffee. You type the same wishes into five different chats. And in the end, Lina gets the same book three times."
     },
     "solution": {
-      "label": "The solution",
-      "title": "One link for everyone.",
-      "text": "Create a wishbox, share the link — done. Everyone sees what you wish for and can reserve gifts. No more duplicates."
+      "label": "This simple",
+      "title": "One list. One link. No chaos.",
+      "text": "Create a wishbox with everything your child wishes for and share the link. Family and friends see what's still available and can reserve gifts -- no more duplicates."
     },
     "features": {
-      "scraper": {
-        "label": "Automatic",
-        "title": "Paste a link — product recognized.",
-        "text": "Just paste a link. Title, image and price are loaded automatically. No tedious typing."
+      "collect": {
+        "label": "Collect wishes",
+        "title": "Paste a link -- wish recognized.",
+        "text": "Just paste a shop link. Title, image and price are loaded automatically. Or add your wish manually."
+      },
+      "manage": {
+        "label": "Manage",
+        "title": "Your list, your rules.",
+        "text": "Set priorities, hide wishes that aren't ready yet, and invite co-editors to help you organize."
       },
       "share": {
-        "label": "Sharing",
-        "title": "Share & Reserve.",
-        "text": "Share your list via link. Family and friends can reserve wishes — no account needed. Everyone knows what's still available."
-      },
-      "themes": {
-        "label": "Occasions",
-        "title": "The right design for every occasion.",
-        "text": "Birthday, Christmas, wedding or baby — choose a theme and make your wishbox special."
+        "label": "Share & Gift",
+        "title": "One link for everyone.",
+        "text": "Share your wishbox via link. Family and friends see what's still available and can reserve wishes -- no duplicate gifts."
       }
     },
+    "nextShare": "Share wishboxes",
+    "nextCollect": "Add wishes",
+    "nextManage": "Manage wishbox",
     "cta": {
       "title": "Ready for your first wishbox?",
       "text": "Free. No ads. Forever.",

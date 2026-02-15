@@ -7,8 +7,10 @@ import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { ProfileMenu } from "@/components/profile-menu";
 import { AuthDialog } from "@/components/auth-dialog";
+import { ConfirmationDialog } from "@/components/confirmation-dialog";
 import { Gift, Users, Plus, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 type PageType = "landing" | "dashboard" | "editor" | "share" | "default";
 
@@ -42,33 +44,18 @@ function ToolbarButton({ icon: Icon, label, onClick, active }: {
   );
 }
 
-function useFooterVisible() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const footer = document.querySelector("footer");
-    if (!footer) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setVisible(entry.isIntersecting),
-      { threshold: 0 }
-    );
-    observer.observe(footer);
-    return () => observer.disconnect();
-  }, []);
-
-  return visible;
-}
-
 export function MobileToolbar() {
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("toolbar");
+  const tDashboard = useTranslations("dashboard");
+  const tCommon = useTranslations("common");
   const { data: session, isPending } = useSession();
   const [authOpen, setAuthOpen] = useState(false);
   const [leftHanded, setLeftHanded] = useState(false);
   const [dashboardTab, setDashboardTab] = useState<"mine" | "friends">("mine");
-  const footerVisible = useFooterVisible();
+  const [shareWishlistId, setShareWishlistId] = useState<string | null>(null);
+  const [leaveOpen, setLeaveOpen] = useState(false);
 
   useEffect(() => {
     setLeftHanded(localStorage.getItem(HAND_PREFERENCE_KEY) === "left");
@@ -93,7 +80,18 @@ export function MobileToolbar() {
     if (getPageType(pathname) === "dashboard") {
       setDashboardTab("mine");
     }
+    if (getPageType(pathname) !== "share") {
+      setShareWishlistId(null);
+    }
   }, [pathname]);
+
+  useEffect(() => {
+    function handleShareWishlistId(e: Event) {
+      setShareWishlistId((e as CustomEvent<string>).detail);
+    }
+    window.addEventListener("share:wishlist-id", handleShareWishlistId);
+    return () => window.removeEventListener("share:wishlist-id", handleShareWishlistId);
+  }, []);
 
   const handleAuthSuccess = useCallback(() => {
     setAuthOpen(false);
@@ -108,9 +106,8 @@ export function MobileToolbar() {
     return (
       <div className="sm:hidden">
         <div className={cn(
-          "fixed bottom-6 z-50 transition-opacity duration-200",
-          leftHanded ? "left-6" : "right-6",
-          footerVisible && "opacity-0 pointer-events-none"
+          "fixed bottom-6 z-50",
+          leftHanded ? "left-6" : "right-6"
         )}>
           <Button
             variant="accent"
@@ -128,6 +125,20 @@ export function MobileToolbar() {
         />
       </div>
     );
+  }
+
+  async function handleLeaveWishlist() {
+    if (!shareWishlistId) return;
+    const response = await fetch("/api/wishlists/shared/leave", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ wishlistId: shareWishlistId }),
+    });
+    if (response.ok) {
+      toast.success(tDashboard("leftSuccess"));
+      router.push("/dashboard");
+    }
+    setLeaveOpen(false);
   }
 
   function handleDashboardTab(tab: "mine" | "friends") {
@@ -183,7 +194,7 @@ export function MobileToolbar() {
     case "share":
       navButtons.push(
         <ToolbarButton key="my-wishlists" icon={Gift} label={t("myWishlists")} onClick={() => router.push("/dashboard")} />,
-        <ToolbarButton key="leave" icon={LogOut} label={t("leave")} onClick={() => router.push("/dashboard")} />
+        <ToolbarButton key="leave" icon={LogOut} label={t("leave")} onClick={() => shareWishlistId ? setLeaveOpen(true) : router.push("/dashboard")} />
       );
       break;
 
@@ -206,14 +217,21 @@ export function MobileToolbar() {
 
   return (
     <div className="sm:hidden">
-      <div className={cn(
-        "fixed bottom-6 left-1/2 z-50 -translate-x-1/2 transition-opacity duration-200",
-        footerVisible && "opacity-0 pointer-events-none"
-      )}>
+      <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
         <div className="flex items-center gap-1 whitespace-nowrap rounded-full border border-border bg-card/95 px-2 py-1.5 shadow-lg backdrop-blur-sm">
           {items}
         </div>
       </div>
+      <ConfirmationDialog
+        open={leaveOpen}
+        onOpenChange={setLeaveOpen}
+        title={tDashboard("leaveTitle")}
+        description={tDashboard("leaveDescription")}
+        confirmLabel={tDashboard("leave")}
+        cancelLabel={tCommon("cancel")}
+        variant="destructive"
+        onConfirm={handleLeaveWishlist}
+      />
     </div>
   );
 }

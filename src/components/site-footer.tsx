@@ -9,7 +9,7 @@ export function SiteFooter() {
   const t = useTranslations("footer");
 
   return (
-    <footer className="border-t border-border px-6 py-8">
+    <footer className="border-t border-border px-6 py-8 pb-20 sm:pb-8">
       <div className="mx-auto max-w-3xl">
         <p className="text-center text-xs text-foreground/40 inline-flex items-center justify-center gap-1 w-full">
           <Heart className="size-3 shrink-0" />

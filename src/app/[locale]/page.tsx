@@ -1,12 +1,13 @@
-import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { AnimateOnScroll } from "@/components/animate-on-scroll";
 import { MainNav } from "@/components/main-nav";
 import { HeroCta } from "@/components/hero-cta";
-import { Link2, Users, ArrowDown } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 import { WunschkisteLogo } from "@/components/wunschkiste-logo";
+import { PhonePair } from "@/components/phone-mockup";
+import { ConnectedParticipants } from "@/components/connected-participants";
 
 const baseUrl = process.env.BETTER_AUTH_URL || "http://localhost:3000";
 
@@ -46,6 +47,24 @@ export default async function HomePage({ params }: HomePageProps) {
     </>
   );
 }
+
+const features = [
+  {
+    key: "collect" as const,
+    frontSrc: "/screenshots/collect-front.webp",
+    backSrc: "/screenshots/collect-back.webp",
+    frontAlt: "Wunsch hinzufuegen Dialog",
+    backAlt: "Wunschliste mit Produkten",
+  },
+  {
+    key: "manage" as const,
+    frontSrc: "/screenshots/manage-front.webp",
+    backSrc: "/screenshots/manage-back.webp",
+    frontAlt: "Wunschliste verwalten",
+    backAlt: "Wunschliste im Dark Mode",
+    backDark: true,
+  },
+];
 
 function HomeContent() {
   const t = useTranslations();
@@ -95,66 +114,93 @@ function HomeContent() {
             <p className="mt-6 text-lg leading-relaxed text-foreground/60">
               {t("landing.problem.text")}
             </p>
+            <a href="#solution" className="mt-8 inline-flex md:hidden">
+              <Button variant="outline" size="lg">
+                <ArrowDown className="size-4" />
+                {t("landing.nextShare")}
+              </Button>
+            </a>
           </div>
         </AnimateOnScroll>
       </section>
 
-      {/* Solution */}
-      <section className="px-4 py-16 sm:px-6 sm:py-24 md:py-32">
+      {/* Solution + Share (merged) */}
+      <section id="solution" className="px-4 py-16 sm:px-6 sm:py-24 md:py-32">
         <AnimateOnScroll>
-          <div className="mx-auto max-w-2xl">
-            <span className="text-xs font-semibold uppercase tracking-widest text-accent">
-              {t("landing.solution.label")}
-            </span>
-            <h2 className="mt-4 font-serif text-3xl leading-snug md:text-5xl md:leading-snug">
-              {t("landing.solution.title")}
-            </h2>
-            <p className="mt-6 text-lg leading-relaxed text-foreground/60">
-              {t("landing.solution.text")}
-            </p>
-          </div>
-        </AnimateOnScroll>
-      </section>
-
-      {/* Feature: Auto-Erkennung */}
-      <section className="px-4 py-16 sm:px-6 sm:py-24 md:py-32">
-        <AnimateOnScroll>
-          <div className="mx-auto max-w-2xl">
-            <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-              <Link2 className="size-7 text-primary" />
+          <div className="mx-auto grid max-w-5xl items-center gap-12 md:grid-cols-2 md:gap-12">
+            <div className="md:order-1">
+              <span className="text-xs font-semibold uppercase tracking-widest text-accent">
+                {t("landing.solution.label")}
+              </span>
+              <h2 className="mt-4 font-serif text-3xl leading-snug md:text-5xl md:leading-snug">
+                {t("landing.solution.title")}
+              </h2>
+              <p className="mt-6 text-lg leading-relaxed text-foreground/60">
+                {t("landing.solution.text")}
+              </p>
+              <a href="#collect" className="mt-8 inline-flex md:hidden">
+                <Button variant="outline" size="lg">
+                  <ArrowDown className="size-4" />
+                  {t("landing.nextCollect")}
+                </Button>
+              </a>
             </div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-accent">
-              {t("landing.features.scraper.label")}
-            </span>
-            <h2 className="mt-4 font-serif text-3xl leading-snug md:text-4xl md:leading-snug">
-              {t("landing.features.scraper.title")}
-            </h2>
-            <p className="mt-6 text-lg leading-relaxed text-foreground/60">
-              {t("landing.features.scraper.text")}
-            </p>
+            <div className="md:order-2">
+              <ConnectedParticipants />
+            </div>
           </div>
         </AnimateOnScroll>
       </section>
 
-      {/* Feature: Teilen & Reservieren */}
-      <section className="px-4 py-16 sm:px-6 sm:py-24 md:py-32">
-        <AnimateOnScroll>
-          <div className="mx-auto max-w-2xl">
-            <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-              <Users className="size-7 text-primary" />
-            </div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-accent">
-              {t("landing.features.share.label")}
-            </span>
-            <h2 className="mt-4 font-serif text-3xl leading-snug md:text-4xl md:leading-snug">
-              {t("landing.features.share.title")}
-            </h2>
-            <p className="mt-6 text-lg leading-relaxed text-foreground/60">
-              {t("landing.features.share.text")}
-            </p>
-          </div>
-        </AnimateOnScroll>
-      </section>
+      {/* Features */}
+      {features.map((feature, index) => {
+        const textFirst = index % 2 === 0;
+        const nextFeature = features[index + 1];
+
+        return (
+          <section
+            key={feature.key}
+            id={feature.key}
+            className="px-4 py-16 sm:px-6 sm:py-24 md:py-32"
+          >
+            <AnimateOnScroll>
+              <div className="mx-auto grid max-w-5xl items-center gap-8 md:grid-cols-2 md:gap-12">
+                {/* Text */}
+                <div className={textFirst ? "md:order-1" : "md:order-2"}>
+                  <span className="text-xs font-semibold uppercase tracking-widest text-accent">
+                    {t(`landing.features.${feature.key}.label`)}
+                  </span>
+                  <h2 className="mt-4 font-serif text-3xl leading-snug md:text-4xl md:leading-snug">
+                    {t(`landing.features.${feature.key}.title`)}
+                  </h2>
+                  <p className="mt-6 text-lg leading-relaxed text-foreground/60">
+                    {t(`landing.features.${feature.key}.text`)}
+                  </p>
+                  {nextFeature && (
+                    <a href={`#${nextFeature.key}`} className="mt-8 inline-flex md:hidden">
+                      <Button variant="outline" size="lg">
+                        <ArrowDown className="size-4" />
+                        {t(`landing.nextManage`)}
+                      </Button>
+                    </a>
+                  )}
+                </div>
+
+                {/* Phone Pair */}
+                <div className={textFirst ? "md:order-2" : "md:order-1"}>
+                  <PhonePair
+                    frontSrc={feature.frontSrc}
+                    backSrc={feature.backSrc}
+                    frontAlt={feature.frontAlt}
+                    backAlt={feature.backAlt}
+                    backDark={"backDark" in feature ? feature.backDark : undefined}
+                  />
+                </div>
+              </div>
+            </AnimateOnScroll>
+          </section>
+        );
+      })}
 
       {/* CTA */}
       <section className="px-4 py-16 sm:px-6 sm:py-24 md:py-32">

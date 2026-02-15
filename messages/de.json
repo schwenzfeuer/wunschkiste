@@ -99,32 +99,35 @@
       "ctaSecondary": "So funktioniert's"
     },
     "problem": {
-      "label": "Das Problem",
-      "title": "Jeder fragt: Was wünschst du dir?",
-      "text": "Du schreibst die gleichen Wünsche in fünf verschiedene Chats. Tante Inge fragt per SMS, Opa per Anruf, und am Ende bekommst du dreimal das Gleiche."
+      "label": "Kennst du das?",
+      "title": "Alle fragen, was wünscht sich dein Kind zum Geburtstag?",
+      "text": "Oma ruft an, Freunde schreiben bei WhatsApp, Onkel fragt beim Kaffee. Du tippst die gleichen Wünsche in fünf verschiedene Chats. Oder hast 20 Gruppen am Hals und am Ende bekommt Lina dreimal das gleiche Buch."
     },
     "solution": {
-      "label": "Die Lösung",
-      "title": "Ein Link für alle.",
-      "text": "Erstell eine Wunschkiste, teil den Link -- fertig. Jeder sieht, was du dir wünschst, und kann Geschenke reservieren. Keine doppelten Geschenke mehr."
+      "label": "So einfach geht's",
+      "title": "Eine Kiste. Ein Link. Kein Chaos.",
+      "text": "Erstell eine Wunschkiste mit allem was sich dein Kind wünscht und teil den Link. Familie und Freunde sehen was noch frei ist und können Wünsche reservieren - keine doppelten Geschenke mehr."
     },
     "features": {
-      "scraper": {
-        "label": "Automatisch",
-        "title": "Link rein -- Produkt erkannt.",
-        "text": "Füge einfach einen Link ein. Titel, Bild und Preis werden automatisch geladen. Kein lästiges Abtippen."
+      "collect": {
+        "label": "Wünsche sammeln",
+        "title": "Link rein - Wunsch erkannt.",
+        "text": "Füg einfach einen Shop-Link ein. Titel, Bild und Preis werden automatisch geladen. Oder trag deinen Wunsch von Hand ein."
+      },
+      "manage": {
+        "label": "Verwalten",
+        "title": "Deine Liste, deine Regeln.",
+        "text": "Setz Prioritäten, verbirg Wünsche bei denen du dir noch nicht sicher bist, und lade Freunde ein die dir beim Organisieren helfen."
       },
       "share": {
-        "label": "Teilen",
-        "title": "Teilen & Reservieren.",
-        "text": "Teile deine Liste per Link. Familie und Freunde können Wünsche reservieren -- ganz ohne Account. So weiß jeder, was noch frei ist."
-      },
-      "themes": {
-        "label": "Anlässe",
-        "title": "Für jeden Anlass das passende Design.",
-        "text": "Geburtstag, Weihnachten, Hochzeit oder Baby -- wähle ein Theme und mach deine Wunschkiste besonders."
+        "label": "Teilen & Schenken",
+        "title": "Ein Link für alle.",
+        "text": "Teil deine Wunschkiste per Link. Familie und Freunde sehen was noch frei ist und können Wünsche reservieren - ohne doppelte Geschenke."
       }
     },
+    "nextShare": "Kisten teilen",
+    "nextCollect": "Wünsche hinzufügen",
+    "nextManage": "Wunschkiste verwalten",
     "cta": {
       "title": "Bereit für deine erste Wunschkiste?",
       "text": "Kostenlos. Keine Werbung. Für immer.",
@@ -238,7 +241,7 @@
     "notFoundText": "Diese Wunschkiste existiert nicht oder ist nicht mehr öffentlich.",
     "eventPassed": "Anlass vorbei",
     "claimedOf": "{claimed} von {total} Wünschen sind vergeben",
-    "surpriseMode": "Du hast den Überraschungs-Modus aktiviert -- du siehst nicht, wer was besorgt.",
+    "surpriseMode": "Du hast den Überraschungs-Modus aktiviert - du siehst nicht, wer was besorgt.",
     "emptyState": "Diese Wunschkiste ist noch leer.",
     "claimTitle": "Wunsch beanspruchen",
     "messageLabel": "Nachricht (optional)",

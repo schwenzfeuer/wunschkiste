@@ -94,6 +94,12 @@ export default function SharePageContent({
   });
 
   useEffect(() => {
+    if (wishlist?.id) {
+      window.dispatchEvent(new CustomEvent("share:wishlist-id", { detail: wishlist.id }));
+    }
+  }, [wishlist?.id]);
+
+  useEffect(() => {
     if (!wishlist?.isLoggedIn && !session && !authDismissed) {
       setAuthDialogOpen(true);
     }

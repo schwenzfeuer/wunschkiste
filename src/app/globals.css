@@ -702,6 +702,36 @@ html {
   animation: logo-star-float 2s ease-in-out infinite;
 }
 
+/* ========================================
+   Connected Participants Animation
+   ======================================== */
+
+@keyframes participants-float {
+  0%, 100% {
+    transform: translateY(-50%);
+  }
+  50% {
+    transform: translateY(calc(-50% - 6px));
+  }
+}
+
+@keyframes participants-pulse-scale {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+.participants-float {
+  animation: participants-float 5s ease-in-out infinite;
+}
+
+.participants-pulse-scale {
+  animation: participants-pulse-scale 4s ease-in-out infinite;
+}
+
 /* Accessibility: Disable animations for reduced motion */
 @media (prefers-reduced-motion: reduce) {
   [data-theme="christmas"]::before,
@@ -718,7 +748,13 @@ html {
   .christmas-twinkle,
   .christmas-twinkle-delayed,
   .christmas-sway,
-  .christmas-sway-delayed {
+  .christmas-sway-delayed,
+  .participants-float,
+  .participants-pulse-scale {
     animation: none;
+  }
+
+  .participants-float {
+    transform: translateY(-50%);
   }
 }
