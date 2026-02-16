@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq, and, inArray } from "drizzle-orm";
+import { eq, and, inArray, gt, sql } from "drizzle-orm";
 import { auth } from "@/lib/auth";
-import { db, wishlists, products, reservations, users, savedWishlists } from "@/lib/db";
+import { db, wishlists, products, reservations, users, savedWishlists, chatMessages, chatReadCursors } from "@/lib/db";
 
 type RouteParams = { params: Promise<{ token: string }> };
 
@@ -57,6 +57,26 @@ export async function GET(
         )
       );
     isEditor = !!editorCheck;
+  }
+
+  let unreadChatCount = 0;
+  if (isLoggedIn && !(isOwner && wishlist.ownerVisibility === "surprise")) {
+    const [cursor] = await db
+      .select({ lastReadAt: chatReadCursors.lastReadAt, muted: chatReadCursors.muted })
+      .from(chatReadCursors)
+      .where(and(eq(chatReadCursors.wishlistId, wishlist.id), eq(chatReadCursors.userId, currentUserId!)));
+
+    if (!cursor?.muted) {
+      const [result] = await db
+        .select({ count: sql<number>`cast(count(*) as int)` })
+        .from(chatMessages)
+        .where(
+          cursor?.lastReadAt
+            ? and(eq(chatMessages.wishlistId, wishlist.id), gt(chatMessages.createdAt, cursor.lastReadAt))
+            : eq(chatMessages.wishlistId, wishlist.id)
+        );
+      unreadChatCount = result?.count ?? 0;
+    }
   }
 
   const participants = isLoggedIn
@@ -121,6 +141,7 @@ export async function GET(
       claimedCount,
       totalCount: wishlistProducts.length,
       products: productsPlain,
+      unreadChatCount,
     });
   }
 
@@ -161,5 +182,6 @@ export async function GET(
     isLoggedIn,
     participants,
     products: productsWithReservation,
+    unreadChatCount,
   });
 }

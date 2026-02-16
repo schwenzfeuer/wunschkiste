@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ProfileMenu } from "@/components/profile-menu";
 import { AuthDialog } from "@/components/auth-dialog";
 import { ConfirmationDialog } from "@/components/confirmation-dialog";
-import { Gift, Users, Plus, LogOut } from "lucide-react";
+import { Gift, Users, Plus, LogOut, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -175,7 +175,8 @@ export function MobileToolbar() {
 
     case "editor":
       navButtons.push(
-        <ToolbarButton key="my-wishlists" icon={Gift} label={t("myWishlists")} onClick={() => router.push("/dashboard")} />
+        <ToolbarButton key="my-wishlists" icon={Gift} label={t("myWishlists")} onClick={() => router.push("/dashboard")} />,
+        <ToolbarButton key="chat" icon={MessageCircle} label={t("chat")} onClick={() => window.dispatchEvent(new Event("toolbar:toggle-chat"))} />
       );
       actionButton = (
         <Button
@@ -185,7 +186,7 @@ export function MobileToolbar() {
           onClick={() => window.dispatchEvent(new Event("toolbar:add-product"))}
         >
           <Plus className="size-3.5" />
-          {t("addWish")}
+          {t("addWishShort")}
         </Button>
       );
       break;
@@ -193,6 +194,7 @@ export function MobileToolbar() {
     case "share":
       navButtons.push(
         <ToolbarButton key="my-wishlists" icon={Gift} label={t("myWishlists")} onClick={() => router.push("/dashboard")} />,
+        <ToolbarButton key="chat" icon={MessageCircle} label={t("chat")} onClick={() => window.dispatchEvent(new Event("toolbar:toggle-chat"))} />,
         <ToolbarButton key="leave" icon={LogOut} label={t("leave")} onClick={() => shareWishlistId ? setLeaveOpen(true) : router.push("/dashboard")} />
       );
       break;

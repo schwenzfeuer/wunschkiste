@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { nanoid } from "nanoid";
-import { eq, and, inArray, sql, count } from "drizzle-orm";
+import { eq, and, inArray, sql, count, gt } from "drizzle-orm";
 import { auth } from "@/lib/auth";
-import { db, wishlists, products, reservations, savedWishlists, users, wishlistThemeEnum, ownerVisibilityEnum } from "@/lib/db";
+import { db, wishlists, products, reservations, savedWishlists, users, wishlistThemeEnum, ownerVisibilityEnum, chatMessages, chatReadCursors } from "@/lib/db";
 
 const createWishlistSchema = z.object({
   title: z.string().min(1).max(100),
@@ -69,6 +69,31 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           .where(inArray(savedWishlists.wishlistId, wishlistIds))
       : [];
 
+  const unreadCounts =
+    wishlistIds.length > 0
+      ? await db
+          .select({
+            wishlistId: chatMessages.wishlistId,
+            unreadCount: sql<number>`cast(count(${chatMessages.id}) as int)`.as("unread_count"),
+          })
+          .from(chatMessages)
+          .leftJoin(
+            chatReadCursors,
+            and(
+              eq(chatReadCursors.wishlistId, chatMessages.wishlistId),
+              eq(chatReadCursors.userId, sql`${session.user.id}::uuid`)
+            )
+          )
+          .where(
+            and(
+              inArray(chatMessages.wishlistId, wishlistIds),
+              sql`(${chatReadCursors.lastReadAt} IS NULL OR ${chatMessages.createdAt} > ${chatReadCursors.lastReadAt})`,
+              sql`(${chatReadCursors.muted} IS NULL OR ${chatReadCursors.muted} = false)`
+            )
+          )
+          .groupBy(chatMessages.wishlistId)
+      : [];
+
   const withCounts = userWishlists.map((w) => ({
     ...w,
     totalCount: productCounts.find((p) => p.wishlistId === w.id)?.totalCount ?? 0,
@@ -76,6 +101,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     participants: participantRows
       .filter((p) => p.wishlistId === w.id)
       .map(({ id, name, image }) => ({ id, name, image })),
+    unreadChatCount:
+      w.ownerVisibility === "surprise"
+        ? 0
+        : unreadCounts.find((u) => u.wishlistId === w.id)?.unreadCount ?? 0,
   }));
 
   return NextResponse.json(withCounts);

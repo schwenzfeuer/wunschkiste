@@ -15,6 +15,8 @@ import { ChristmasDecorations, ChristmasHeaderStar, ChristmasEmptyState } from "
 import { MainNav } from "@/components/main-nav";
 import { formatPrice, getCountdownDays } from "@/lib/format";
 import { useWishlistSync } from "@/hooks/use-wishlist-sync";
+import { ChatPanel } from "@/components/chat/chat-panel";
+import { ChatFab } from "@/components/chat/chat-fab";
 import { useTranslations } from "next-intl";
 
 interface Product {
@@ -47,6 +49,7 @@ interface SharedWishlist {
   claimedCount?: number;
   totalCount?: number;
   products: Product[];
+  unreadChatCount?: number;
 }
 
 function formatEventDate(dateStr: string): string {
@@ -84,6 +87,7 @@ export default function SharePageContent({
   const [authDismissed, setAuthDismissed] = useState(false);
   const [participantsOpen, setParticipantsOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<{ product: Product; type: "buy" | "reserve" } | null>(null);
+  const [chatOpen, setChatOpen] = useState(false);
 
   const { data: wishlist, isLoading, isError } = useQuery<SharedWishlist>({
     queryKey: ["share", token],
@@ -102,6 +106,14 @@ export default function SharePageContent({
       window.dispatchEvent(new CustomEvent("share:wishlist-id", { detail: wishlist.id }));
     }
   }, [wishlist?.id]);
+
+  useEffect(() => {
+    function handleToolbarChat() {
+      setChatOpen(true);
+    }
+    window.addEventListener("toolbar:toggle-chat", handleToolbarChat);
+    return () => window.removeEventListener("toolbar:toggle-chat", handleToolbarChat);
+  }, []);
 
   useEffect(() => {
     if (!wishlist?.isLoggedIn && !session && !authDismissed) {
@@ -542,6 +554,18 @@ export default function SharePageContent({
         />
 
       </div>
+
+      {isLoggedIn && !(isOwner && wishlist.ownerVisibility === "surprise") && (
+        <>
+          <ChatFab onClick={() => setChatOpen(true)} unreadCount={wishlist.unreadChatCount ?? 0} />
+          <ChatPanel
+            wishlistId={wishlist.id}
+            wishlistTitle={wishlist.title}
+            open={chatOpen}
+            onOpenChange={setChatOpen}
+          />
+        </>
+      )}
     </main>
   );
 }

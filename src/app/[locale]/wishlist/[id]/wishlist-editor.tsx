@@ -26,6 +26,8 @@ import { formatPrice, normalizePrice } from "@/lib/format";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWishlistSync } from "@/hooks/use-wishlist-sync";
+import { ChatPanel } from "@/components/chat/chat-panel";
+import { ChatFab } from "@/components/chat/chat-fab";
 import type { OwnerVisibility } from "@/lib/db/schema";
 
 interface Product {
@@ -144,13 +146,21 @@ export default function WishlistEditor({ id }: { id: string }) {
   const [editWlOpen, setEditWlOpen] = useState(false);
   const [editWlTitle, setEditWlTitle] = useState("");
   const [editWlDescription, setEditWlDescription] = useState("");
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     function handleToolbarAdd() {
       setAddDialogOpen(true);
     }
+    function handleToolbarChat() {
+      setChatOpen(true);
+    }
     window.addEventListener("toolbar:add-product", handleToolbarAdd);
-    return () => window.removeEventListener("toolbar:add-product", handleToolbarAdd);
+    window.addEventListener("toolbar:toggle-chat", handleToolbarChat);
+    return () => {
+      window.removeEventListener("toolbar:add-product", handleToolbarAdd);
+      window.removeEventListener("toolbar:toggle-chat", handleToolbarChat);
+    };
   }, []);
 
   const visibilityOptions: { value: OwnerVisibility; label: string; description: string }[] = [
@@ -1027,6 +1037,18 @@ export default function WishlistEditor({ id }: { id: string }) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {wishlist && wishlist.ownerVisibility !== "surprise" && (
+        <>
+          <ChatFab onClick={() => setChatOpen(true)} />
+          <ChatPanel
+            wishlistId={id}
+            wishlistTitle={wishlist.title}
+            open={chatOpen}
+            onOpenChange={setChatOpen}
+          />
+        </>
+      )}
     </main>
   );
 }

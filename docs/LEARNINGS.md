@@ -762,6 +762,32 @@ export async function sendWelcomeEmail(to: string, name: string) {
 
 ---
 
+## Chat: Optimistic Update + WebSocket Dedup
+
+**Recherche-Datum:** 16.02.2026
+
+### Problem
+
+Beim Senden einer Chat-Nachricht erscheint sie doppelt: einmal vom Optimistic Update (useMutation onSuccess) und einmal vom WebSocket (onChatMessage). Je nach Timing kann die Dedup-Prüfung fehlschlagen, wenn sie nur die letzte Page prüft.
+
+### Fix
+
+Beide Stellen (onSuccess + onChatMessage) müssen über ALLE Pages dedupen:
+```typescript
+queryClient.setQueryData<typeof data>(queryKey, (old) => {
+  if (!old) return old;
+  const allMessages = old.pages.flatMap((p) => p.messages);
+  if (allMessages.some((m) => m.id === newMessage.id)) return old;
+  // ... append to last page
+});
+```
+
+### Allgemeine Regel
+
+Bei Echtzeit-Features mit Optimistic Updates: Dedup IMMER über den gesamten Cache, nicht nur den zuletzt geschriebenen Teil.
+
+---
+
 ## Radix DropdownMenu auf Mobile
 
 **Recherche-Datum:** 14.02.2026

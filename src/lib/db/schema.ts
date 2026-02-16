@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, boolean, decimal, integer, pgEnum, unique } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, boolean, decimal, integer, pgEnum, unique, index } from "drizzle-orm/pg-core";
 
 export const wishlistThemeEnum = pgEnum("wishlist_theme", [
   "standard",
@@ -167,6 +167,36 @@ export const sentReminders = pgTable("sent_reminders", {
   unique().on(t.userId, t.wishlistId, t.reminderType),
 ]);
 
+export const chatMessages = pgTable("chat_messages", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  wishlistId: uuid("wishlist_id")
+    .notNull()
+    .references(() => wishlists.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  userName: text("user_name").notNull(),
+  userImage: text("user_image"),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("chat_messages_wishlist_created_idx").on(t.wishlistId, t.createdAt),
+]);
+
+export const chatReadCursors = pgTable("chat_read_cursors", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  wishlistId: uuid("wishlist_id")
+    .notNull()
+    .references(() => wishlists.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  lastReadAt: timestamp("last_read_at", { withTimezone: true }).notNull().defaultNow(),
+  muted: boolean("muted").notNull().default(false),
+}, (t) => [
+  unique().on(t.userId, t.wishlistId),
+]);
+
 export type SavedWishlist = typeof savedWishlists.$inferSelect;
 export type SavedWishlistRole = (typeof savedWishlistRoleEnum.enumValues)[number];
 export type WishlistTheme = (typeof wishlistThemeEnum.enumValues)[number];
@@ -174,3 +204,6 @@ export type OwnerVisibility = (typeof ownerVisibilityEnum.enumValues)[number];
 export type ReservationStatus = (typeof reservationStatusEnum.enumValues)[number];
 export type ReminderType = (typeof reminderTypeEnum.enumValues)[number];
 export type SentReminder = typeof sentReminders.$inferSelect;
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type NewChatMessage = typeof chatMessages.$inferInsert;
+export type ChatReadCursor = typeof chatReadCursors.$inferSelect;

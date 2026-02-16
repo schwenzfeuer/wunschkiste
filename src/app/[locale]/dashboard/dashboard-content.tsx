@@ -6,7 +6,7 @@ import { useRouter, Link } from "@/i18n/routing";
 import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Gift, Share2, Trash2, Eye, PencilLine, Check, Calendar, Users, UserCog, LogOut } from "lucide-react";
+import { Plus, Gift, Share2, Trash2, Eye, PencilLine, Check, Calendar, Users, UserCog, LogOut, MessageCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,6 +18,13 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { getCountdownDays } from "@/lib/format";
+import { ChatPanel } from "@/components/chat/chat-panel";
+import { useWishlistSync } from "@/hooks/use-wishlist-sync";
+
+function WishlistSyncBridge({ id }: { id: string }) {
+  useWishlistSync(id, [["wishlists"], ["wishlists", "shared"]]);
+  return null;
+}
 
 interface Participant {
   id: string;
@@ -38,6 +45,7 @@ interface Wishlist {
   totalCount: number;
   claimedCount: number;
   participants: Participant[];
+  unreadChatCount: number;
 }
 
 interface SharedWishlist {
@@ -49,6 +57,7 @@ interface SharedWishlist {
   role: "participant" | "editor";
   myReservedCount: number;
   myBoughtCount: number;
+  unreadChatCount: number;
 }
 
 function formatEventDate(dateStr: string): string {
@@ -99,6 +108,7 @@ export default function DashboardContent() {
   const [editWishlist, setEditWishlist] = useState<Wishlist | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
+  const [chatWishlist, setChatWishlist] = useState<{ id: string; title: string } | null>(null);
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -209,6 +219,9 @@ export default function DashboardContent() {
   return (
     <main className="min-h-screen">
       <MainNav />
+      {[...wishlists.map((w) => w.id), ...sharedWishlists.map((sw) => sw.id)].map((wid) => (
+        <WishlistSyncBridge key={wid} id={wid} />
+      ))}
 
       <div className="mx-auto max-w-3xl px-4 pt-28 pb-12 sm:px-6 sm:pt-36">
         <div className={cn("mb-10 flex flex-col gap-4 sm:flex sm:flex-row sm:items-start sm:justify-between", activeTab !== "mine" && "hidden sm:flex")}>
@@ -321,6 +334,21 @@ export default function DashboardContent() {
                   >
                     <PencilLine className="size-4" />
                   </Button>
+                  {wishlist.ownerVisibility !== "surprise" && (
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={(e) => { e.preventDefault(); setChatWishlist({ id: wishlist.id, title: wishlist.title }); }}
+                      className="relative"
+                    >
+                      <MessageCircle className="size-4" />
+                      {wishlist.unreadChatCount > 0 && (
+                        <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center size-4 rounded-full bg-destructive text-white text-[9px] font-bold">
+                          {wishlist.unreadChatCount > 9 ? "9+" : wishlist.unreadChatCount}
+                        </span>
+                      )}
+                    </Button>
+                  )}
                   <Button
                     variant="ghost"
                     size="icon-sm"
@@ -426,6 +454,19 @@ export default function DashboardContent() {
                     <Button
                       variant="ghost"
                       size="icon-sm"
+                      onClick={(e) => { e.preventDefault(); setChatWishlist({ id: sw.id, title: sw.title }); }}
+                      className="relative"
+                    >
+                      <MessageCircle className="size-4" />
+                      {sw.unreadChatCount > 0 && (
+                        <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center size-4 rounded-full bg-destructive text-white text-[9px] font-bold">
+                          {sw.unreadChatCount > 9 ? "9+" : sw.unreadChatCount}
+                        </span>
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
                       onClick={(e) => { e.preventDefault(); setLeaveId(sw.id); }}
                       className="text-foreground/40 hover:text-destructive sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100"
                     >
@@ -499,6 +540,15 @@ export default function DashboardContent() {
         variant="destructive"
         onConfirm={handleLeave}
       />
+
+      {chatWishlist && (
+        <ChatPanel
+          wishlistId={chatWishlist.id}
+          wishlistTitle={chatWishlist.title}
+          open={!!chatWishlist}
+          onOpenChange={(open) => { if (!open) setChatWishlist(null); }}
+        />
+      )}
     </main>
   );
 }

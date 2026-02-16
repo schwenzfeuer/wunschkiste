@@ -87,8 +87,10 @@
     "friends": "Freunde",
     "newWishlist": "Neue Kiste",
     "addWish": "Wunsch hinzufügen",
+    "addWishShort": "Wunsch",
     "home": "Startseite",
-    "leave": "Verlassen"
+    "leave": "Verlassen",
+    "chat": "Chat"
   },
   "landing": {
     "hero": {
@@ -350,5 +352,17 @@
       "rightsListWiderspruch": "Recht auf Widerspruch (Art. 21 DSGVO)",
       "rightsListPortabilitaet": "Recht auf Datenübertragbarkeit (Art. 20 DSGVO)"
     }
+  },
+  "chat": {
+    "title": "Nachrichten",
+    "placeholder": "Nachricht schreiben...",
+    "send": "Senden",
+    "empty": "Noch keine Nachrichten. Starte die Unterhaltung!",
+    "loadMore": "Ältere Nachrichten laden",
+    "today": "Heute",
+    "yesterday": "Gestern",
+    "mute": "Stummschalten",
+    "unmute": "Stummschaltung aufheben",
+    "muted": "Chat stummgeschaltet"
   }
 }

@@ -1,10 +1,10 @@
 # Current State
 
-> Letzte Aktualisierung: 15.02.2026 (Spaet)
+> Letzte Aktualisierung: 16.02.2026
 
 ## Status
 
-**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 72 Tests gruen, Build gruen. Live-Sync via Durable Objects WebSocket implementiert und deployed (Editor + Share-Seite).
+**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 83 Tests grün, Build grün. Live-Sync via Durable Objects WebSocket implementiert und deployed (Editor + Share-Seite + Dashboard). Chat-Feature implementiert (Backend + UI, noch nicht deployed).
 
 ## Was existiert
 
@@ -198,6 +198,15 @@
 - [x] **Live-Sync Editor + Share**: useWishlistSync Hook in Editor (wishlist/products/participants) und Share-Seite (share), notifyWishlistRoom in allen relevanten API-Routes (Products CRUD, Wishlists PATCH/DELETE, Reserve POST/DELETE/PATCH)
 - [x] **Affiliate-URL-Bug gefixt**: Vergleich gegen urlForAffiliate statt originalUrl (eBay-Links bekamen faelschlich Affiliate-Herz)
 - [x] **Resend Quota-Schutz**: isTestEmail() Guard in allen Email-Funktionen -- @example.com Adressen werden nicht an Resend gesendet
+- [x] **Chat-Feature**: Vollständiger Chat pro Wunschkiste (DB: chat_messages + chat_read_cursors, API: GET/POST/PATCH read/mute, Realtime via DO /chat-broadcast)
+- [x] **Chat-UI**: Sheet/Drawer (Desktop rechts, Mobile fullscreen), ChatPanel + MessageList + Message + Input + FAB Komponenten
+- [x] **Chat-Zugriffskontrolle**: verifyChatAccess Helper (Owner bei surprise = kein Chat), savedWishlists-basiert
+- [x] **Chat-Integration**: Dashboard (Chat-Icon auf Cards mit Unread-Badge), Editor (FAB + Sheet), Share (FAB + Sheet), Mobile Toolbar (Chat-Button)
+- [x] **Unread-Count**: Dashboard + Share-API liefern unreadChatCount, Mute-Toggle unterdrückt Badge
+- [x] **Chat Live-Sync**: WebSocket onChatMessage Callback, Dashboard WishlistSyncBridge für alle Wishlists
+- [x] **83 Tests grün**: 70 API (inkl. 11 neue Chat-Tests) + 13 E2E
+- [x] **useChat Hook**: useInfiniteQuery Pagination, useMutation mit Optimistic Update, markAsRead nur bei offenem Chat
+- [x] **shadcn Sheet**: Neue UI-Komponente (Radix Dialog-basiert, Seiten-Panel)
 
 ## Tech-Stack (installiert)
 
@@ -327,6 +336,16 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 16.02.2026 - Chat-Feature implementiert
+- **Chat pro Wunschkiste**: Vollständiges Backend (chat_messages + chat_read_cursors Tabellen, 4 API Routes, verifyChatAccess Helper)
+- **Chat-UI**: Sheet-basiertes Panel mit MessageList (Pagination, Datums-Trenner, Gruppierung), Input (auto-grow, Enter=Send), FAB (3D-Stil mit Unread-Badge)
+- **Integration**: Dashboard (Chat-Icon auf allen Cards), Editor + Share (FAB + Sheet), Mobile Toolbar (Chat-Button)
+- **Realtime**: DO /chat-broadcast Endpoint, notifyWishlistChat + notifyWishlistRoom für Live-Sync
+- **Bugfixes**: Doppelte Nachrichten (Race Condition Dedup über alle Pages), Dashboard Live-Sync (WishlistSyncBridge), Share unreadChatCount, markAsRead nur bei offenem Chat
+- **11 neue API-Tests**: Chat CRUD, Zugriffskontrolle, surprise-Block, Mute, Pagination
+- **Realtime Worker deployed**: rt.wunschkiste.app mit /chat-broadcast
+- **Noch zu deployen**: Hauptapp (pnpm run deploy), Neon DB push (Credentials aktualisieren)
+
 ### 15.02.2026 (Spaet) - Live-Sync, Affiliate-Fix, Resend-Quota
 - **Live-Sync deployed**: Durable Objects WebSocket Worker auf rt.wunschkiste.app, useWishlistSync Hook in Editor + Share-Seite
 - **Alle API-Routes notifizieren**: Products CRUD, Wishlists PATCH/DELETE, Reserve POST/DELETE/PATCH senden invalidate-Signal via DO
@@ -362,24 +381,14 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **Landing Struktur**: Hero -> Problem -> Solution+Animation -> Collect -> Manage -> CTA (features-Array auf 2 reduziert)
 - **i18n**: 3 neue nextShare/nextCollect/nextManage Keys (de + en)
 
-### 14.02.2026 (Abend) - Hidden-Flag + Mobile Dropdown Fix
-- **Hidden-Flag fuer Wuensche**: hidden boolean in products-Tabelle, PATCH API erlaubt hidden-Toggle
-- **Share-API + SSR filtern hidden**: eq(products.hidden, false) in API-Route und Server Component
-- **Dashboard-Counts hidden-aware**: totalCount + claimedCount schliessen verborgene Wuensche aus
-- **Freunde-Dashboard hidden-aware**: LEFT JOIN filtert hidden Products
-- **Editor UI**: Verborgene Karten opacity-50 + "Verborgen"-Badge (EyeOff-Icon), Desktop Eye/EyeOff hover-Button, Mobile ContextMenu "Verbergen"/"Sichtbar machen"
-- **Mobile Dropdown Scroll-Fix**: Kontrollierte Dropdowns (open/onOpenChange + onClick) statt Radix pointerdown -- Star + 3-Punkte-Menues oeffnen sich nicht mehr beim Scrollen
-- **Dashboard Tab-Wechsel Scroll-Reset**: window.scrollTo({top: 0}) beim Meine/Freunde-Wechsel
-- **Mehrere Production-Deploys** auf wunschkiste.app
-- **Learning**: Radix DropdownMenu oeffnet auf pointerdown, nicht click -- kontrollierte Dropdowns mit onClick sind der Fix fuer Mobile-Scroll-Probleme
-
 
 
 ## Notizen fuer naechste Session
 
+- **Chat-Feature muss noch deployed werden**: `pnpm run deploy` für Hauptapp, Neon DB Credentials aktualisieren + `drizzle-kit push`
 - **App ist LIVE** auf https://wunschkiste.app (Cloudflare Workers + Neon)
 - **Deploy-Command**: `pnpm run deploy` (NICHT `pnpm deploy`)
-- **Live-Sync ist LIVE**: rt.wunschkiste.app (Durable Objects), Editor + Share-Seite verbunden
-- **Realtime-Worker deployen**: `pnpm run deploy:realtime` (separater Worker, nur bei Aenderungen an realtime/)
-- **1 eBay-Produkt** hat noch falsche affiliateUrl in der DB (manuell loeschen + neu hinzufuegen)
+- **Live-Sync ist LIVE**: rt.wunschkiste.app (Durable Objects), Editor + Share-Seite + Dashboard verbunden
+- **Realtime-Worker bereits deployed** mit /chat-broadcast Endpoint
+- **Nach Deploy manuell testen**: Chat öffnen (Editor/Share), Nachricht senden + in zweitem Tab empfangen, surprise-Block, Unread-Badge auf Dashboard, Mute-Toggle
 - en.json: Englische Uebersetzungen sind Platzhalter

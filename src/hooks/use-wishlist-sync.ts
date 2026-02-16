@@ -11,7 +11,11 @@ const REALTIME_URL =
 const PING_INTERVAL = 30_000;
 const MAX_BACKOFF = 30_000;
 
-export function useWishlistSync(wishlistId: string | undefined, queryKeys: string[][]) {
+export function useWishlistSync(
+  wishlistId: string | undefined,
+  queryKeys: string[][],
+  onChatMessage?: (message: Record<string, unknown>) => void
+) {
   const queryClient = useQueryClient();
   const wsRef = useRef<WebSocket | null>(null);
   const backoffRef = useRef(1000);
@@ -19,6 +23,8 @@ export function useWishlistSync(wishlistId: string | undefined, queryKeys: strin
   const pingTimerRef = useRef<ReturnType<typeof setInterval>>(undefined);
   const queryKeysRef = useRef(queryKeys);
   queryKeysRef.current = queryKeys;
+  const onChatMessageRef = useRef(onChatMessage);
+  onChatMessageRef.current = onChatMessage;
 
   useEffect(() => {
     if (!wishlistId) return;
@@ -47,6 +53,8 @@ export function useWishlistSync(wishlistId: string | undefined, queryKeys: strin
             for (const key of queryKeysRef.current) {
               queryClient.invalidateQueries({ queryKey: key });
             }
+          } else if (data.type === "chat_message" && onChatMessageRef.current) {
+            onChatMessageRef.current(data.data);
           }
         } catch {
           // ignore non-JSON (e.g. "pong")

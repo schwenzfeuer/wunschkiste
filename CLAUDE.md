@@ -3,6 +3,7 @@
 ## Strikte Regeln
 
 - **KEINE EMOJIS** - nirgendwo. Nicht im Code, nicht in Commits, nicht in UI-Texten, nicht in Konsolenausgaben.
+- **Echte Umlaute verwenden** - immer ä/ö/ü/ß, niemals ae/oe/ue/ss. Gilt für Code-Kommentare, Commits, Docs, i18n-Texte, UI-Strings.
 - **Keine neuen Packages** ohne Rueckfrage
 - **Keine .env Aenderungen** ohne Rueckfrage
 - **Kein Production Deploy** ohne explizite Anweisung

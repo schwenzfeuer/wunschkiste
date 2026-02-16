@@ -87,8 +87,10 @@
     "friends": "Friends",
     "newWishlist": "New Box",
     "addWish": "Add Wish",
+    "addWishShort": "Wish",
     "home": "Home",
-    "leave": "Leave"
+    "leave": "Leave",
+    "chat": "Chat"
   },
   "landing": {
     "hero": {
@@ -350,5 +352,17 @@
       "rightsListWiderspruch": "Right to object (Art. 21 GDPR)",
       "rightsListPortabilitaet": "Right to data portability (Art. 20 GDPR)"
     }
+  },
+  "chat": {
+    "title": "Messages",
+    "placeholder": "Write a message...",
+    "send": "Send",
+    "empty": "No messages yet. Start the conversation!",
+    "loadMore": "Load older messages",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "muted": "Chat muted"
   }
 }

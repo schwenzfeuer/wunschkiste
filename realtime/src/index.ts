@@ -30,6 +30,16 @@ export class WishlistRoom extends DurableObject<Env> {
       return new Response("OK", { status: 200 });
     }
 
+    if (url.pathname.endsWith("/chat-broadcast")) {
+      const data = await request.json();
+      const payload = JSON.stringify({ type: "chat_message", data });
+      const websockets = this.ctx.getWebSockets();
+      for (const ws of websockets) {
+        ws.send(payload);
+      }
+      return new Response("OK", { status: 200 });
+    }
+
     if (url.pathname.endsWith("/websocket")) {
       const upgradeHeader = request.headers.get("Upgrade");
       if (upgradeHeader !== "websocket") {
@@ -75,7 +85,7 @@ export default {
     }
 
     const [token, action] = parts;
-    if (action !== "websocket" && action !== "notify") {
+    if (action !== "websocket" && action !== "notify" && action !== "chat-broadcast") {
       return new Response("Not found", { status: 404 });
     }
 
