@@ -4,7 +4,7 @@
 
 ## Status
 
-**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 83 Tests grün, Build grün. Live-Sync via Durable Objects WebSocket implementiert und deployed (Editor + Share-Seite + Dashboard). Chat-Feature implementiert (Backend + UI, noch nicht deployed).
+**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 83 Tests grün, Build grün. Live-Sync via Durable Objects WebSocket (Editor + Share-Seite + Dashboard). Chat-Feature live (Backend + UI + Realtime deployed).
 
 ## Was existiert
 
@@ -336,15 +336,17 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
-### 16.02.2026 - Chat-Feature implementiert
+### 16.02.2026 - Chat-Feature implementiert + deployed
 - **Chat pro Wunschkiste**: Vollständiges Backend (chat_messages + chat_read_cursors Tabellen, 4 API Routes, verifyChatAccess Helper)
 - **Chat-UI**: Sheet-basiertes Panel mit MessageList (Pagination, Datums-Trenner, Gruppierung), Input (auto-grow, Enter=Send), FAB (3D-Stil mit Unread-Badge)
 - **Integration**: Dashboard (Chat-Icon auf allen Cards), Editor + Share (FAB + Sheet), Mobile Toolbar (Chat-Button)
-- **Realtime**: DO /chat-broadcast Endpoint, notifyWishlistChat + notifyWishlistRoom für Live-Sync
-- **Bugfixes**: Doppelte Nachrichten (Race Condition Dedup über alle Pages), Dashboard Live-Sync (WishlistSyncBridge), Share unreadChatCount, markAsRead nur bei offenem Chat
-- **11 neue API-Tests**: Chat CRUD, Zugriffskontrolle, surprise-Block, Mute, Pagination
-- **Realtime Worker deployed**: rt.wunschkiste.app mit /chat-broadcast
-- **Noch zu deployen**: Hauptapp (pnpm run deploy), Neon DB push (Credentials aktualisieren)
+- **Realtime**: DO /chat-broadcast Endpoint, notifyWishlistChat für Live-Sync
+- **Live-Sync komplett verdrahtet**: useChat auf Seitenebene, onChatMessage an useWishlistSync übergeben (Editor, Share, Dashboard)
+- **Duplikat-Fix**: Eigene Nachrichten im WebSocket-Callback per userId gefiltert
+- **Dashboard Unread-Count live**: WishlistSyncBridge invalidiert Wishlist-Queries bei chat_message
+- **UI-Polish**: Chat-Header "Nachrichten", kein Auto-Focus auf Mobile, Input/Button gleiche Höhe, Toolbar-Spacing
+- **11 neue API-Tests**: Chat CRUD, Zugriffskontrolle, surprise-Block, Mute, Pagination (83 total)
+- **Alles deployed**: Realtime Worker + Hauptapp + Neon DB
 
 ### 15.02.2026 (Spaet) - Live-Sync, Affiliate-Fix, Resend-Quota
 - **Live-Sync deployed**: Durable Objects WebSocket Worker auf rt.wunschkiste.app, useWishlistSync Hook in Editor + Share-Seite
@@ -385,10 +387,9 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Notizen fuer naechste Session
 
-- **Chat-Feature muss noch deployed werden**: `pnpm run deploy` für Hauptapp, Neon DB Credentials aktualisieren + `drizzle-kit push`
+- **Chat-Feature ist LIVE** auf wunschkiste.app (deployed 16.02.2026)
+- **Chat Swipe-to-Dismiss**: Sheet auf Mobile durch Drawer (vaul) ersetzen -- auf Mobile von unten mit Swipe-Geste wegwischbar, auf Desktop weiterhin Sheet von rechts. `vaul` muss installiert werden (`npx shadcn@latest add drawer` oder `pnpm add vaul`).
 - **App ist LIVE** auf https://wunschkiste.app (Cloudflare Workers + Neon)
 - **Deploy-Command**: `pnpm run deploy` (NICHT `pnpm deploy`)
 - **Live-Sync ist LIVE**: rt.wunschkiste.app (Durable Objects), Editor + Share-Seite + Dashboard verbunden
-- **Realtime-Worker bereits deployed** mit /chat-broadcast Endpoint
-- **Nach Deploy manuell testen**: Chat öffnen (Editor/Share), Nachricht senden + in zweitem Tab empfangen, surprise-Block, Unread-Badge auf Dashboard, Mute-Toggle
 - en.json: Englische Uebersetzungen sind Platzhalter
