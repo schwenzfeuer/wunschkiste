@@ -165,6 +165,7 @@ export function MobileToolbar() {
           key="new"
           variant="accent"
           size="xs"
+          className="mx-1"
           onClick={() => router.push("/wishlist/new")}
         >
           <Plus className="size-3.5" />
@@ -183,10 +184,11 @@ export function MobileToolbar() {
           key="add-wish"
           variant="accent"
           size="xs"
+          className="mx-1"
           onClick={() => window.dispatchEvent(new Event("toolbar:add-product"))}
         >
           <Plus className="size-3.5" />
-          {t("addWishShort")}
+          {t("addWish")}
         </Button>
       );
       break;
