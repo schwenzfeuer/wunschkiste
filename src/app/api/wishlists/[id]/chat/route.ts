@@ -93,7 +93,6 @@ export async function POST(
     .returning();
 
   await notifyWishlistChat(id, message);
-  await notifyWishlistRoom(id);
 
   return NextResponse.json(message, { status: 201 });
 }

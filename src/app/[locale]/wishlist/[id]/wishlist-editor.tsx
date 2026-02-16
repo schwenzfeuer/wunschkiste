@@ -26,6 +26,7 @@ import { formatPrice, normalizePrice } from "@/lib/format";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useWishlistSync } from "@/hooks/use-wishlist-sync";
+import { useChat } from "@/hooks/use-chat";
 import { ChatPanel } from "@/components/chat/chat-panel";
 import { ChatFab } from "@/components/chat/chat-fab";
 import type { OwnerVisibility } from "@/lib/db/schema";
@@ -94,7 +95,9 @@ export default function WishlistEditor({ id }: { id: string }) {
   const { data: session, isPending } = useSession();
   const queryClient = useQueryClient();
 
-  useWishlistSync(id, [["wishlist", id], ["products", id], ["participants", id]]);
+  const [chatOpen, setChatOpen] = useState(false);
+  const chat = useChat(id, chatOpen);
+  useWishlistSync(id, [["wishlist", id], ["products", id], ["participants", id]], chat.onChatMessage);
 
   const { data: wishlist, isLoading: wishlistLoading, isError: wishlistError } = useQuery<Wishlist>({
     queryKey: ["wishlist", id],
@@ -146,7 +149,6 @@ export default function WishlistEditor({ id }: { id: string }) {
   const [editWlOpen, setEditWlOpen] = useState(false);
   const [editWlTitle, setEditWlTitle] = useState("");
   const [editWlDescription, setEditWlDescription] = useState("");
-  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     function handleToolbarAdd() {
@@ -1042,10 +1044,16 @@ export default function WishlistEditor({ id }: { id: string }) {
         <>
           <ChatFab onClick={() => setChatOpen(true)} />
           <ChatPanel
-            wishlistId={id}
             wishlistTitle={wishlist.title}
             open={chatOpen}
             onOpenChange={setChatOpen}
+            messages={chat.messages}
+            isLoading={chat.isLoading}
+            hasMore={chat.hasMore}
+            isLoadingMore={chat.isLoadingMore}
+            loadMore={chat.loadMore}
+            sendMessage={(content) => chat.sendMessage(content)}
+            isSending={chat.isSending}
           />
         </>
       )}

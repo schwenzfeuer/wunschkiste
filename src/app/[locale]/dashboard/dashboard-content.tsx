@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter, Link } from "@/i18n/routing";
 import { useSession } from "@/lib/auth/client";
@@ -19,10 +19,16 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { getCountdownDays } from "@/lib/format";
 import { ChatPanel } from "@/components/chat/chat-panel";
+import { useChat } from "@/hooks/use-chat";
 import { useWishlistSync } from "@/hooks/use-wishlist-sync";
+import type { QueryClient } from "@tanstack/react-query";
 
-function WishlistSyncBridge({ id }: { id: string }) {
-  useWishlistSync(id, [["wishlists"], ["wishlists", "shared"]]);
+function WishlistSyncBridge({ id, queryClient }: { id: string; queryClient: QueryClient }) {
+  const onChatMessage = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ["wishlists"] });
+    queryClient.invalidateQueries({ queryKey: ["wishlists", "shared"] });
+  }, [queryClient]);
+  useWishlistSync(id, [["wishlists"], ["wishlists", "shared"]], onChatMessage);
   return null;
 }
 
@@ -109,6 +115,7 @@ export default function DashboardContent() {
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [chatWishlist, setChatWishlist] = useState<{ id: string; title: string } | null>(null);
+  const chat = useChat(chatWishlist?.id ?? "", !!chatWishlist);
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -220,7 +227,7 @@ export default function DashboardContent() {
     <main className="min-h-screen">
       <MainNav />
       {[...wishlists.map((w) => w.id), ...sharedWishlists.map((sw) => sw.id)].map((wid) => (
-        <WishlistSyncBridge key={wid} id={wid} />
+        <WishlistSyncBridge key={wid} id={wid} queryClient={queryClient} />
       ))}
 
       <div className="mx-auto max-w-3xl px-4 pt-28 pb-12 sm:px-6 sm:pt-36">
@@ -543,10 +550,16 @@ export default function DashboardContent() {
 
       {chatWishlist && (
         <ChatPanel
-          wishlistId={chatWishlist.id}
           wishlistTitle={chatWishlist.title}
           open={!!chatWishlist}
           onOpenChange={(open) => { if (!open) setChatWishlist(null); }}
+          messages={chat.messages}
+          isLoading={chat.isLoading}
+          hasMore={chat.hasMore}
+          isLoadingMore={chat.isLoadingMore}
+          loadMore={chat.loadMore}
+          sendMessage={(content) => chat.sendMessage(content)}
+          isSending={chat.isSending}
         />
       )}
     </main>

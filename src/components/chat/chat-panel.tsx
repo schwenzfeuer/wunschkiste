@@ -2,8 +2,6 @@
 
 import { useTranslations } from "next-intl";
 import { useSession } from "@/lib/auth/client";
-import { useChat } from "@/hooks/use-chat";
-import { useWishlistSync } from "@/hooks/use-wishlist-sync";
 import {
   Sheet,
   SheetContent,
@@ -14,29 +12,35 @@ import {
 import { ChatMessageList } from "./chat-message-list";
 import { ChatInput } from "./chat-input";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { ChatMessage } from "@/lib/db/schema";
 
 interface ChatPanelProps {
-  wishlistId: string;
   wishlistTitle: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  messages: ChatMessage[];
+  isLoading: boolean;
+  hasMore: boolean;
+  isLoadingMore: boolean;
+  loadMore: () => void;
+  sendMessage: (content: string) => void;
+  isSending: boolean;
 }
 
-export function ChatPanel({ wishlistId, wishlistTitle, open, onOpenChange }: ChatPanelProps) {
+export function ChatPanel({
+  wishlistTitle,
+  open,
+  onOpenChange,
+  messages,
+  isLoading,
+  hasMore,
+  isLoadingMore,
+  loadMore,
+  sendMessage,
+  isSending,
+}: ChatPanelProps) {
   const t = useTranslations("chat");
   const { data: session } = useSession();
-  const {
-    messages,
-    sendMessage,
-    isSending,
-    isLoading,
-    hasMore,
-    loadMore,
-    isLoadingMore,
-    onChatMessage,
-  } = useChat(wishlistId, open);
-
-  useWishlistSync(open ? wishlistId : undefined, [], onChatMessage);
 
   if (!session?.user) return null;
 
@@ -64,7 +68,7 @@ export function ChatPanel({ wishlistId, wishlistTitle, open, onOpenChange }: Cha
             onLoadMore={loadMore}
           />
         )}
-        <ChatInput onSend={(content) => sendMessage(content)} isSending={isSending} />
+        <ChatInput onSend={sendMessage} isSending={isSending} />
       </SheetContent>
     </Sheet>
   );

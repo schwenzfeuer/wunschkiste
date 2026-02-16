@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import { useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
+import { useSession } from "@/lib/auth/client";
 import type { ChatMessage } from "@/lib/db/schema";
 
 interface ChatResponse {
@@ -9,8 +10,10 @@ interface ChatResponse {
   hasMore: boolean;
 }
 
-export function useChat(wishlistId: string, enabled = true) {
+export function useChat(wishlistId: string, isOpen = false) {
   const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const currentUserId = session?.user?.id;
   const queryKey = ["chat", wishlistId];
 
   const {
@@ -39,7 +42,6 @@ export function useChat(wishlistId: string, enabled = true) {
       pages: data.pages,
       pageParams: data.pageParams,
     }),
-    enabled,
   });
 
   const messages = data?.pages
@@ -64,10 +66,7 @@ export function useChat(wishlistId: string, enabled = true) {
         const lastPageIndex = old.pages.length - 1;
         const newPages = old.pages.map((page, i) => {
           if (i === lastPageIndex) {
-            return {
-              ...page,
-              messages: [...page.messages, newMessage],
-            };
+            return { ...page, messages: [...page.messages, newMessage] };
           }
           return page;
         });
@@ -79,6 +78,8 @@ export function useChat(wishlistId: string, enabled = true) {
   const onChatMessage = useCallback(
     (incomingMessage: Record<string, unknown>) => {
       const msg = incomingMessage as unknown as ChatMessage;
+      // Eigene Nachrichten ignorieren - die kommen schon via onSuccess
+      if (msg.userId === currentUserId) return;
       queryClient.setQueryData<typeof data>(queryKey, (old) => {
         if (!old) return old;
         const allMessages = old.pages.flatMap((p) => p.messages);
@@ -86,17 +87,14 @@ export function useChat(wishlistId: string, enabled = true) {
         const lastPageIndex = old.pages.length - 1;
         const newPages = old.pages.map((page, i) => {
           if (i === lastPageIndex) {
-            return {
-              ...page,
-              messages: [...page.messages, msg],
-            };
+            return { ...page, messages: [...page.messages, msg] };
           }
           return page;
         });
         return { ...old, pages: newPages };
       });
     },
-    [queryClient, queryKey]
+    [queryClient, queryKey, currentUserId]
   );
 
   const markAsRead = useCallback(() => {
@@ -104,16 +102,16 @@ export function useChat(wishlistId: string, enabled = true) {
   }, [wishlistId]);
 
   useEffect(() => {
-    if (enabled) markAsRead();
-  }, [enabled, markAsRead]);
+    if (isOpen) markAsRead();
+  }, [isOpen, markAsRead]);
 
   const lastMessageCount = useRef(messages.length);
   useEffect(() => {
-    if (enabled && messages.length > lastMessageCount.current) {
+    if (isOpen && messages.length > lastMessageCount.current) {
       markAsRead();
     }
     lastMessageCount.current = messages.length;
-  }, [messages.length, markAsRead, enabled]);
+  }, [messages.length, markAsRead, isOpen]);
 
   return {
     messages,

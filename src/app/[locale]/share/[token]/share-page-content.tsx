@@ -15,6 +15,7 @@ import { ChristmasDecorations, ChristmasHeaderStar, ChristmasEmptyState } from "
 import { MainNav } from "@/components/main-nav";
 import { formatPrice, getCountdownDays } from "@/lib/format";
 import { useWishlistSync } from "@/hooks/use-wishlist-sync";
+import { useChat } from "@/hooks/use-chat";
 import { ChatPanel } from "@/components/chat/chat-panel";
 import { ChatFab } from "@/components/chat/chat-fab";
 import { useTranslations } from "next-intl";
@@ -99,7 +100,8 @@ export default function SharePageContent({
     initialData: initialData ?? undefined,
   });
 
-  useWishlistSync(wishlist?.id, [["share", token]]);
+  const chat = useChat(wishlist?.id ?? "", chatOpen);
+  useWishlistSync(wishlist?.id, [["share", token]], chat.onChatMessage);
 
   useEffect(() => {
     if (wishlist?.id) {
@@ -559,10 +561,16 @@ export default function SharePageContent({
         <>
           <ChatFab onClick={() => setChatOpen(true)} unreadCount={wishlist.unreadChatCount ?? 0} />
           <ChatPanel
-            wishlistId={wishlist.id}
             wishlistTitle={wishlist.title}
             open={chatOpen}
             onOpenChange={setChatOpen}
+            messages={chat.messages}
+            isLoading={chat.isLoading}
+            hasMore={chat.hasMore}
+            isLoadingMore={chat.isLoadingMore}
+            loadMore={chat.loadMore}
+            sendMessage={(content) => chat.sendMessage(content)}
+            isSending={chat.isSending}
           />
         </>
       )}
