@@ -266,7 +266,10 @@
     "participantsTitle": "Participants",
     "priority1": "Top 1",
     "priority2": "Top 2",
-    "priority3": "Top 3"
+    "priority3": "Top 3",
+    "ctaTitle": "Got wishes too? Create your own wishbox",
+    "ctaText": "Free. In 30 seconds.",
+    "ctaButton": "Create wishbox now"
   },
   "wishlist": {
     "title": "Wishbox",

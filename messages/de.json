@@ -266,7 +266,10 @@
     "participantsTitle": "Teilnehmer",
     "priority1": "Top 1",
     "priority2": "Top 2",
-    "priority3": "Top 3"
+    "priority3": "Top 3",
+    "ctaTitle": "Auch Wünsche? Erstell deine eigene Wunschliste",
+    "ctaText": "Kostenlos. In 30 Sekunden.",
+    "ctaButton": "Jetzt Wunschliste erstellen"
   },
   "wishlist": {
     "title": "Wunschkiste",

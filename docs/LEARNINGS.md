@@ -818,3 +818,42 @@ const [openMenu, setOpenMenu] = useState<string | null>(null);
 ```
 
 Wichtig: `onOpenChange` wird nur zum Schliessen verwendet (Klick ausserhalb, Escape, Item-Auswahl). Das Oeffnen passiert ausschliesslich ueber `onClick` auf dem Button. Mobile Browser feuern `click` nicht bei Scroll-Gesten, daher oeffnen sich die Menues nicht mehr beim Scrollen.
+
+---
+
+## Zod 4: z.record() braucht zwei Argumente
+
+**Recherche-Datum:** 17.02.2026
+
+### Problem
+
+`z.record(z.string())` kompiliert nicht in Zod 4 -- TypeScript meldet "Expected 2-3 arguments, but got 1."
+
+### Fix
+
+In Zod 4 ist der Key-Type nicht mehr optional:
+```typescript
+// FALSCH (Zod 3 Syntax)
+z.record(z.string())
+
+// RICHTIG (Zod 4)
+z.record(z.string(), z.string())
+```
+
+---
+
+## navigator.sendBeacon mit JSON
+
+**Recherche-Datum:** 17.02.2026
+
+### Problem
+
+`navigator.sendBeacon(url, jsonString)` sendet den Body als `text/plain`, nicht als `application/json`. Der Server bekommt dann einen Parse-Fehler bei `request.json()`.
+
+### Fix
+
+Body als Blob mit explizitem Content-Type wrappen:
+```typescript
+const body = JSON.stringify(data);
+navigator.sendBeacon(url, new Blob([body], { type: "application/json" }));
+```

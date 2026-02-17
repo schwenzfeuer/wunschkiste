@@ -274,3 +274,89 @@ Cloudflare Pages fuer die App, Neon fuer die PostgreSQL-Datenbank.
 - `@opennextjs/cloudflare` Adapter noetig (nicht offiziell von Next.js)
 - PostgreSQL nicht self-hosted (Abhaengigkeit von Neon)
 - ADR-001 Deployment-Entscheidung wird ersetzt
+
+---
+
+## ADR-008: Wachstums- und Monetarisierungsstrategie
+
+**Datum:** 17.02.2026
+**Status:** Accepted
+
+### Kontext
+
+App ist live (v1.0), Affiliate-Links funktionieren (Amazon DE + 73 AWIN-Shops). Es fehlt eine Strategie fuer Nutzergewinnung und Umsatz-Skalierung. Ziel: 2.000 EUR/Monat ueber Affiliate-Provisionen.
+
+### Zahlengrundlage
+
+- Durchschnittliche Provision: ~3-5% (Amazon + AWIN)
+- Durchschnittlicher Warenkorb: ~30-50 EUR
+- Ergibt ~1,20-2,00 EUR pro Kauf
+- Benoetigt: ~1.000-1.700 Kaeufe/Monat ueber Affiliate-Links
+- Bei ~15% Conversion (Wunschlisten-Besucher kaufen) = ~10.000 Affiliate-Klicks/Monat
+- Erfordert: ~1.000-2.000 aktive Wunschlisten mit geteilten Links
+
+### Entscheidung
+
+**Kernstrategie: Viraler Loop maximieren.** Jede geteilte Wunschliste ist Werbung -- 10-20 Besucher sehen Wunschkiste, ein Teil erstellt eigene Listen. Ergaenzt durch Offline-Marketing, Social Media und internationale Expansion.
+
+**Budget:** 100-150 EUR/Monat (primaer laufende Kosten, Rest fuer Sticker-Druck und ggf. Google Ads Tests)
+
+#### Massnahmen (priorisiert)
+
+| Prio | Massnahme | Aufwand | Kosten | Erwartete Wirkung |
+|------|-----------|---------|--------|-------------------|
+| 1 | Eigenes Event-Tracking + Analytics Dashboard | Mittel | 0 EUR | Grundlage fuer alle Optimierungen |
+| 2 | Viraler Loop (CTA auf Share-Seite) | Klein | 0 EUR | Hoch -- organisches Wachstum |
+| 3 | Sticker/QR-Codes (Kindergaerten, Kinderaerzte, Spielplaetze) | Klein | 15 EUR | Mittel-Hoch -- exakte Zielgruppe |
+| 4 | Instagram (Screen-Recording Reels, Geschenkideen) | Mittel | 0 EUR | Mittel |
+| 5 | UK Expansion (en.json, Amazon UK Account) | Klein | 0 EUR | Markt-Verdopplung |
+| 6 | Spanien Expansion (es.json, lokalisierte Routen, Amazon ES) | Gross | 0 EUR | Langfristig hoch |
+| 7 | Amazon-Tags pro Land (Code-Umbau) | Klein | 0 EUR | Voraussetzung fuer 5+6 |
+| 8 | Blog/SEO Content (Gift Guides, KI-unterstuetzt) | Gross | 0 EUR | Langfristig hoch |
+| 9 | Google Ads Test (Daten sammeln) | Klein | 50 EUR | Datengrundlage |
+
+#### Internationale Expansion
+
+- **Name "Wunschkiste" bleibt** in allen Maerkten
+- **UK** als Quick Win (en.json fertigstellen, Amazon UK Account)
+- **Spanien** als erster nicht-englischer Markt (es.json, Amazon ES Account)
+- **Uebersetzungen** via KI + manuelles Review
+- **Amazon-Affiliate-Tags pro Land** -- Code-Umbau von einzelner Env-Variable auf Domain-basiertes Mapping
+
+#### Analytics (Eigenbau)
+
+- Event-Tracking in bestehender Neon DB (keine externen Analytics-Tools)
+- Keine Cookies, keine personenbezogenen Daten (DSGVO-konform)
+- Admin-Dashboard mit shadcn Chart-Komponenten (Recharts)
+- Metriken: Affiliate-Klicks, geteilte Listen, Share-Seiten-Besucher, Registrierungen, erstellte Listen
+- Cloudflare-Header `CF-IPCountry` fuer Laender-Auswertung
+
+#### Nicht verfolgt
+
+- Pinterest (kein persoenliches Interesse)
+- Bezahlte Influencer-Kooperationen (Budget reicht nicht)
+- Aufwendige KI-Video-Generierung (Synthesia etc. -- wirkt kuenstlich)
+- Groessere Paid-Ads-Kampagnen (Budget-Limit)
+
+### Alternativen
+
+| Option | Vorteile | Nachteile |
+|--------|----------|-----------|
+| **Gewaehlt: Viraler Loop + Offline + International** | Kostenguenstig, skaliert organisch, nutzt Produkt-Staerke | Langsamer als Paid Marketing |
+| Fokus auf Paid Ads | Schnelleres Wachstum | Budget reicht nicht, teuer pro Nutzer |
+| Nur DE-Markt, dafuer tiefer | Weniger Komplexitaet | Kleinerer Markt, Wachstum begrenzt |
+| Freemium/Premium Modell | Zusaetzliche Einnahmen | Widerspricht "kostenlos fuer Nutzer"-Versprechen |
+
+### Konsequenzen
+
+**Positiv:**
+- Wachstum primaer ueber Produkt-Qualitaet und Mundpropaganda (nachhaltig)
+- Eigenes Analytics = volle Kontrolle, kein Vendor-Lock-in, DSGVO-sicher
+- Internationale Expansion verdreifacht den adressierbaren Markt
+- Minimale laufende Kosten
+
+**Negativ:**
+- Organisches Wachstum braucht Geduld (Monate, nicht Wochen)
+- Internationale Expansion = Uebersetzungs- und Wartungsaufwand
+- Mehrere Amazon-Affiliate-Accounts verwalten
+- Instagram erfordert regelmaessigen Content (manueller Aufwand)

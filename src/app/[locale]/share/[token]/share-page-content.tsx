@@ -19,6 +19,7 @@ import { useChat } from "@/hooks/use-chat";
 import { ChatPanel } from "@/components/chat/chat-panel";
 import { ChatFab } from "@/components/chat/chat-fab";
 import { useTranslations } from "next-intl";
+import { trackEvent } from "@/lib/tracking";
 
 interface Product {
   id: string;
@@ -113,6 +114,10 @@ export default function SharePageContent({
   }, [wishlist?.id]);
 
   useEffect(() => {
+    trackEvent("page_view", { shareToken: token });
+  }, [token]);
+
+  useEffect(() => {
     function handleToolbarChat() {
       setChatOpen(true);
     }
@@ -188,6 +193,11 @@ export default function SharePageContent({
       if (status === "bought") {
         const product = wishlist?.products.find((p) => p.id === productId);
         if (product) {
+          trackEvent("affiliate_click", {
+            shop: product.shopName || "unknown",
+            productId: product.id,
+            wishlistId: wishlist?.id || "",
+          });
           window.open(product.affiliateUrl || product.originalUrl, "_blank", "noopener");
         }
       }
@@ -254,6 +264,11 @@ export default function SharePageContent({
       return { previous };
     },
     onSuccess: (product) => {
+      trackEvent("affiliate_click", {
+        shop: product.shopName || "unknown",
+        productId: product.id,
+        wishlistId: wishlist?.id || "",
+      });
       window.open(product.affiliateUrl || product.originalUrl, "_blank", "noopener");
     },
     onError: (_err, _vars, context) => {
@@ -429,6 +444,7 @@ export default function SharePageContent({
               <ProductCard
                 key={product.id}
                 product={product}
+                wishlistId={wishlist.id}
                 isOwner={isOwner}
                 isEditor={isEditor}
                 isLoggedIn={isLoggedIn}
@@ -560,6 +576,24 @@ export default function SharePageContent({
           title={!wishlist.isLoggedIn && !session ? t("joinTitle", { title: wishlist.title }) : undefined}
         />
 
+        {/* CTA for logged-in non-owners */}
+        {isLoggedIn && !isOwner && !isEditor && (
+          <div className="mt-12 rounded-xl border-2 border-accent/30 bg-accent/5 p-6 text-center">
+            <h2 className="font-serif text-xl">{t("ctaTitle")}</h2>
+            <p className="mt-2 text-sm text-foreground/50">{t("ctaText")}</p>
+            <Link href="/dashboard">
+              <Button
+                variant="accent"
+                size="lg"
+                className="mt-4"
+                onClick={() => trackEvent("cta_click", { location: "share_page" })}
+              >
+                {t("ctaButton")}
+              </Button>
+            </Link>
+          </div>
+        )}
+
       </div>
 
       {isLoggedIn && !(isOwner && wishlist.ownerVisibility === "surprise") && (
@@ -585,6 +619,7 @@ export default function SharePageContent({
 
 function ProductCard({
   product,
+  wishlistId,
   isOwner,
   isEditor,
   isLoggedIn,
@@ -596,6 +631,7 @@ function ProductCard({
   onAuthRequired,
 }: {
   product: Product;
+  wishlistId: string;
   isOwner: boolean;
   isEditor: boolean;
   isLoggedIn: boolean;
@@ -613,6 +649,14 @@ function ProductCard({
   const productUrl = product.affiliateUrl || product.originalUrl;
   const isAffiliate = !!product.affiliateUrl;
 
+  function handleAffiliateClick() {
+    trackEvent("affiliate_click", {
+      shop: product.shopName || "unknown",
+      productId: product.id,
+      wishlistId,
+    });
+  }
+
   return (
     <div
       className={`flex items-center gap-3 rounded-xl border-2 bg-card p-3 transition-all sm:gap-4 sm:p-4 ${
@@ -624,6 +668,7 @@ function ProductCard({
         target="_blank"
         rel={isAffiliate ? "sponsored nofollow noopener" : "noopener"}
         className="shrink-0"
+        onClick={handleAffiliateClick}
       >
         <ProductImage
           src={product.imageUrl}
@@ -639,6 +684,7 @@ function ProductCard({
               target="_blank"
               rel={isAffiliate ? "sponsored nofollow noopener" : "noopener"}
               className="hover:underline"
+              onClick={handleAffiliateClick}
             >
               {product.title}
               <ExternalLink className="ml-1 inline size-3 text-foreground/30" />

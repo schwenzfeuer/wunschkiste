@@ -35,6 +35,20 @@ export const ajReserve = key
     })
   : null;
 
+export const ajTrack = key
+  ? arcjet({
+      key,
+      rules: [
+        tokenBucket({
+          mode,
+          refillRate: 30,
+          interval: 60,
+          capacity: 30,
+        }),
+      ],
+    })
+  : null;
+
 export const ajAuth = key
   ? arcjet({
       key,

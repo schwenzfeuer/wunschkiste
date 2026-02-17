@@ -3,7 +3,7 @@ import { z } from "zod";
 import { nanoid } from "nanoid";
 import { eq, and, inArray, sql, count } from "drizzle-orm";
 import { auth } from "@/lib/auth";
-import { db, wishlists, products, reservations, savedWishlists, users, wishlistThemeEnum, ownerVisibilityEnum, chatMessages, chatReadCursors } from "@/lib/db";
+import { db, wishlists, products, reservations, savedWishlists, users, wishlistThemeEnum, ownerVisibilityEnum, chatMessages, chatReadCursors, analyticsEvents } from "@/lib/db";
 
 const createWishlistSchema = z.object({
   title: z.string().min(1).max(100),
@@ -142,6 +142,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       shareToken: nanoid(12),
     })
     .returning();
+
+  await db.insert(analyticsEvents).values({
+    eventType: "wishlist_created",
+    metadata: {},
+  });
 
   return NextResponse.json(wishlist, { status: 201 });
 }

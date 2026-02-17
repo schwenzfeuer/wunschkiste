@@ -46,6 +46,7 @@ export const routing = defineRouting({
       de: "/datenschutz",
       en: "/privacy",
     },
+    "/admin": "/admin",
   },
 });
 

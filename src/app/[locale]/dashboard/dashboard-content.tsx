@@ -22,6 +22,7 @@ import { ChatPanel } from "@/components/chat/chat-panel";
 import { useChat } from "@/hooks/use-chat";
 import { useWishlistSync } from "@/hooks/use-wishlist-sync";
 import type { QueryClient } from "@tanstack/react-query";
+import { trackEvent } from "@/lib/tracking";
 
 function WishlistSyncBridge({ id, queryClient }: { id: string; queryClient: QueryClient }) {
   const onChatMessage = useCallback(() => {
@@ -370,6 +371,7 @@ export default function DashboardContent() {
                         return;
                       }
                       const shareUrl = `${window.location.origin}/share/${wishlist.shareToken}`;
+                      trackEvent("wishlist_shared", { wishlistId: wishlist.id });
                       if (navigator.share) {
                         try {
                           await navigator.share({ title: wishlist.title, url: shareUrl });

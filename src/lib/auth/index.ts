@@ -3,6 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 import { sendPasswordResetEmail, sendWelcomeEmail } from "@/lib/email";
+import { analyticsEvents } from "@/lib/db/schema";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -26,6 +27,10 @@ export const auth = betterAuth({
           if (user.email) {
             void sendWelcomeEmail(user.email, user.name || "");
           }
+          void db.insert(analyticsEvents).values({
+            eventType: "registration",
+            metadata: {},
+          });
         },
       },
     },

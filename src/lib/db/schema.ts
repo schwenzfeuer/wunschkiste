@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, boolean, decimal, integer, pgEnum, unique, index } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, boolean, decimal, integer, pgEnum, unique, index, jsonb } from "drizzle-orm/pg-core";
 
 export const wishlistThemeEnum = pgEnum("wishlist_theme", [
   "standard",
@@ -207,3 +207,18 @@ export type SentReminder = typeof sentReminders.$inferSelect;
 export type ChatMessage = typeof chatMessages.$inferSelect;
 export type NewChatMessage = typeof chatMessages.$inferInsert;
 export type ChatReadCursor = typeof chatReadCursors.$inferSelect;
+
+export const analyticsEvents = pgTable("analytics_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  eventType: text("event_type").notNull(),
+  metadata: jsonb("metadata").$type<Record<string, string>>(),
+  pagePath: text("page_path"),
+  referrer: text("referrer"),
+  country: text("country"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("analytics_events_type_created_idx").on(t.eventType, t.createdAt),
+]);
+
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+export type NewAnalyticsEvent = typeof analyticsEvents.$inferInsert;

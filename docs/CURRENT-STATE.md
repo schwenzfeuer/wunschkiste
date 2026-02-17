@@ -1,10 +1,10 @@
 # Current State
 
-> Letzte Aktualisierung: 17.02.2026
+> Letzte Aktualisierung: 17.02.2026 (Abend)
 
 ## Status
 
-**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 83 Tests grün, Build grün. Live-Sync via Durable Objects WebSocket (Editor + Share-Seite + Dashboard). Chat-Feature live (Backend + UI + Realtime deployed).
+**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 83 Tests gruen, Build gruen. Live-Sync via Durable Objects WebSocket (Editor + Share-Seite + Dashboard). Chat-Feature live. Event-Tracking + Analytics Dashboard + Share-CTA implementiert.
 
 ## Was existiert
 
@@ -207,6 +207,17 @@
 - [x] **83 Tests grün**: 70 API (inkl. 11 neue Chat-Tests) + 13 E2E
 - [x] **useChat Hook**: useInfiniteQuery Pagination, useMutation mit Optimistic Update, markAsRead nur bei offenem Chat
 - [x] **shadcn Sheet**: Neue UI-Komponente (Radix Dialog-basiert, Seiten-Panel)
+- [x] **Event-Tracking Backend**: analytics_events Tabelle (uuid, event_type, metadata jsonb, page_path, referrer, country, created_at), Index auf (event_type, created_at)
+- [x] **POST /api/track**: Anonymer Tracking-Endpoint mit Zod-Validierung, ArcJet Rate-Limiting (30/min), CF-IPCountry Header
+- [x] **Client-Side Tracking**: `trackEvent()` Helper mit `navigator.sendBeacon` (fire-and-forget, ueberlebt Page-Navigation)
+- [x] **Server-Side Events**: wishlist_created (Wishlists POST), registration (better-auth User-Create Hook)
+- [x] **Share-Seite Tracking**: page_view Event beim Laden, cta_click beim CTA-Button-Klick
+- [x] **Analytics Dashboard**: /admin Route (Server Component mit Auth + Admin-Email-Check, robots:noindex)
+- [x] **GET /api/admin/analytics**: Period-Filter (7d/30d/90d/all), Summary (Users/Wishlists/Products/Clicks/Views), Daily Events, Top Shops, Laender
+- [x] **Dashboard UI**: 4 Summary Cards, Line Chart (Events/Tag), Bar Chart (Top Shops), Pie/Donut Chart (Laender) -- shadcn chart + recharts
+- [x] **Admin-Zugang**: ADMIN_EMAIL Env-Variable, Server-seitige Pruefung, Redirect fuer Nicht-Admins
+- [x] **CTA auf Share-Seite**: "Auch Wuensche? Erstell deine eigene Wunschliste" -- nur fuer eingeloggte Nicht-Owner sichtbar, accent-Button, i18n (de + en)
+- [x] **shadcn Chart**: Neue UI-Komponente (Recharts-basiert)
 
 ## Tech-Stack (installiert)
 
@@ -225,6 +236,7 @@
 - sonner (Toasts via shadcn)
 - @arcjet/next (Rate-Limiting + Bot-Protection)
 - react-day-picker + date-fns (Calendar/Datepicker)
+- recharts (Charts via shadcn chart)
 - @opennextjs/cloudflare + wrangler (Deployment)
 
 ## Projektstruktur
@@ -244,6 +256,9 @@ src/
 │   │   ├── wishlist/
 │   │   │   ├── new/page.tsx + new-wishlist-form.tsx
 │   │   │   └── [id]/page.tsx + wishlist-editor.tsx
+│   │   ├── admin/
+│   │   │   ├── page.tsx               # Server Component (Auth + Admin-Check)
+│   │   │   └── admin-dashboard.tsx    # Client Component (Charts)
 │   │   └── share/[token]/
 │   │       ├── page.tsx               # Server Component (SSR + generateMetadata)
 │   │       ├── share-page-content.tsx  # Client Component (Interaktivitaet)
@@ -254,6 +269,8 @@ src/
 │       │   └── [id]/products/         # Products CRUD
 │       ├── share/[token]/             # Public share API
 │       │   └── reserve/               # Reservations
+│       ├── admin/analytics/            # Analytics-Daten API (Auth + Admin)
+│       ├── track/                     # Event-Tracking (anonym, Rate-Limited)
 │       ├── reminders/send/            # Cron: Email-Erinnerungen
 │       ├── scrape/                    # URL Scraping
 │       └── profile/avatar/            # Avatar Upload/Delete (R2)
@@ -281,6 +298,7 @@ src/
 │   ├── email/                         # Resend Email-Service
 │   ├── storage/                       # Cloudflare R2 Client
 │   ├── security/                      # ArcJet Rate-Limiting
+│   ├── tracking.ts                    # Client-Side Event-Tracking (sendBeacon)
 │   └── wishlist-access.ts             # Zentraler Owner/Editor Zugriffs-Check
 ├── lib/
 │   └── format.ts                      # Preisformatierung + Countdown (formatPrice, normalizePrice, getCountdownDays)
@@ -293,10 +311,26 @@ messages/
 
 ## Naechste Schritte
 
+### Wachstum & Monetarisierung (ADR-008)
+- [x] Event-Tracking: analytics_events Tabelle + POST /api/track Endpoint + Client-Helper + Server-Side Events
+- [x] Analytics Dashboard: /admin mit shadcn Charts (Summary, Events/Tag, Top Shops, Laender)
+- [x] Viraler Loop: CTA auf Share-Seite ("Erstell deine eigene Wunschliste") fuer eingeloggte Nicht-Owner
+- [x] Affiliate-Click Tracking auf Share-Seite (Produkt-Links, Kauf-Dialog, Upgrade)
+- [x] wishlist_shared Event in Dashboard + Editor (Share-Button Klick)
+- [ ] Sticker/QR-Code Design erstellen (fuer Druck)
+- [ ] Instagram Account aufsetzen + erste Reels
+
+### Internationale Expansion (ADR-008)
+- [ ] en.json: Englische Uebersetzungen fertigstellen
+- [ ] Amazon UK Associates Account anlegen
+- [ ] es.json: Spanische Uebersetzungen erstellen (KI + Review)
+- [ ] Lokalisierte Routen fuer Spanisch
+- [ ] Amazon ES Associates Account anlegen
+- [ ] Amazon-Affiliate-Tags pro Land: Domain-basiertes Mapping statt einzelne Env-Variable
+
 ### Sonstiges
 - [ ] Frontend-Validierung (alle Formulare: Login, Register, Passwort-Reset, Wunschkiste erstellen, Wunsch hinzufuegen/bearbeiten)
 - [ ] Cloudflare Rate Limiting als Ersatz/Ergaenzung fuer ArcJet evaluieren
-- [ ] en.json: Englische Uebersetzungen fertigstellen (aktuell Platzhalter)
 - [ ] Facebook OAuth Credentials einrichten
 
 ## Lokale Entwicklung
@@ -335,6 +369,25 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - [x] Cloudflare Workers Deployment (wunschkiste.app)
 
 ## Letzte Sessions
+
+### 17.02.2026 - Event-Tracking + Analytics Dashboard + Share-CTA
+- **analytics_events Tabelle**: DB-Schema erweitert (uuid, event_type, metadata jsonb, page_path, referrer, country, created_at), Index auf (event_type, created_at)
+- **POST /api/track**: Anonymer Tracking-Endpoint, Zod-validiert, ArcJet Rate-Limited (30/min), CF-IPCountry Header, immer 200 (kein Feedback an Client)
+- **trackEvent() Helper**: Client-Side mit navigator.sendBeacon (fire-and-forget, ueberlebt Page-Navigation), Fallback auf fetch mit keepalive
+- **Server-Side Events**: wishlist_created in Wishlists POST, registration in better-auth User-Create Hook
+- **Share-Seite Tracking**: page_view beim Laden, cta_click beim CTA-Button
+- **GET /api/admin/analytics**: Auth + Admin-Email-Check, Period-Filter (7d/30d/90d/all), Aggregationen (Summary, Daily Events, Top Shops, Laender)
+- **Admin-Seite /admin**: Server Component mit Auth-Guard + ADMIN_EMAIL-Check, robots:noindex, Redirect fuer Nicht-Admins
+- **Admin Dashboard UI**: 4 Summary Cards (Nutzer, Wunschlisten, Affiliate-Klicks, Share-Aufrufe), Line Chart (Events pro Tag nach Typ), Bar Chart (Top Shops), Pie Chart (Laender), Period-Selector
+- **CTA auf Share-Seite**: "Auch Wuensche? Erstell deine eigene Wunschliste" + "Kostenlos. In 30 Sekunden." + accent-Button, nur fuer eingeloggte Nicht-Owner (nicht fuer Gaeste, Owner, Editoren)
+- **i18n**: ctaTitle/ctaText/ctaButton Keys in share-Namespace (de + en)
+- **shadcn chart + recharts installiert**: ChartContainer, ChartTooltip, LineChart, BarChart, PieChart
+- **ArcJet ajTrack**: Neuer Rate-Limiter (30 req/min) fuer /api/track
+- **Affiliate-Click Tracking**: onClick auf Produkt-Bild, Produkt-Titel, Kauf-Dialog (onSuccess), Upgrade-Mutation (onSuccess) -- metadata: shop, productId, wishlistId
+- **Wishlist-Shared Tracking**: trackEvent in Dashboard (Share-Button) und Editor (handleShare)
+- **.env.example**: ADMIN_EMAIL dokumentiert
+- **Label-Fixes**: "Wunschlisten" -> "Wunschkisten", "Laender" -> "Laender" im Dashboard
+- **83 Tests gruen**, Build gruen
 
 ### 17.02.2026 - ESLint Cleanup (0 Errors, 0 Warnings)
 - **React Compiler Errors gefixt**: Ref-Updates waehrend Render in useEffect verschoben (use-wishlist-sync, use-chat)
@@ -393,7 +446,7 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Notizen fuer naechste Session
 
-- **Chat-Feature ist LIVE** auf wunschkiste.app (deployed 16.02.2026)
+- **Event-Tracking + Analytics Dashboard + CTA implementiert** (17.02.2026) -- ADMIN_EMAIL auf Cloudflare gesetzt, DB-Schema auf Neon gepusht, noch nicht deployed
 - **Chat Swipe-to-Dismiss**: Sheet auf Mobile durch Drawer (vaul) ersetzen -- auf Mobile von unten mit Swipe-Geste wegwischbar, auf Desktop weiterhin Sheet von rechts. `vaul` muss installiert werden (`npx shadcn@latest add drawer` oder `pnpm add vaul`).
 - **App ist LIVE** auf https://wunschkiste.app (Cloudflare Workers + Neon)
 - **Deploy-Command**: `pnpm run deploy` (NICHT `pnpm deploy`)

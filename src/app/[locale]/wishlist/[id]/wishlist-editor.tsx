@@ -30,6 +30,7 @@ import { useChat } from "@/hooks/use-chat";
 import { ChatPanel } from "@/components/chat/chat-panel";
 import { ChatFab } from "@/components/chat/chat-fab";
 import type { OwnerVisibility } from "@/lib/db/schema";
+import { trackEvent } from "@/lib/tracking";
 
 interface Product {
   id: string;
@@ -294,6 +295,7 @@ export default function WishlistEditor({ id }: { id: string }) {
       return;
     }
     const shareUrl = `${window.location.origin}/share/${wishlist.shareToken}`;
+    trackEvent("wishlist_shared", { wishlistId: wishlist.id });
     if (navigator.share) {
       try {
         await navigator.share({ title: wishlist.title, url: shareUrl });
