@@ -17,7 +17,6 @@ function getBaseUrl() {
 }
 
 const LOGO_URL_LIGHT = "https://wunschkiste.app/wunschkiste-logo.svg";
-const LOGO_URL_DARK = "https://wunschkiste.app/wunschkiste-logo-dark.svg";
 const WORDMARK_URL = "https://wunschkiste.app/wunschkiste-wordmark.svg";
 
 function emailLayout(content: string, footerText: string) {

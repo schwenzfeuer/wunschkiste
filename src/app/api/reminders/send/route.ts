@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, eq, gte, lte, inArray, sql } from "drizzle-orm";
+import { and, eq, gte, lte, inArray } from "drizzle-orm";
 import { db, wishlists, savedWishlists, reservations, products, users, sentReminders } from "@/lib/db";
 import { sendReminderEmail } from "@/lib/email";
 import type { ReminderType } from "@/lib/db";

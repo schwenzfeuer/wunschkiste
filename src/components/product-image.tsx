@@ -21,6 +21,7 @@ export function ProductImage({ src, alt, className = "" }: ProductImageProps) {
   }
 
   return (
+    // eslint-disable-next-line @next/next/no-img-element -- external URLs with unknown dimensions + onError fallback
     <img
       src={src}
       alt={alt}

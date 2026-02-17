@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useSyncExternalStore } from "react";
 import { usePathname, useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { useSession } from "@/lib/auth/client";
@@ -52,20 +52,17 @@ export function MobileToolbar() {
   const tCommon = useTranslations("common");
   const { data: session, isPending } = useSession();
   const [authOpen, setAuthOpen] = useState(false);
-  const [leftHanded, setLeftHanded] = useState(false);
+  const leftHanded = useSyncExternalStore(
+    (cb) => {
+      window.addEventListener("hand-preference-change", cb);
+      return () => window.removeEventListener("hand-preference-change", cb);
+    },
+    () => localStorage.getItem(HAND_PREFERENCE_KEY) === "left",
+    () => false,
+  );
   const [dashboardTab, setDashboardTab] = useState<"mine" | "friends">("mine");
   const [shareWishlistId, setShareWishlistId] = useState<string | null>(null);
   const [leaveOpen, setLeaveOpen] = useState(false);
-
-  useEffect(() => {
-    setLeftHanded(localStorage.getItem(HAND_PREFERENCE_KEY) === "left");
-
-    function handleHandChange() {
-      setLeftHanded(localStorage.getItem(HAND_PREFERENCE_KEY) === "left");
-    }
-    window.addEventListener("hand-preference-change", handleHandChange);
-    return () => window.removeEventListener("hand-preference-change", handleHandChange);
-  }, []);
 
   useEffect(() => {
     function handleTabEvent(e: Event) {
@@ -76,14 +73,16 @@ export function MobileToolbar() {
     return () => window.removeEventListener("toolbar:dashboard-tab-changed", handleTabEvent);
   }, []);
 
-  useEffect(() => {
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
     if (getPageType(pathname) === "dashboard") {
       setDashboardTab("mine");
     }
     if (getPageType(pathname) !== "share") {
       setShareWishlistId(null);
     }
-  }, [pathname]);
+  }
 
   useEffect(() => {
     function handleShareWishlistId(e: Event) {

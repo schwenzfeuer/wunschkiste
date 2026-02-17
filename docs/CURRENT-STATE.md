@@ -1,6 +1,6 @@
 # Current State
 
-> Letzte Aktualisierung: 16.02.2026
+> Letzte Aktualisierung: 17.02.2026
 
 ## Status
 
@@ -336,6 +336,17 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 17.02.2026 - ESLint Cleanup (0 Errors, 0 Warnings)
+- **React Compiler Errors gefixt**: Ref-Updates waehrend Render in useEffect verschoben (use-wishlist-sync, use-chat)
+- **useSyncExternalStore**: localStorage-Reads + mounted-Pattern in theme-toggle, profile-menu, mobile-toolbar durch useSyncExternalStore ersetzt (kein setState in Effect mehr)
+- **Derive State During Render**: 4x setState-in-Effect durch React-empfohlenes "Derive During Render"-Pattern ersetzt (dashboard auto-tab, share auth-dialog, editor form-sync, toolbar pathname-reset)
+- **useCallback entfernt**: Unnuetiges useCallback in share-page-content entfernt (useWishlistSync nutzt intern Refs)
+- **12 unused imports/vars entfernt**: Image, Users, router, setTheme, sql, eq, and, count, gt, notifyWishlistRoom, LOGO_URL_DARK
+- **Tailwind Canonical Classes**: shadcn-Komponenten (dropdown-menu, select) + eigene Komponenten (phone-mockup, connected-participants) auf kanonische Klassen umgestellt
+- **Sonstiges**: Leeres Interface durch Type ersetzt (notify.ts), ESLint-Disable fuer bewusstes `<img>` (product-image)
+- **ESLint Config**: `.open-next` zu ignores, `argsIgnorePattern: "^_"` fuer unused-vars, `no-explicit-any: off` in Tests
+- **Test-Cleanup**: Unused imports/functions entfernt (chat.spec, co-editor.spec), error.tsx `_error` Prefix
+
 ### 16.02.2026 - Chat-Feature implementiert + deployed
 - **Chat pro Wunschkiste**: Vollständiges Backend (chat_messages + chat_read_cursors Tabellen, 4 API Routes, verifyChatAccess Helper)
 - **Chat-UI**: Sheet-basiertes Panel mit MessageList (Pagination, Datums-Trenner, Gruppierung), Input (auto-grow, Enter=Send), FAB (3D-Stil mit Unread-Badge)
@@ -375,13 +386,8 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ### 15.02.2026 - Landing Page Redesign + ConnectedParticipants
 - **PhoneMockup/PhonePair**: CSS-only iPhone-Frames fuer Feature-Screenshots (Light + Dark)
-- **6 Landing-Screenshots**: Playwright-generierte WebP-Bilder fuer Collect/Manage/Share Features
-- **ConnectedParticipants Animation**: Pomegranate.health-inspirierte Pill-Profile (3D-Button-Stil) um zentrales Geschenk-Icon mit SVG-Linien und Float/Pulse-Animationen
-- **Solution + Share fusioniert**: Share-Sektion entfernt, bester Text aus beiden in Solution zusammengefuehrt
-- **Dark Mode Fixes**: Creme-Hintergrund (fixed #FEF1D0) fuer Geschenk-Icon, Linien-Opacity erhoeht
-- **Mobile Sektions-Navigation**: ArrowDown-Buttons (md:hidden) am Ende von Problem/Solution/Collect die zur naechsten Sektion scrollen
-- **Landing Struktur**: Hero -> Problem -> Solution+Animation -> Collect -> Manage -> CTA (features-Array auf 2 reduziert)
-- **i18n**: 3 neue nextShare/nextCollect/nextManage Keys (de + en)
+- **ConnectedParticipants Animation**: Pomegranate.health-inspirierte Pill-Profile um zentrales Geschenk-Icon
+- **Landing Struktur**: Hero -> Problem -> Solution+Animation -> Collect -> Manage -> CTA
 
 
 

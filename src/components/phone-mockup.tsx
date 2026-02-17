@@ -12,7 +12,7 @@ export function PhoneMockup({ src, alt, className, dark }: PhoneMockupProps) {
   return (
     <div
       className={cn(
-        "relative w-[240px] rounded-[40px] border-[6px] p-1.5 shadow-xl sm:w-[280px]",
+        "relative w-60 rounded-[40px] border-[6px] p-1.5 shadow-xl sm:w-70",
         dark
           ? "border-[#0042AF]/90 bg-[#0042AF]/90"
           : "border-foreground/90 bg-foreground/90",
@@ -21,7 +21,7 @@ export function PhoneMockup({ src, alt, className, dark }: PhoneMockupProps) {
     >
       {/* Dynamic Island */}
       <div className={cn(
-        "absolute left-1/2 top-2 z-10 h-[22px] w-[80px] -translate-x-1/2 rounded-full",
+        "absolute left-1/2 top-2 z-10 h-5.5 w-20 -translate-x-1/2 rounded-full",
         dark ? "bg-[#0042AF]/90" : "bg-foreground/90"
       )} />
 
@@ -39,7 +39,7 @@ export function PhoneMockup({ src, alt, className, dark }: PhoneMockupProps) {
 
       {/* Bottom bar */}
       <div className={cn(
-        "absolute bottom-2 left-1/2 h-[4px] w-[100px] -translate-x-1/2 rounded-full",
+        "absolute bottom-2 left-1/2 h-1 w-25 -translate-x-1/2 rounded-full",
         dark ? "bg-[#FEF1D0]/40" : "bg-background/40"
       )} />
     </div>

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { eq, and, lt, desc, count } from "drizzle-orm";
+import { eq, and, lt, desc } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db, chatMessages } from "@/lib/db";
 import { verifyChatAccess } from "@/lib/chat-access";
-import { notifyWishlistChat, notifyWishlistRoom } from "@/lib/realtime/notify";
+import { notifyWishlistChat } from "@/lib/realtime/notify";
 
 const sendMessageSchema = z.object({
   content: z.string().min(1).max(2000).trim(),

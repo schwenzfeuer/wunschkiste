@@ -4,7 +4,7 @@ interface DurableObjectStub {
   fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
 }
 
-interface DurableObjectId {}
+type DurableObjectId = object;
 
 interface DurableObjectBinding {
   idFromName(name: string): DurableObjectId;

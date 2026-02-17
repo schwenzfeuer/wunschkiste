@@ -53,10 +53,6 @@ async function joinWishlist(
   return res.json();
 }
 
-function getUserIdFromShareResponse(shareData: any, isOwner: boolean) {
-  return shareData;
-}
-
 test.describe("Co-Editor Role Management", () => {
   test("owner can promote participant to editor", async ({
     request,
@@ -145,7 +141,7 @@ test.describe("Co-Editor Role Management", () => {
     expect(patchRes.status()).toBe(404);
   });
 
-  test("owner cannot change own role", async ({ request, playwright }) => {
+  test("owner cannot change own role", async ({ request }) => {
     await registerAndLogin(request);
     const { wishlist } = await createWishlistWithProduct(request);
 

@@ -6,7 +6,7 @@ import { useRouter, Link } from "@/i18n/routing";
 import { useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Gift, Share2, Trash2, Eye, PencilLine, Check, Calendar, Users, UserCog, LogOut, MessageCircle } from "lucide-react";
+import { Plus, Gift, Share2, Trash2, Eye, PencilLine, Check, Calendar, UserCog, LogOut, MessageCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -116,6 +116,7 @@ export default function DashboardContent() {
   const [editDescription, setEditDescription] = useState("");
   const [chatWishlist, setChatWishlist] = useState<{ id: string; title: string } | null>(null);
   const chat = useChat(chatWishlist?.id ?? "", !!chatWishlist);
+  useWishlistSync(chatWishlist?.id, [["wishlists"], ["wishlists", "shared"]], chat.onChatMessage);
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -133,14 +134,17 @@ export default function DashboardContent() {
     return () => window.removeEventListener("toolbar:dashboard-tab", handleTabEvent);
   }, []);
 
+  const [autoSwitched, setAutoSwitched] = useState(false);
+  if (!wishlistsLoading && !sharedLoading && !autoSwitched && wishlists.length === 0 && sharedWishlists.length > 0) {
+    setAutoSwitched(true);
+    setActiveTab("friends");
+  }
+
   useEffect(() => {
-    if (!wishlistsLoading && !sharedLoading) {
-      if (wishlists.length === 0 && sharedWishlists.length > 0) {
-        setActiveTab("friends");
-        window.dispatchEvent(new CustomEvent("toolbar:dashboard-tab-changed", { detail: "friends" }));
-      }
+    if (autoSwitched) {
+      window.dispatchEvent(new CustomEvent("toolbar:dashboard-tab-changed", { detail: "friends" }));
     }
-  }, [wishlistsLoading, sharedLoading, wishlists.length, sharedWishlists.length]);
+  }, [autoSwitched]);
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {

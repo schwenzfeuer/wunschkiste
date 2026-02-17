@@ -67,7 +67,7 @@ export function ConnectedParticipants() {
   const circleR = 80;
 
   return (
-    <div className="relative mx-auto w-full max-w-[580px]" style={{ aspectRatio: "6 / 5" }}>
+    <div className="relative mx-auto w-full max-w-145" style={{ aspectRatio: "6 / 5" }}>
       {/* SVG connection lines -- solid, thin, like pomegranate */}
       <svg
         className="pointer-events-none absolute inset-0 h-full w-full"

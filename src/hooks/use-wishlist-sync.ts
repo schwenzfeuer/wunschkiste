@@ -22,14 +22,17 @@ export function useWishlistSync(
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const pingTimerRef = useRef<ReturnType<typeof setInterval>>(undefined);
   const queryKeysRef = useRef(queryKeys);
-  queryKeysRef.current = queryKeys;
   const onChatMessageRef = useRef(onChatMessage);
-  onChatMessageRef.current = onChatMessage;
+  useEffect(() => {
+    queryKeysRef.current = queryKeys;
+    onChatMessageRef.current = onChatMessage;
+  });
 
   useEffect(() => {
     if (!wishlistId) return;
 
     let mounted = true;
+    let hasConnectedBefore = false;
 
     function connect() {
       if (!mounted) return;
@@ -39,6 +42,13 @@ export function useWishlistSync(
 
       ws.addEventListener("open", () => {
         backoffRef.current = 1000;
+        if (hasConnectedBefore) {
+          for (const key of queryKeysRef.current) {
+            queryClient.invalidateQueries({ queryKey: key });
+          }
+          queryClient.invalidateQueries({ queryKey: ["chat", wishlistId] });
+        }
+        hasConnectedBefore = true;
         pingTimerRef.current = setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
             ws.send("ping");

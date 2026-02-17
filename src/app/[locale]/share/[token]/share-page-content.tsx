@@ -101,7 +101,10 @@ export default function SharePageContent({
   });
 
   const chat = useChat(wishlist?.id ?? "", chatOpen);
-  useWishlistSync(wishlist?.id, [["share", token]], chat.onChatMessage);
+  useWishlistSync(wishlist?.id, [["share", token]], (msg: Record<string, unknown>) => {
+    chat.onChatMessage(msg);
+    queryClient.invalidateQueries({ queryKey: ["share", token] });
+  });
 
   useEffect(() => {
     if (wishlist?.id) {
@@ -117,11 +120,13 @@ export default function SharePageContent({
     return () => window.removeEventListener("toolbar:toggle-chat", handleToolbarChat);
   }, []);
 
-  useEffect(() => {
-    if (!wishlist?.isLoggedIn && !session && !authDismissed) {
+  const [initialAuthChecked, setInitialAuthChecked] = useState(false);
+  if (wishlist && !initialAuthChecked) {
+    setInitialAuthChecked(true);
+    if (!wishlist.isLoggedIn && !session && !authDismissed) {
       setAuthDialogOpen(true);
     }
-  }, [wishlist?.isLoggedIn, session, authDismissed]);
+  }
 
   function openClaimDialog(product: Product) {
     setSelectedProduct(product);

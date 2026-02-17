@@ -2,13 +2,12 @@
 
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Link, useRouter } from "@/i18n/routing";
+import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { resetPassword } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Image from "next/image";
 import { BrandLogo } from "@/components/brand-logo";
 import { Check } from "lucide-react";
 
@@ -23,7 +22,6 @@ export default function ResetPasswordForm() {
 function ResetPasswordFormInner() {
   const t = useTranslations("resetPassword");
   const tAuth = useTranslations("auth");
-  const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const errorParam = searchParams.get("error");

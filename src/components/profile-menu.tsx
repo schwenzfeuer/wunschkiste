@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useSyncExternalStore } from "react";
 import { useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
@@ -36,16 +36,18 @@ export function ProfileMenu({ session, size = "sm" }: ProfileMenuProps) {
   const isGoogleAccount = session.user.image?.includes("googleusercontent.com");
   const { resolvedTheme, setTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [leftHanded, setLeftHanded] = useState(false);
-
-  useEffect(() => {
-    setLeftHanded(localStorage.getItem(HAND_PREFERENCE_KEY) === "left");
-  }, []);
+  const leftHanded = useSyncExternalStore(
+    (cb) => {
+      window.addEventListener("hand-preference-change", cb);
+      return () => window.removeEventListener("hand-preference-change", cb);
+    },
+    () => localStorage.getItem(HAND_PREFERENCE_KEY) === "left",
+    () => false,
+  );
 
   function toggleHandPreference() {
     const newValue = leftHanded ? "right" : "left";
     localStorage.setItem(HAND_PREFERENCE_KEY, newValue);
-    setLeftHanded(!leftHanded);
     window.dispatchEvent(new Event("hand-preference-change"));
   }
 

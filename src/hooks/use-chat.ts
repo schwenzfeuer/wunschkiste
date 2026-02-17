@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { useSession } from "@/lib/auth/client";
 import type { ChatMessage } from "@/lib/db/schema";
@@ -14,7 +14,7 @@ export function useChat(wishlistId: string, isOpen = false) {
   const queryClient = useQueryClient();
   const { data: session } = useSession();
   const currentUserId = session?.user?.id;
-  const queryKey = ["chat", wishlistId];
+  const queryKey = useMemo(() => ["chat", wishlistId], [wishlistId]);
 
   const {
     data,
@@ -42,6 +42,7 @@ export function useChat(wishlistId: string, isOpen = false) {
       pages: data.pages,
       pageParams: data.pageParams,
     }),
+    enabled: !!wishlistId,
   });
 
   const messages = data?.pages
@@ -75,12 +76,23 @@ export function useChat(wishlistId: string, isOpen = false) {
     },
   });
 
+  const currentUserIdRef = useRef(currentUserId);
+  useEffect(() => {
+    currentUserIdRef.current = currentUserId;
+  });
+
   const onChatMessage = useCallback(
     (incomingMessage: Record<string, unknown>) => {
       const msg = incomingMessage as unknown as ChatMessage;
-      // Eigene Nachrichten ignorieren - die kommen schon via onSuccess
-      if (msg.userId === currentUserId) return;
-      queryClient.setQueryData<typeof data>(queryKey, (old) => {
+      if (msg.userId === currentUserIdRef.current) return;
+
+      const existing = queryClient.getQueryData<{ pages: ChatResponse[]; pageParams: unknown[] }>(queryKey);
+      if (!existing) {
+        queryClient.invalidateQueries({ queryKey });
+        return;
+      }
+
+      queryClient.setQueryData<typeof existing>(queryKey, (old) => {
         if (!old) return old;
         const allMessages = old.pages.flatMap((p) => p.messages);
         if (allMessages.some((m) => m.id === msg.id)) return old;
@@ -94,7 +106,7 @@ export function useChat(wishlistId: string, isOpen = false) {
         return { ...old, pages: newPages };
       });
     },
-    [queryClient, queryKey, currentUserId]
+    [queryClient, queryKey]
   );
 
   const markAsRead = useCallback(() => {

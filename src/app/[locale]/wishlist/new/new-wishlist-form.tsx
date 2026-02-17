@@ -25,7 +25,7 @@ export default function NewWishlistForm() {
   const { data: session, isPending } = useSession();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [theme, setTheme] = useState("standard");
+  const theme = "standard";
   const [eventDate, setEventDate] = useState<Date | undefined>();
   const [ownerVisibility, setOwnerVisibility] = useState<OwnerVisibility>("partial");
   const [error, setError] = useState<string | null>(null);

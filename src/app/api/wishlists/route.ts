@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { nanoid } from "nanoid";
-import { eq, and, inArray, sql, count, gt } from "drizzle-orm";
+import { eq, and, inArray, sql, count } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db, wishlists, products, reservations, savedWishlists, users, wishlistThemeEnum, ownerVisibilityEnum, chatMessages, chatReadCursors } from "@/lib/db";
 

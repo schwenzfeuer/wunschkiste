@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { registerAndLogin, freshTestUser } from "../helpers";
+import { registerAndLogin } from "../helpers";
 import { type APIRequestContext } from "@playwright/test";
 
 async function createWishlist(request: APIRequestContext, data: Record<string, unknown> = {}) {

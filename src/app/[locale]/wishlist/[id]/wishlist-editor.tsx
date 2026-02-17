@@ -183,12 +183,12 @@ export default function WishlistEditor({ id }: { id: string }) {
     }
   }, [wishlistError, router]);
 
-  useEffect(() => {
-    if (wishlist) {
-      setEventDate(wishlist.eventDate ? new Date(wishlist.eventDate) : undefined);
-      setOwnerVisibility(wishlist.ownerVisibility || "partial");
-    }
-  }, [wishlist]);
+  const [prevWishlist, setPrevWishlist] = useState<Wishlist | undefined>(undefined);
+  if (wishlist && wishlist !== prevWishlist) {
+    setPrevWishlist(wishlist);
+    setEventDate(wishlist.eventDate ? new Date(wishlist.eventDate) : undefined);
+    setOwnerVisibility(wishlist.ownerVisibility || "partial");
+  }
 
   async function handleScrape() {
     if (!newUrl) return;
