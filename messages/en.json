@@ -185,6 +185,7 @@
     "productUrl": "Product URL",
     "productUrlPlaceholder": "https://www.amazon.de/dp/...",
     "load": "Load",
+    "scrapeFailed": "Product data could not be loaded automatically. Please enter the title manually.",
     "titleLabel": "Title *",
     "cancel": "Cancel",
     "add": "Add",

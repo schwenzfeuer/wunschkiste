@@ -1,10 +1,10 @@
 # Current State
 
-> Letzte Aktualisierung: 17.02.2026 (Abend)
+> Letzte Aktualisierung: 18.02.2026
 
 ## Status
 
-**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 83 Tests gruen, Build gruen. Live-Sync via Durable Objects WebSocket (Editor + Share-Seite + Dashboard). Chat-Feature live. Event-Tracking + Analytics Dashboard + Share-CTA implementiert.
+**Phase:** v1.0 Live auf Cloudflare Workers + Neon PostgreSQL. Domain wunschkiste.app aktiv. 83 Tests grün, Build grün. Live-Sync via Durable Objects WebSocket (Editor + Share-Seite + Dashboard). Chat-Feature live. Event-Tracking + Analytics Dashboard + Share-CTA implementiert. Scraper-Extraktion verbessert (Microdata, JSON-LD Arrays, Preisformate, Fehlerseiten-Erkennung).
 
 ## Was existiert
 
@@ -22,7 +22,7 @@
 - [x] **Auth** (Email/Password + Google OAuth funktioniert)
 - [x] **Wishlists API** (CRUD: erstellen, lesen, bearbeiten, löschen)
 - [x] **Products API** (CRUD mit Affiliate-Link-Integration)
-- [x] **URL-Scraper** (Cheerio: OpenGraph + JSON-LD + Meta-Tags Fallback)
+- [x] **URL-Scraper** (Cheerio: OG-Tags + Twitter Cards + Microdata + JSON-LD mit Array/AggregateOffer Support, Fehlerseiten-Erkennung, Shop-Suffix-Entfernung, DE/US-Preisformat)
 - [x] **Share API** (öffentliche Wunschlisten mit Reservierungen)
 - [x] **Frontend-Seiten**: Login, Register, Dashboard, Wishlist-Editor, Share-View
 - [x] **Design Redesign (ADR-005)**: Warm-minimalistisch mit Storytelling-Flow
@@ -294,7 +294,7 @@ src/
 │   ├── auth/                          # better-auth Config (UUID-Mode)
 │   ├── db/                            # Drizzle Schema & Connection (neon-http)
 │   ├── affiliate/                     # Amazon + AWIN Affiliate Links
-│   ├── scraper/                       # Cheerio + OpenGraph + JSON-LD
+│   ├── scraper/                       # Cheerio (OG + Twitter + Microdata + JSON-LD)
 │   ├── email/                         # Resend Email-Service
 │   ├── storage/                       # Cloudflare R2 Client
 │   ├── security/                      # ArcJet Rate-Limiting
@@ -370,6 +370,21 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 
 ## Letzte Sessions
 
+### 18.02.2026 - Scraper-Überarbeitung: Cheerio-Extraktion verbessert
+- **extract.ts ausgelagert**: Cheerio-Extraktionslogik in eigene Datei `src/lib/scraper/extract.ts` (wiederverwendbar)
+- **Neue Extraktionsquellen**: Twitter Cards (`twitter:image`, `twitter:title`), Microdata/itemprop (`name`, `price`, `priceCurrency`, `image`), `product:` Meta-Tags
+- **JSON-LD verbessert**: `offers` als Array, `image` als Array, `lowPrice`/`highPrice` aus AggregateOffer, verschachtelte `@type: ["Product", ...]`
+- **Titel-Bereinigung**: `removeShopSuffix()` entfernt nur Suffixe die den Shopnamen enthalten (sicher: "KALLAX - IKEA Deutschland" wird "KALLAX", aber "iPhone 16 Pro - 256GB" bleibt)
+- **Fehlerseiten-Erkennung**: `isErrorPageTitle()` filtert "Page not found", "Seite nicht gefunden", "Access denied", "Just a moment" etc.
+- **Preisformat-Erkennung**: DE (1.299,99) vs US (1,299.99) korrekt geparst
+- **Browser Rendering evaluiert und deaktiviert**: Cloudflare Browser Rendering REST API implementiert (`browser-rendering.ts`), bei Live-Tests keinen Mehrwert -- JS-Shops (Dior, Zara) blockieren auch Headless-Browser. Datei bleibt für spätere Reaktivierung.
+- **Add-Dialog verbessert**: Nach Scrape sind Titel UND Preis editierbar (vorher nur Titel), `scraped` State zeigt Felder auch bei fehlgeschlagenem Scrape
+- **Toast bei Scrape-Fehler**: Neutraler Info-Toast "Produktdaten konnten nicht automatisch geladen werden. Bitte gib deinen Wunsch manuell ein." statt Fehlermeldung
+- **i18n**: `scrapeFailed` Key in de.json + en.json
+- **.env.example**: CLOUDFLARE_ACCOUNT_ID + CLOUDFLARE_BR_API_TOKEN dokumentiert
+- **LEARNINGS.md**: Scraper-Sektion mit Extraktions-Priorität, Browser Rendering Erfahrung, Preisformat-Details
+- **Deployed auf Cloudflare Workers**
+
 ### 17.02.2026 - Event-Tracking + Analytics Dashboard + Share-CTA
 - **analytics_events Tabelle**: DB-Schema erweitert (uuid, event_type, metadata jsonb, page_path, referrer, country, created_at), Index auf (event_type, created_at)
 - **POST /api/track**: Anonymer Tracking-Endpoint, Zod-validiert, ArcJet Rate-Limited (30/min), CF-IPCountry Header, immer 200 (kein Feedback an Client)
@@ -420,35 +435,13 @@ Wichtig: `BETTER_AUTH_URL` muss auf die Tunnel-URL gesetzt werden, sonst funktio
 - **Resend Quota-Schutz**: isTestEmail(@example.com) Guard in sendWelcomeEmail, sendPasswordResetEmail, sendReminderEmail -- 72 Tests verbrauchten 200% des taeglichen 100-Mail-Kontingents
 - **Cloudflare Workers async**: notifyWishlistRoom muss awaited werden (fire-and-forget wird nach Response terminiert)
 
-### 15.02.2026 (Nacht) - Sync-System Ueberarbeitung
-- **Tiefgehende Sync-Analyse**: Race Conditions, Fire-and-Forget, Cache-Isolation, falsche Cache-Keys identifiziert
-- **Race Condition Fix**: UNIQUE Constraint auf reservations.productId + onConflictDoNothing (atomarer Insert statt check-then-insert)
-- **useMutation Migration**: 15 Mutationen auf 3 Seiten (Dashboard: 3, Editor: 9, Share: 3) von manuellem fetch auf useMutation umgestellt
-- **Optimistic Updates**: Priority/Hidden Toggle im Editor, Reserve/Buy/Unclaim/Upgrade auf Share-Seite mit onMutate/onError Rollback
-- **Cache Fixes**: Visibility invalidiert ["wishlist", id] + ["products", id], Dashboard invalidiert ["wishlists", "shared"] bei Edit
-- **refetchOnWindowFocus entfernt**: Global deaktiviert (verursachte ungewollte Reloads beim Tab-Wechsel)
-- **refetchOnMount: "always"**: Dashboard-Queries laden immer frisch (Cross-Screen Konsistenz)
-- **Live-Sync Plan**: Durable Objects WebSocket Architektur geplant (separater Worker rt.wunschkiste.app)
-
-### 15.02.2026 (Abend) - Teilnehmerliste auf Share-Seite
-- **Participants-Query**: DB-Query (savedWishlists JOIN users) in SSR page.tsx + API route.ts
-- **Nur fuer Eingeloggte**: Nicht-eingeloggte User bekommen leeres participants-Array
-- **Avatar-Anzeige**: Gestapelte xs-Avatare (max 5) + Accent-Button mit Users-Icon im Share-Header
-- **Teilnehmer-Dialog**: Klick auf Button oeffnet Dialog mit Avatar + Name (wie im Editor, ohne Co-Editor Toggle)
-- **i18n**: participants + participantsTitle Keys im share-Namespace (de + en)
-
-### 15.02.2026 - Landing Page Redesign + ConnectedParticipants
-- **PhoneMockup/PhonePair**: CSS-only iPhone-Frames fuer Feature-Screenshots (Light + Dark)
-- **ConnectedParticipants Animation**: Pomegranate.health-inspirierte Pill-Profile um zentrales Geschenk-Icon
-- **Landing Struktur**: Hero -> Problem -> Solution+Animation -> Collect -> Manage -> CTA
-
-
 
 ## Notizen fuer naechste Session
 
-- **Event-Tracking + Analytics Dashboard + CTA implementiert** (17.02.2026) -- ADMIN_EMAIL auf Cloudflare gesetzt, DB-Schema auf Neon gepusht, noch nicht deployed
+- **Scraper-Verbesserung deployed** (18.02.2026) -- Cheerio-Extraktion deutlich besser (IKEA, Nike, Otto funktionieren), JS-Shops (Dior, Zara) bleiben unscrapebar, User gibt manuell ein
+- **Browser Rendering deaktiviert**: `browser-rendering.ts` existiert noch, wird aber nicht importiert. CLOUDFLARE_ACCOUNT_ID + CLOUDFLARE_BR_API_TOKEN als Env-Vars und Wrangler Secrets gesetzt, falls Reaktivierung gewünscht
 - **Chat Swipe-to-Dismiss**: Sheet auf Mobile durch Drawer (vaul) ersetzen -- auf Mobile von unten mit Swipe-Geste wegwischbar, auf Desktop weiterhin Sheet von rechts. `vaul` muss installiert werden (`npx shadcn@latest add drawer` oder `pnpm add vaul`).
 - **App ist LIVE** auf https://wunschkiste.app (Cloudflare Workers + Neon)
 - **Deploy-Command**: `pnpm run deploy` (NICHT `pnpm deploy`)
 - **Live-Sync ist LIVE**: rt.wunschkiste.app (Durable Objects), Editor + Share-Seite + Dashboard verbunden
-- en.json: Englische Uebersetzungen sind Platzhalter
+- en.json: Englische Übersetzungen sind Platzhalter

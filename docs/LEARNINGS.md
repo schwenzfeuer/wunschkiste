@@ -278,20 +278,48 @@ Config: `~/.cloudflared/config.yml`
 
 ## Scraper-Erfahrungen
 
-**Recherche-Datum:** 05.02.2026
+**Recherche-Datum:** 05.02.2026, aktualisiert 18.02.2026
+
+### Zweistufiges System (seit 18.02.2026)
+
+**Stufe 1 -- Cheerio:** Schnell (~200ms). Extrahiert aus OG-Tags, Twitter Cards, Microdata/itemprop, product:-Tags, JSON-LD (inkl. Array-Offers, AggregateOffer, verschachtelte @type).
+
+**Stufe 2 -- Cloudflare Browser Rendering (Fallback):** Wenn Cheerio kein Titel ODER kein Bild liefert, wird die Seite per Browser gerendert und dann mit der gleichen Cheerio-Logik geparst. Loest JS-gerenderte Shops (Dior, Zara, Nike, IKEA, Apple Store).
+
+### Cloudflare Browser Rendering REST API
+
+- **Endpoint:** `POST /client/v4/accounts/{id}/browser-rendering/content`
+- **Auth:** Bearer Token mit "Browser Rendering - Edit" Permission
+- **Response:** Rohes HTML (kein JSON-Wrapper)
+- **Env-Vars:** `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_BR_API_TOKEN`
+- **Kosten:** 10 Browser-Stunden/Monat im Paid Plan inklusive, ~7.200 Scrapes/Monat kostenlos bei ~5s/Scrape
+- Ohne Env-Vars: Graceful Degradation, nur Cheerio wird verwendet
+- `rejectResourceTypes: ["image", "font", "media"]` spart Bandbreite/Zeit
+- `gotoOptions.waitUntil: "networkidle0"` wartet bis alle Netzwerk-Requests fertig sind
 
 ### Shop-Kompatibilität
 
 | Shop | Titel | Bild | Preis | Methode |
 |------|-------|------|-------|---------|
-| Amazon | ✅ | ❌ | ❌ | OG-Tags (blockiert Scraper für Details) |
-| Otto | ✅ | ✅ | ✅ | OG-Tags + JSON-LD |
+| Amazon | ja | nein | nein | OG-Tags (blockiert Scraper fuer Details) |
+| Otto | ja | ja | ja | OG-Tags + JSON-LD |
+| JS-gerenderte Shops | ja | ja | variiert | Browser Rendering Fallback |
+
+### Extraktions-Prioritaet
+
+- **Titel:** og:title > twitter:title > JSON-LD name > itemprop name > meta title > `<title>` (mit Shop-Suffix-Bereinigung)
+- **Bild:** og:image > twitter:image > itemprop image > JSON-LD image > meta image
+- **Preis:** og:price:amount > product:price:amount > JSON-LD offers.price/lowPrice > itemprop price
+
+### Preisformat-Erkennung
+
+Deutsche Preise verwenden Komma als Dezimaltrenner (1.299,99), US-Preise Punkt (1,299.99). Die Erkennung basiert auf der Position des letzten Kommas vs. letzten Punkts.
 
 ### Tipps
 - User-Agent Header setzen (sonst 403)
-- `Accept-Language: de-DE` für deutsche Preise
-- JSON-LD ist oft zuverlässiger als OG-Tags für Preise
-- Fallback-Kette: OG → JSON-LD → Meta-Tags → manuell
+- `Accept-Language: de-DE` fuer deutsche Preise
+- JSON-LD ist oft zuverlaessiger als OG-Tags fuer Preise
+- Fallback-Kette: OG > Twitter Cards > JSON-LD > Microdata > Meta-Tags > Browser Rendering
 
 ---
 

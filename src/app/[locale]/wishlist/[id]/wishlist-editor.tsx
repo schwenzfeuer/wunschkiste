@@ -137,7 +137,9 @@ export default function WishlistEditor({ id }: { id: string }) {
   const [newUrl, setNewUrl] = useState("");
   const [scraping, setScraping] = useState(false);
   const [scrapedData, setScrapedData] = useState<ProductData | null>(null);
+  const [scraped, setScraped] = useState(false);
   const [productTitle, setProductTitle] = useState("");
+  const [productPrice, setProductPrice] = useState("");
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editPrice, setEditPrice] = useState("");
@@ -206,7 +208,12 @@ export default function WishlistEditor({ id }: { id: string }) {
       const data = await response.json();
       setScrapedData(data);
       setProductTitle(data.title || "");
+      setProductPrice(data.price ? data.price.replace(".", ",") : "");
+      if (!data.title && !data.image) {
+        toast.info(t("scrapeFailed"));
+      }
     }
+    setScraped(true);
     setScraping(false);
   }
 
@@ -224,7 +231,9 @@ export default function WishlistEditor({ id }: { id: string }) {
       setAddDialogOpen(false);
       setNewUrl("");
       setScrapedData(null);
+      setScraped(false);
       setProductTitle("");
+      setProductPrice("");
     },
   });
 
@@ -268,7 +277,7 @@ export default function WishlistEditor({ id }: { id: string }) {
       resolvedUrl: scrapedData?.resolvedUrl,
       title: productTitle,
       imageUrl: scrapedData?.image,
-      price: scrapedData?.price,
+      price: productPrice ? normalizePrice(productPrice) : null,
       currency: scrapedData?.currency || "EUR",
       shopName: scrapedData?.shopName,
     });
@@ -560,7 +569,7 @@ export default function WishlistEditor({ id }: { id: string }) {
                     </div>
                   </div>
 
-                  {scrapedData && (
+                  {scraped && (
                     <>
                       <div className="space-y-2">
                         <Label htmlFor="title">{t("titleLabel")}</Label>
@@ -573,7 +582,19 @@ export default function WishlistEditor({ id }: { id: string }) {
                         />
                       </div>
 
-                      {scrapedData.image && (
+                      <div className="space-y-2">
+                        <Label htmlFor="price">{t("priceLabel")}</Label>
+                        <Input
+                          id="price"
+                          value={productPrice}
+                          onChange={(e) => setProductPrice(e.target.value)}
+                          placeholder={t("pricePlaceholder")}
+                          inputMode="decimal"
+                          className="h-11 rounded-lg border-2 bg-card"
+                        />
+                      </div>
+
+                      {scrapedData?.image && (
                         <div className="flex justify-center">
                           <ProductImage
                             src={scrapedData.image}
@@ -583,16 +604,11 @@ export default function WishlistEditor({ id }: { id: string }) {
                         </div>
                       )}
 
-                      <div className="flex items-center justify-center gap-4 text-sm text-foreground/60">
-                        {scrapedData.price && (
-                          <span className="text-lg font-semibold text-foreground">
-                            {formatPrice(scrapedData.price, scrapedData.currency || "EUR")}
-                          </span>
-                        )}
-                        {scrapedData.shopName && (
+                      {scrapedData?.shopName && (
+                        <div className="text-center text-sm text-foreground/60">
                           <span>{tCommon("from", { name: scrapedData.shopName })}</span>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </>
                   )}
                 </div>

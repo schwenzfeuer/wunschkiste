@@ -185,6 +185,7 @@
     "productUrl": "Produkt-URL",
     "productUrlPlaceholder": "https://www.amazon.de/dp/...",
     "load": "Laden",
+    "scrapeFailed": "Produktdaten konnten nicht automatisch geladen werden. Bitte gib deinen Wunsch manuell ein.",
     "titleLabel": "Titel *",
     "cancel": "Abbrechen",
     "add": "Hinzufügen",
